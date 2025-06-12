@@ -5,22 +5,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { 
-  CreditCard, 
   Shield, 
   Zap, 
   Users, 
   CheckCircle, 
-  ArrowRight,
   Brain,
   FileText,
   BarChart3,
   Bell,
   Target,
   TrendingUp,
-  Clock,
   Search,
-  Database,
-  AlertTriangle,
   Heart,
   Building,
   PlusCircle,
@@ -178,13 +173,13 @@ export default function Home() {
             <div className="flex items-center space-x-3">
         <Image
                 src="/uptenderlogo.png" 
-                alt="Tender Post AI - Smart Tender Notifier Platform for India" 
+                alt="TenderPost AI - Smart Tender Notifier Platform for India" 
                 className="h-10 w-10 rounded-xl object-contain"
           priority
                 width={40}
                 height={40}
               />
-              <span className="text-2xl font-bold text-gray-900">Tender Post AI</span>
+              <span className="text-2xl font-bold text-gray-900">TenderPost AI</span>
             </div>
             
             <nav className="hidden md:flex items-center space-x-8">

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { loadRazorpayScript } from '@/lib/razorpay';
 import { RazorpayOptions, RazorpayResponse } from '@/lib/types/razorpay';
+import Image from 'next/image';
 
 interface PaymentFormData {
   amount: number;
@@ -132,7 +133,7 @@ export default function MakePaymentPage() {
         key: orderData.keyId,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'Uptender AI',
+        name: 'TenderPost AI',
         description: 'AI-Powered Tender Management Platform',
         order_id: orderData.orderId,
         prefill: {
@@ -222,14 +223,16 @@ export default function MakePaymentPage() {
           className="text-center mb-8"
         >
           <div className="mx-auto h-16 w-16 rounded-2xl flex items-center justify-center mb-6 shadow-xl">
-            <img 
+            <Image 
               src="/uptenderlogo.png" 
-              alt="Uptender AI Logo" 
+              alt="Tender Post AI Logo" 
               className="h-16 w-16 rounded-2xl object-contain"
+              width={64}
+              height={64}
             />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-3">
-            Uptender AI
+            TenderPost AI
           </h1>
           <p className="text-lg text-gray-600">
             Secure Payment Gateway
@@ -418,7 +421,7 @@ export default function MakePaymentPage() {
         >
           <p className="text-sm text-gray-500">
             Powered by{' '}
-            <span className="font-semibold text-blue-600">Uptender AI</span>
+            <span className="font-semibold text-blue-600">Tender Post AI</span>
           </p>
         </motion.div>
       </div>
