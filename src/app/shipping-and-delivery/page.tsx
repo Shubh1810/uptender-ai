@@ -65,7 +65,7 @@ export default function ShippingAndDeliveryPage() {
                 Instant Access
               </h2>
               <p className="text-gray-700 mb-4">
-                Upon successful payment verification, you'll receive immediate access to your Uptender AI account:
+                Upon successful payment verification, you&apos;ll receive immediate access to your Uptender AI account:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
                 <li><strong>Immediate Activation:</strong> Account activated within seconds of payment confirmation</li>

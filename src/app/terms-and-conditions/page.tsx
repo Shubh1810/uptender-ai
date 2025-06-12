@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, FileText, AlertTriangle, Scale, Users } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, FileText, AlertTriangle, Scale, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function TermsAndConditionsPage() {
@@ -11,12 +12,14 @@ export default function TermsAndConditionsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <Link href="/" className="flex items-center space-x-3">
-              <img 
+              <Image 
                 src="/uptenderlogo.png" 
-                alt="Uptender AI Logo" 
+                alt="TenderPost AI Logo" 
                 className="h-10 w-10 rounded-xl object-contain"
+                width={40}
+                height={40}
               />
-              <span className="text-2xl font-bold text-gray-900">Uptender AI</span>
+              <span className="text-2xl font-bold text-gray-900">TenderPost AI</span>
             </Link>
             
             <Link href="/">

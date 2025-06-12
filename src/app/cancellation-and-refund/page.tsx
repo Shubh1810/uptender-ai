@@ -181,7 +181,7 @@ export default function CancellationAndRefundPage() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Dispute Resolution</h2>
               <p className="text-gray-700 mb-4">
-                If you're not satisfied with our refund decision:
+                If you&apos;re not satisfied with our refund decision:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
                 <li><strong>Escalation:</strong> Request escalation to our senior management</li>

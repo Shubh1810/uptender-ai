@@ -275,7 +275,7 @@ export default function ContactPage() {
               <h3 className="font-semibold text-gray-900 mb-2">How quickly can I get started?</h3>
               <p className="text-gray-600 text-sm">
                 You can start using Uptender AI immediately after payment. Account activation is instant, 
-                and you'll receive login credentials via email within minutes.
+                and you&apos;ll receive login credentials via email within minutes.
               </p>
             </div>
 

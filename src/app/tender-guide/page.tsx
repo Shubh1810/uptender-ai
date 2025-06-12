@@ -3,11 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
 import { 
-  ArrowLeft, 
   CheckCircle, 
   AlertTriangle, 
-  FileText, 
-  Clock, 
   Target,
   TrendingUp,
   Search,
@@ -99,7 +96,7 @@ export default function TenderGuide() {
             </h2>
             <p className="text-blue-800 mb-4">
               Get instant alerts for relevant government tenders, healthcare opportunities, 
-              and construction projects with Tender Post AI's intelligent notification system.
+              and construction projects with Tender Post AI&apos;s intelligent notification system.
             </p>
             <Link href="/make-payment">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
@@ -157,7 +154,7 @@ export default function TenderGuide() {
             </div>
 
             <p className="text-gray-700 mb-6">
-              Understanding the tender ecosystem is crucial for success. Whether you're targeting 
+              Understanding the tender ecosystem is crucial for success. Whether you&apos;re targeting 
               <strong> healthcare tenders</strong> for hospitals and medical institutions, 
               <strong> construction tenders</strong> for roads and buildings, or 
               <strong> IT tenders</strong> for digital transformation projects, each category 
@@ -301,7 +298,7 @@ export default function TenderGuide() {
                   GeM (Government e-Marketplace)
                 </h3>
                 <p className="text-gray-700 mb-3">
-                  India's largest government procurement platform handling over ₹1 lakh crore transactions annually. 
+                  India&apos;s largest government procurement platform handling over ₹1 lakh crore transactions annually. 
                   Covers everything from office supplies to complex healthcare equipment tenders.
                 </p>
                 <ul className="text-gray-700 space-y-1">
@@ -498,10 +495,10 @@ export default function TenderGuide() {
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
                 Ready to Transform Your Tender Success Rate?
               </h3>
-              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                Join thousands of businesses using Tender Post AI's intelligent tender management platform 
-                to track government tenders, healthcare opportunities, and construction projects across India.
-              </p>
+                              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                  Join thousands of businesses using Tender Post AI&apos;s intelligent tender management platform 
+                  to track government tenders, healthcare opportunities, and construction projects across India.
+                </p>
               <Link href="/make-payment">
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                   <Target className="mr-2 h-5 w-5" />
