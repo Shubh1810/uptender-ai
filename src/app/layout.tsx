@@ -56,15 +56,15 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
     url: 'https://tenderpost.org',
-    siteName: 'Tender Post AI',
-    title: 'Tender Post AI - Smart Tender Notifier & Automation Platform for India',
+    siteName: 'TenderPost',
+    title: 'TenderPost - AI Tender Notifier & Automation Platform for India',
     description: 'Revolutionary AI-powered tender management platform for India. Get instant notifications for government tenders, healthcare tenders, construction tenders with advanced AI automation.',
     images: [
       {
         url: '/uptenderlogo.png',
         width: 1200,
         height: 630,
-        alt: 'Tender Post AI - Smart Tender Management Platform',
+        alt: 'TenderPost - AI Tender Management Platform',
       },
     ],
   },

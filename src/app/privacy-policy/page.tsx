@@ -2,32 +2,13 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Shield, Lock, Eye, Database, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Header } from '@/components/Header';
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-3">
-              <img 
-                src="/uptenderlogo.png" 
-                alt="Uptender AI Logo" 
-                className="h-10 w-10 rounded-xl object-contain"
-              />
-              <span className="text-2xl font-bold text-gray-900">Uptender AI</span>
-            </Link>
-            
-            <Link href="/">
-              <Button variant="outline" className="flex items-center space-x-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Home</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header variant="simple" showBackButton={true} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Title Section */}

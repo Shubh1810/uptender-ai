@@ -11,6 +11,8 @@ import {
   Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ContentPageHeader } from '@/components/Header';
+import { ContentPageFooter } from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Complete Guide to Government Tenders in India 2024 | Tender Post AI',
@@ -39,35 +41,9 @@ export default function TenderGuide() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-3">
-              <Image 
-                src="/uptenderlogo.png" 
-                alt="Tender Post AI Logo" 
-                className="h-10 w-10 rounded-xl object-contain"
-                width={40}
-                height={40}
-              />
-              <span className="text-2xl font-bold text-gray-900">Tender Post AI</span>
-            </Link>
-            
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">Home</Link>
-              <Link href="/#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</Link>
-              <Link href="/#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</Link>
-              <Link href="/make-payment">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  Get Started
-                </Button>
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <ContentPageHeader />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Article Header */}
@@ -536,61 +512,7 @@ export default function TenderGuide() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <Image 
-                  src="/uptenderlogo.png" 
-                  alt="Tender Post AI" 
-                  className="h-8 w-8 rounded-lg object-contain"
-                  width={32}
-                  height={32}
-                />
-                <span className="text-xl font-bold">Tender Post AI</span>
-              </div>
-              <p className="text-gray-400 text-sm">
-                AI-powered tender management platform for government tenders, 
-                healthcare tenders, and construction opportunities in India.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Tender Categories</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/" className="hover:text-white transition-colors">Government Tenders</Link></li>
-                <li><Link href="/" className="hover:text-white transition-colors">Healthcare Tenders</Link></li>
-                <li><Link href="/" className="hover:text-white transition-colors">Construction Tenders</Link></li>
-                <li><Link href="/" className="hover:text-white transition-colors">IT Tenders</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/tender-guide" className="hover:text-white transition-colors">Tender Guide</Link></li>
-                <li><Link href="/" className="hover:text-white transition-colors">Tender Alerts</Link></li>
-                <li><Link href="/" className="hover:text-white transition-colors">Bid Analysis</Link></li>
-                <li><Link href="/" className="hover:text-white transition-colors">Market Intelligence</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms-and-conditions" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-            <p>&copy; 2024 Tender Post AI. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <ContentPageFooter />
     </div>
   );
 } 
