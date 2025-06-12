@@ -221,8 +221,12 @@ export default function MakePaymentPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-xl">
-            <CreditCard className="h-8 w-8 text-white" />
+          <div className="mx-auto h-16 w-16 rounded-2xl flex items-center justify-center mb-6 shadow-xl">
+            <img 
+              src="/uptenderlogo.png" 
+              alt="Uptender AI Logo" 
+              className="h-16 w-16 rounded-2xl object-contain"
+            />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-3">
             Uptender AI
