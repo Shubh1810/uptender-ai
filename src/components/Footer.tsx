@@ -64,7 +64,7 @@ export function Footer({ className = '' }: FooterProps) {
         </div>
         
         <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-          <p>&copy; 2024 Tender Post AI. All rights reserved. Leading tender management platform for India&apos;s business community.</p>
+          <p>&copy; 2025 TenderPost. All rights reserved. Leading tender management platform for India&apos;s business community.</p>
           <p className="mt-2 text-sm">Specialized in government tenders, healthcare tender notifications, construction tender tracking, and AI-powered bid analysis.</p>
         </div>
       </div>
@@ -128,7 +128,7 @@ export function ContentPageFooter({ className = '' }: { className?: string }) {
         </div>
         
         <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-          <p>&copy; 2024 Tender Post AI. All rights reserved.</p>
+          <p>&copy; 2025 TenderPost. All rights reserved.</p>
         </div>
       </div>
     </footer>

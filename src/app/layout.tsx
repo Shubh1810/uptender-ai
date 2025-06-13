@@ -257,7 +257,7 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "TenderPost",
               "url": "https://tenderpost.org",
-              "description": "Smart tender notifier and automation platform for India covering government tenders across all industries with AI-powered analysis.",
+              "description": "AI Tender notifier and procurement analysis platform for India covering government tenders across all industries with AI-powered analysis.",
               "potentialAction": {
                 "@type": "SearchAction",
                 "target": {

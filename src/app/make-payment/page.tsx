@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CreditCard, Shield, Lock, CheckCircle, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,12 +24,31 @@ interface PaymentStatus {
 }
 
 export default function MakePaymentPage() {
+  const searchParams = useSearchParams();
+  
+  // Get plan info from URL parameters
+  const planFromUrl = searchParams.get('plan') || 'professional';
+  const amountFromUrl = parseInt(searchParams.get('amount') || '12353');
+  
+  console.log('URL Params:', { plan: planFromUrl, amount: amountFromUrl });
+  
+  // Plan details for display
+  const planDetails = {
+    basic: { name: 'Basic Plan', amount: 9134, description: 'Essential Procurement Management \n for small businesses' },
+    professional: { name: 'Professional Plan', amount: 12353, description: 'Advanced features for growing companies' },
+    enterprise: { name: 'Enterprise Plan', amount: 14983, description: 'Complete solution for large organizations' }
+  };
+  
+  const selectedPlan = planDetails[planFromUrl as keyof typeof planDetails] || planDetails.professional;
+
   const [formData, setFormData] = useState<PaymentFormData>({
-    amount: 1999, // Default to Professional plan
+    amount: amountFromUrl || selectedPlan.amount,
     name: '',
     email: '',
     phone: '',
   });
+  
+  console.log('Form Data Amount:', formData.amount, 'Selected Plan Amount:', selectedPlan.amount);
   
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>({ type: 'idle' });
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
@@ -194,7 +214,7 @@ export default function MakePaymentPage() {
   const resetPayment = () => {
     setPaymentStatus({ type: 'idle' });
     setFormData({
-      amount: 1999,
+      amount: selectedPlan.amount,
       name: '',
       email: '',
       phone: '',
@@ -291,7 +311,24 @@ export default function MakePaymentPage() {
             className="bg-white rounded-2xl shadow-xl p-8"
           >
             <div className="space-y-6">
-              {/* Amount */}
+              {/* Selected Plan Info */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="font-semibold text-blue-900">{selectedPlan.name}</h3>
+                    <p className="text-sm text-blue-700">{selectedPlan.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-blue-900">₹{selectedPlan.amount.toLocaleString()}</div>
+                    <div className="text-sm text-blue-600">one-time payment</div>
+                  </div>
+                </div>
+                <Link href="/#pricing" className="text-blue-600 hover:text-blue-800 text-sm underline">
+                  Change plan
+                </Link>
+              </div>
+
+              {/* Amount (now read-only, shows selected plan amount) */}
               <div>
                 <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
                   Amount (₹)
@@ -304,9 +341,11 @@ export default function MakePaymentPage() {
                   step="1"
                   value={formData.amount}
                   onChange={handleInputChange}
-                  className="text-lg font-semibold"
+                  className="text-lg font-semibold bg-gray-50"
                   placeholder="Enter amount"
+                  readOnly
                 />
+                <p className="text-xs text-gray-500 mt-1">Amount is set based on your selected plan</p>
               </div>
 
               {/* Personal Details */}

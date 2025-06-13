@@ -15,8 +15,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('API Key configured:', process.env.RESEND_API_KEY ? 'Yes' : 'No');
-
     const { email } = await request.json();
 
     if (!email) {
