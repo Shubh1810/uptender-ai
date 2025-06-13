@@ -27,11 +27,11 @@ export function Header({
     <header className={`${baseClasses} ${stickyClasses} ${patternClasses} ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          <Link href="/" className="flex items-center space-x-1">
+          <Link href="/" className="flex items-center space-x-2">
             <Image
               src="/tplogo.png" 
               alt="TenderPost - AI Tender Notifier Platform for India" 
-              className="h-10 w-10 rounded-xl object-contain -mt-1"
+              className="h-10 w-10 rounded-xl object-contain"
               priority={variant === 'main'}
               width={40}
               height={40}
@@ -54,19 +54,21 @@ export function Header({
 
 function MainNavigation() {
   return (
-    <nav className="hidden md:flex items-center space-x-8">
-      <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">
-        Tender Features
-      </a>
-      <a href="#categories" className="text-gray-600 hover:text-gray-900 transition-colors">
-        Tender Categories
-      </a>
-      <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
-        Pricing
-      </a>
-      <a href="#faq" className="text-gray-600 hover:text-gray-900 transition-colors">
-        FAQs
-      </a>
+    <nav className="flex items-center space-x-8">
+      <div className="hidden md:flex items-center space-x-8">
+        <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">
+          Tender Features
+        </a>
+        <a href="#categories" className="text-gray-600 hover:text-gray-900 transition-colors">
+          Tender Categories
+        </a>
+        <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
+          Pricing
+        </a>
+        <a href="#faq" className="text-gray-600 hover:text-gray-900 transition-colors">
+          FAQs
+        </a>
+      </div>
       <Link href="/signup">
         <Button className="relative bg-white text-gray-900 border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-teal-300 before:via-emerald-300 before:to-yellow-300 hover:before:from-teal-400 hover:before:via-emerald-400 hover:before:to-yellow-400">
           Sign Up

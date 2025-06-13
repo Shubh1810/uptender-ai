@@ -12,7 +12,7 @@ export function Footer({ className = '' }: FooterProps) {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center space-x-1 mb-4">
+            <div className="flex items-center space-x-3 mb-4">
               <Image
                 src="/tpllogo-wite.PNG" 
                 alt="TenderPost - Tender Management Platform" 
@@ -79,7 +79,7 @@ export function ContentPageFooter({ className = '' }: { className?: string }) {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center space-x-1 mb-4">
+            <div className="flex items-center space-x-3 mb-4">
               <Image 
                 src="/tpllogo-wite.PNG" 
                 alt="TenderPost" 

@@ -190,7 +190,7 @@ export default function Home() {
                 <Link href="/make-payment">
                   <Button 
                     size="lg"
-                    className="relative bg-white/20 backdrop-blur-sm text-gray-900 border-2 border-transparent bg-clip-padding font-semibold px-8 py-3 h-auto shadow-lg hover:shadow-xl transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-teal-300 before:via-emerald-300 before:to-yellow-300 hover:before:from-teal-400 hover:before:via-emerald-400 hover:before:to-yellow-400 hover:bg-white/30"
+                    className="bg-white/10 backdrop-blur-md text-gray-900 font-semibold px-8 py-3 h-auto shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300 border border-white/20"
                   >
                     <Bell className="mr-2 h-5 w-5" />
                     Start Getting Tender Alerts
@@ -251,19 +251,7 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right side illustration */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="hidden lg:flex items-center justify-center h-full"
-            >
-                <div className="w-full h-[450px] p-2 bg-white/60 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200/50">
-                    <div className="w-full h-full header-dots-pattern rounded-2xl flex items-center justify-center">
-                        <FileText className="w-48 h-48 text-gray-300/80" strokeWidth={1}/>
-                    </div>
-                </div>
-            </motion.div>
+
           </div>
         </div>
       </section>

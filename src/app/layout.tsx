@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Kings, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Kings } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -17,11 +17,6 @@ const kings = Kings({
   variable: "--font-kings",
   subsets: ["latin"],
   weight: "400",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -291,7 +286,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${inter.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} antialiased`}
       >
         {children}
         <Analytics />
