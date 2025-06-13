@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     console.log('API Key configured:', process.env.RESEND_API_KEY ? 'Yes' : 'No');
 
-    const { email } = await request.json();
+    const { email, source = 'unknown' } = await request.json();
 
     if (!email) {
       return NextResponse.json(
@@ -105,6 +105,7 @@ export async function POST(request: NextRequest) {
                 <p style="margin: 0 0 10px 0; color: #374151; font-size: 16px;"><strong>🎯 New Client Email:</strong></p>
                 <p style="margin: 0 0 15px 0; color: #1f2937; font-size: 18px; font-weight: 600; background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e5e7eb;">${email}</p>
                 <p style="margin: 0; color: #6b7280; font-size: 14px;"><strong>📅 Signup Date:</strong> ${signupDate}</p>
+                <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px;"><strong>📍 Source:</strong> ${source}</p>
               </div>
               
               <div style="background: #f0f9ff; padding: 15px; border-radius: 6px; margin-bottom: 20px;">

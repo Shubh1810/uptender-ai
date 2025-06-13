@@ -28,6 +28,7 @@ import { ColourfulText } from '@/components/ui/colourful-text';
 import { SearchBar } from '@/components/ui/search-bar';
 import { EmailSignup } from '@/components/ui/email-signup';
 import { AnnouncementBanner } from '@/components/ui/announcement-banner';
+import { WaitlistOverlay } from '@/components/ui/waitlist-overlay';
 
 export default function Home() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
@@ -614,6 +615,9 @@ export default function Home() {
 
       {/* Enhanced Footer with tender-focused links */}
       <Footer />
+
+      {/* Waitlist Overlay for First-Time Visitors */}
+      <WaitlistOverlay />
 
       {/* FAQ Schema Markup */}
       <script
