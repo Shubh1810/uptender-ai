@@ -111,7 +111,7 @@ export const metadata: Metadata = {
     },
   },
   other: {
-    'theme-color': '#10b981',
+    'theme-color': '#ffffff',
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
