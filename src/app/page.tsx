@@ -186,8 +186,8 @@ export default function Home() {
                   <Image
                     src="/acuron.PNG"
                     alt="TenderPost Logo"
-                    width={100}
-                    height={100}
+                    width={80}
+                    height={80}
                     className="rounded-md"
                   />
                 </div>
@@ -197,32 +197,12 @@ export default function Home() {
                 AI-powered tender analysis, bid automation, and intelligent next-gen tender tracking system.
               </p>
               
-              <div className="space-y-4 mb-8">
-                <Link href="/make-payment">
-                  <Button 
-                    size="lg"
-                    className="bg-white/10 backdrop-blur-md text-gray-900 font-semibold px-8 py-3 h-auto shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300 border border-white/20"
-                  >
-                    <Bell className="mr-2 h-5 w-5" />
-                    Start Getting Tender Alerts
-                  </Button>
-                </Link>
-                
-                <div className="relative w-full max-w-lg">
-                  <div className="relative bg-white/90 backdrop-blur-xl rounded-full border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:shadow-2xl focus-within:border-blue-200/50">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search tenders by keyword..."
-                      className="w-full pl-12 pr-16 py-4 bg-transparent rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 font-medium"
-                    />
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      <div className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 cursor-pointer transition-colors duration-200">
-                        <Search className="h-4 w-4" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="mb-8">
+                <SearchBar 
+                  placeholder="Search tenders by keyword..."
+                  onSearch={(query) => console.log('Searching for:', query)}
+                  className="max-w-lg"
+                />
               </div>
 
               {/* Apple-style Live Status Pill */}
@@ -267,8 +247,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Tender Categories Section - Web3 Style */}
-      <section id="categories" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50/50 to-white/80 backdrop-blur-sm">
+      {/* Notification & Analytics Workflow Section */}
+      <section id="workflow" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <motion.h2 
@@ -278,10 +258,10 @@ export default function Home() {
               className="text-4xl md:text-5xl font-bold mb-4"
             >
               <span className="bg-gradient-to-r from-blue-500 via-green-500 to-yellow-500 bg-clip-text text-transparent">
-                Comprehensive Tender Coverage
+                Smart Notification
               </span>
               <br />
-              <span className="text-gray-900">Across India</span>
+              <span className="text-gray-900">& Analytics Workflow</span>
             </motion.h2>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -289,42 +269,107 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-xl text-gray-600 max-w-3xl mx-auto"
             >
-              Track and get notifications for all types of government tenders across industries and 
-              private sector opportunities in all Indian states and territories.
+              Get instant notifications across multiple channels and leverage AI-powered analytics 
+              to make informed bidding decisions with real-time tender insights.
             </motion.p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {tenderCategories.map((category, index) => (
-              <motion.article
-                key={category.title}
-                initial={{ opacity: 0, y: 30, rotateY: 10 }}
-                whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ 
-                  y: -8, 
-                  scale: 1.02,
-                  transition: { duration: 0.2 }
-                }}
-                className="group bg-white/80 backdrop-blur-sm p-6 rounded-3xl border border-white/20 hover:border-blue-200/50 transition-all duration-300 shadow-lg hover:shadow-2xl"
-                style={{
-                  background: `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.8) 100%)`,
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
-                }}
-              >
-                <div className="h-14 w-14 bg-gradient-to-r from-blue-500 via-green-500 to-yellow-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <category.icon className="h-7 w-7 text-white" />
+          {/* Workflow Steps */}
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {/* Step 1: Detection */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-center"
+            >
+              <div className="relative mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                  <Search className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                  {category.title}
-                </h3>
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed">{category.description}</p>
-                <p className="text-xs bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent font-semibold">
-                  {category.keywords}
-                </p>
-              </motion.article>
-            ))}
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">1</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">AI Detection</h3>
+              <p className="text-gray-600">Our AI continuously monitors 1000+ tender portals and instantly detects relevant opportunities matching your profile.</p>
+            </motion.div>
+
+            {/* Step 2: Multi-Channel Notifications */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-center"
+            >
+              <div className="relative mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                  <Bell className="h-10 w-10 text-white" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">2</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Multi-Channel Alerts</h3>
+              <p className="text-gray-600 mb-4">Receive instant notifications via WhatsApp, Gmail, SMS, and mobile app push notifications.</p>
+              
+              {/* Notification Channels */}
+              <div className="flex justify-center space-x-4">
+                <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center shadow-md">
+                  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
+                  </svg>
+                </div>
+                <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center shadow-md">
+                  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.273L12 10.91l10.091-7.09h.273c.904 0 1.636.732 1.636 1.636z"/>
+                  </svg>
+                </div>
+                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center shadow-md">
+                  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418Z"/>
+                  </svg>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Step 3: Analytics */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-center"
+            >
+              <div className="relative mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                  <BarChart3 className="h-10 w-10 text-white" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">3</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">AI Analytics</h3>
+              <p className="text-gray-600">Get detailed bid analysis, competitor insights, success probability scores, and market trends to optimize your bidding strategy.</p>
+            </motion.div>
           </div>
+
+          {/* Call to Action */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-center"
+          >
+            <Link href="/make-payment">
+              <Button 
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-12 py-4 h-auto shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              >
+                <Bell className="mr-3 h-6 w-6" />
+                Start Getting Smart Tender Alerts
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 
