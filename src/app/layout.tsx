@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     description: 'Revolutionary AI-powered tender management platform for India. Get instant notifications for government tenders, healthcare tenders, construction tenders with advanced AI automation.',
     images: [
       {
-        url: '/uptenderlogo.png',
+        url: '/metalogo.jpeg',
         width: 1200,
         height: 630,
         alt: 'TenderPost - AI Tender Management Platform',
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'TenderPost - AI Tender Notifier & Automation Platform for India',
     description: 'Revolutionary AI-powered tender management for government tenders across industries in India. Advanced tender automation & bid analysis.',
-    images: ['/uptenderlogo.png'],
+    images: ['/metalogo.jpeg'],
     creator: '@tenderpost',
   },
   alternates: {
@@ -99,28 +99,64 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/uptenderlogo.png',
-        type: 'image/png',
+        url: '/metalogo.jpeg',
+        type: 'image/jpeg',
         sizes: '32x32',
       },
       {
-        url: '/uptenderlogo.png',
-        type: 'image/png',
+        url: '/metalogo.jpeg',
+        type: 'image/jpeg',
         sizes: '16x16',
       },
+      {
+        url: '/metalogo.jpeg',
+        type: 'image/jpeg',
+        sizes: '192x192',
+      },
+      {
+        url: '/metalogo.jpeg',
+        type: 'image/jpeg',
+        sizes: '512x512',
+      },
     ],
-    shortcut: '/uptenderlogo.png',
+    shortcut: '/metalogo.jpeg',
     apple: {
-      url: '/uptenderlogo.png',
+      url: '/metalogo.jpeg',
       sizes: '180x180',
-      type: 'image/png',
+      type: 'image/jpeg',
     },
+    other: [
+      {
+        rel: 'icon',
+        url: '/metalogo.jpeg',
+        type: 'image/jpeg',
+        sizes: '16x16',
+      },
+      {
+        rel: 'icon',
+        url: '/metalogo.jpeg',
+        type: 'image/jpeg',
+        sizes: '32x32',
+      },
+      {
+        rel: 'apple-touch-icon',
+        url: '/metalogo.jpeg',
+        sizes: '180x180',
+      },
+      {
+        rel: 'manifest',
+        url: '/site.webmanifest',
+      },
+    ],
   },
   other: {
     'theme-color': '#ffffff',
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
+    'msapplication-TileColor': '#ffffff',
+    'msapplication-TileImage': '/metalogo.jpeg',
+    'msapplication-config': '/browserconfig.xml',
   },
 };
 
@@ -138,6 +174,38 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
+        {/* Comprehensive Favicon and Icon Links */}
+        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="16x16" />
+        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="32x32" />
+        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="48x48" />
+        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="64x64" />
+        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="128x128" />
+        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="192x192" />
+        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="180x180" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="152x152" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="144x144" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="120x120" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="114x114" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="76x76" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="72x72" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="60x60" />
+        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="57x57" />
+        <link rel="shortcut icon" href="/metalogo.jpeg" type="image/jpeg" />
+        
+        {/* Safari Specific */}
+        <link rel="mask-icon" href="/metalogo.jpeg" color="#000000" />
+        <meta name="apple-mobile-web-app-title" content="TenderPost" />
+        <meta name="application-name" content="TenderPost" />
+        
+        {/* Microsoft Tiles */}
+        <meta name="msapplication-TileColor" content="#ffffff" />
+        <meta name="msapplication-TileImage" content="/metalogo.jpeg" />
+        <meta name="msapplication-square70x70logo" content="/metalogo.jpeg" />
+        <meta name="msapplication-square150x150logo" content="/metalogo.jpeg" />
+        <meta name="msapplication-wide310x150logo" content="/metalogo.jpeg" />
+        <meta name="msapplication-square310x310logo" content="/metalogo.jpeg" />
+        
         {/* Structured Data - Organization */}
         <script
           type="application/ld+json"
@@ -147,7 +215,7 @@ export default function RootLayout({
               "@type": "Organization",
               "name": "TenderPost",
               "url": "https://tenderpost.org",
-              "logo": "https://tenderpost.org/uptenderlogo.png",
+              "logo": "https://tenderpost.org/metalogo.jpeg",
               "description": "AI-powered tender management platform for India providing notifications and automation for government tenders across all industries.",
               "foundingDate": "2024",
               "founders": [
@@ -232,7 +300,7 @@ export default function RootLayout({
                 "Healthcare Tender Alerts",
                 "Construction Tender Management"
               ],
-              "screenshot": "https://tenderpost.org/uptenderlogo.png"
+              "screenshot": "https://tenderpost.org/metalogo.jpeg"
             }),
           }}
         />
