@@ -224,7 +224,7 @@ export default function MakePaymentPage() {
         >
           <div className="mx-auto h-16 w-16 rounded-2xl flex items-center justify-center mb-6 shadow-xl">
             <Image 
-              src="/uptenderlogo.png" 
+                              src="/tplogo.png" 
               alt="Tender Post AI Logo" 
               className="h-16 w-16 rounded-2xl object-contain"
               width={64}

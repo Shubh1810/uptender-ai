@@ -12,15 +12,17 @@ export function Footer({ className = '' }: FooterProps) {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center space-x-3 mb-4">
+            <div className="flex items-center space-x-1 mb-4">
               <Image
-                src="/uptenderlogo.png" 
-                alt="Tender Post AI - Tender Management Platform" 
+                src="/tpllogo-wite.PNG" 
+                alt="TenderPost - Tender Management Platform" 
                 className="h-8 w-8 rounded-lg object-contain"
                 width={32}
                 height={32}
               />
-              <span className="text-xl font-bold">Tender Post AI</span>
+              <span className="text-xl font-bold text-white tracking-tight">
+                <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
+              </span>
             </div>
             <p className="text-gray-400 text-sm">
               India&apos;s leading AI-powered tender notification and management platform for 
@@ -77,15 +79,17 @@ export function ContentPageFooter({ className = '' }: { className?: string }) {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center space-x-3 mb-4">
+            <div className="flex items-center space-x-1 mb-4">
               <Image 
-                src="/uptenderlogo.png" 
-                alt="Tender Post AI" 
+                src="/tpllogo-wite.PNG" 
+                alt="TenderPost" 
                 className="h-8 w-8 rounded-lg object-contain"
                 width={32}
                 height={32}
               />
-              <span className="text-xl font-bold">Tender Post AI</span>
+              <span className="text-xl font-bold text-white tracking-tight">
+                <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
+              </span>
             </div>
             <p className="text-gray-400 text-sm">
               AI-powered tender management platform for government tenders, 

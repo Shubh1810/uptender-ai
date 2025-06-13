@@ -27,31 +27,24 @@ export function Header({
     <header className={`${baseClasses} ${stickyClasses} ${patternClasses} ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          <Link href="/" className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-1">
             <Image
-              src="/uptenderlogo.png" 
+              src="/tplogo.png" 
               alt="TenderPost - AI Tender Notifier Platform for India" 
-              className="h-10 w-10 rounded-xl object-contain"
+              className="h-10 w-10 rounded-xl object-contain -mt-1"
               priority={variant === 'main'}
               width={40}
               height={40}
             />
-            <span className="text-2xl font-bold text-gray-900">
-              Tender<span className="italic">Post</span>
+            <span className="text-2xl font-bold text-gray-900 tracking-tight">
+              <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
             </span>
           </Link>
           
           {variant === 'main' ? (
             <MainNavigation />
           ) : (
-            showBackButton && (
-              <Link href="/">
-                <Button variant="outline" className="flex items-center space-x-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>{backButtonText}</span>
-                </Button>
-              </Link>
-            )
+            <InternalPageNavigation />
           )}
         </div>
       </div>
@@ -74,9 +67,9 @@ function MainNavigation() {
       <a href="#faq" className="text-gray-600 hover:text-gray-900 transition-colors">
         FAQs
       </a>
-      <Link href="/make-payment">
-        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-          Start Tracking Tenders
+      <Link href="/signup">
+        <Button className="relative bg-white text-gray-900 border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-teal-300 before:via-emerald-300 before:to-yellow-300 hover:before:from-teal-400 hover:before:via-emerald-400 hover:before:to-yellow-400">
+          Sign Up
         </Button>
       </Link>
     </nav>
@@ -96,9 +89,9 @@ export function InternalPageNavigation() {
       <Link href="/#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
         Pricing
       </Link>
-      <Link href="/make-payment">
-        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-          Get Started
+      <Link href="/signup">
+        <Button className="relative bg-white text-gray-900 border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-teal-300 before:via-emerald-300 before:to-yellow-300 hover:before:from-teal-400 hover:before:via-emerald-400 hover:before:to-yellow-400">
+          Sign Up
         </Button>
       </Link>
     </nav>
@@ -108,25 +101,9 @@ export function InternalPageNavigation() {
 // Specialized header for tender-guide and similar content pages
 export function ContentPageHeader({ className = '' }: { className?: string }) {
   return (
-    <header className={`bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50 ${className}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          <Link href="/" className="flex items-center space-x-3">
-            <Image 
-              src="/uptenderlogo.png" 
-              alt="Tender Post AI Logo" 
-              className="h-10 w-10 rounded-xl object-contain"
-              width={40}
-              height={40}
-            />
-            <span className="text-2xl font-bold text-gray-900">
-              Tender<span className="italic">Post</span>
-            </span>
-          </Link>
-          
-          <InternalPageNavigation />
-        </div>
-      </div>
-    </header>
+    <Header 
+      variant="simple" 
+      className={`bg-white/80 backdrop-blur-sm border-b border-gray-200 ${className}`}
+    />
   );
 } 
