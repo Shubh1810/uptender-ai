@@ -160,7 +160,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+    <div className="min-h-screen bg-white">
       {/* Header with enhanced navigation */}
       <Header variant="main" />
 
@@ -374,9 +374,9 @@ export default function Home() {
       </section>
 
       {/* Enhanced Features Section - Web3 Style */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-white">
         {/* Background gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-green-500/5 to-yellow-500/5"></div>
+        <div className="absolute inset-0 bg-white"></div>
         
         <div className="max-w-7xl mx-auto relative">
           <div className="text-center mb-16">
@@ -444,7 +444,10 @@ export default function Home() {
       </section>
 
       {/* Simplified Pricing Section */}
-      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30 relative overflow-hidden">
+        {/* Modern textured background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.08)_1px,transparent_0)] bg-[length:24px_24px]"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -513,10 +516,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section - Web3 Style */}
-      <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50/30 to-white/60 relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute top-1/4 left-0 w-72 h-72 bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-0 w-72 h-72 bg-gradient-to-l from-yellow-500/10 to-blue-500/10 rounded-full blur-3xl"></div>
+      <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden">
         
         <div className="max-w-4xl mx-auto relative">
           <div className="text-center mb-16">
@@ -595,9 +595,10 @@ export default function Home() {
       </section>
 
       {/* Enhanced CTA Section - Web3 Style */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-500 via-green-500 to-yellow-500 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-green-600/20 to-yellow-600/20"></div>
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30 relative overflow-hidden">
+        {/* Modern textured background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.08)_1px,transparent_0)] bg-[length:24px_24px]"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
         
