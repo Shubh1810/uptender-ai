@@ -53,7 +53,7 @@ export function AnnouncementBanner({ className = '' }: AnnouncementBannerProps) 
               className="text-sm font-medium tracking-wide"
             >
               <span className="hidden sm:inline">🚀 </span>
-              <strong>TenderPost Procurement Data available in Few Weeks!!!</strong>
+              <strong>GlobalTender eProcurement Data available in a few weeks!!!</strong>
               <span className="hidden sm:inline"> Get ready for the future of tender management</span>
               <span className="ml-2">🎊</span>
             </motion.p>

@@ -248,7 +248,7 @@ export default function RootLayout({
               "description": "Comprehensive tender management services including government tender notifications, healthcare tender tracking, construction tender automation, and AI-powered bid analysis for Indian businesses.",
               "provider": {
                 "@type": "Organization",
-                "name": "Tender Post AI"
+                "name": "TenderPost"
               },
               "areaServed": {
                 "@type": "Country",

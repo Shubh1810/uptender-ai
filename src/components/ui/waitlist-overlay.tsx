@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Sparkles, Bell, CheckCircle, Loader2 } from 'lucide-react';
+import { X, Mail, Bell, CheckCircle, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useWaitlistOverlay } from '@/hooks/useWaitlistOverlay';
 
@@ -96,6 +97,11 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
           {/* Backdrop blur effect */}
           <div className="absolute inset-0 backdrop-blur-sm" onClick={handleClose} />
           
+          {/* Light Blue Blur Spots */}
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-sky-400/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-300/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
+          
           {/* Overlay Content */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -104,17 +110,12 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
             transition={{ type: "spring", duration: 0.5 }}
             className="relative w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto"
           >
-            {/* Glassmorphism Card */}
-            <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-              {/* Animated Background Elements */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/50" />
-              <div className="absolute top-0 left-1/4 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute bottom-0 right-1/4 w-32 h-32 bg-purple-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-              
+            {/* Clean Professional Card */}
+            <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
               {/* Close Button */}
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 hover:bg-white/90 transition-colors shadow-lg"
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
               >
                 <X className="h-5 w-5 text-gray-600" />
               </button>
@@ -123,15 +124,21 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
               <div className="relative p-8">
                 {!isSuccess ? (
                   <>
-                    {/* Header */}
+                    {/* Header with TenderPost Logo */}
                     <div className="text-center mb-6">
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.2, type: "spring" }}
-                        className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg"
+                        className="flex items-center justify-center mb-4"
                       >
-                        <Sparkles className="h-8 w-8 text-white" />
+                        <Image
+                          src="/tplogo.png" 
+                          alt="TenderPost Logo" 
+                          className="h-16 w-16 rounded-xl object-contain"
+                          width={64}
+                          height={64}
+                        />
                       </motion.div>
                       
                       <motion.h2
@@ -191,7 +198,7 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Enter your email address"
                           required
-                          className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500"
+                          className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500 shadow-sm"
                         />
                       </div>
 
@@ -199,29 +206,32 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                         <motion.div
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="p-3 bg-red-50 border border-red-200 rounded-xl"
+                          className="p-3 bg-red-50 border border-red-200 rounded-lg"
                         >
                           <p className="text-red-600 text-sm">{error}</p>
                         </motion.div>
                       )}
 
-                      <Button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center justify-center space-x-2">
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                            <span>Joining Waitlist...</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center space-x-2">
-                            <Bell className="h-5 w-5" />
-                            <span>Join Waitlist - It's Free!</span>
-                          </div>
-                        )}
-                      </Button>
+                      {/* Header-style Gradient Button */}
+                      <div className="relative p-[2px] rounded-lg bg-gradient-to-r from-blue-900 via-blue-600 to-sky-400 hover:from-blue-800 hover:via-blue-500 hover:to-sky-300 transition-all duration-300 shadow-md hover:shadow-lg">
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className="w-full bg-white hover:bg-blue-900 text-gray-900 hover:text-white py-4 px-6 rounded-[calc(0.5rem-2px)] font-semibold transition-all duration-300 disabled:opacity-50"
+                        >
+                          {isLoading ? (
+                            <div className="flex items-center justify-center space-x-2">
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                              <span>Joining Waitlist...</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center space-x-2">
+                              <Bell className="h-5 w-5" />
+                              <span>Join Waitlist - It's Free!</span>
+                            </div>
+                          )}
+                        </button>
+                      </div>
                     </motion.form>
 
                     {/* Trust Indicators */}
@@ -266,12 +276,14 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                       </p>
                     </div>
                     
-                    <Button
-                      onClick={handleClose}
-                      className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-2 rounded-xl"
-                    >
-                      Continue Exploring
-                    </Button>
+                    <div className="relative p-[2px] rounded-lg bg-gradient-to-r from-blue-900 via-blue-600 to-sky-400 hover:from-blue-800 hover:via-blue-500 hover:to-sky-300 transition-all duration-300 shadow-md hover:shadow-lg">
+                      <button
+                        onClick={handleClose}
+                        className="bg-white hover:bg-blue-900 text-gray-900 hover:text-white px-6 py-2 rounded-[calc(0.5rem-2px)] font-semibold transition-all duration-300"
+                      >
+                        Continue Exploring
+                      </button>
+                    </div>
                   </motion.div>
                 )}
               </div>
