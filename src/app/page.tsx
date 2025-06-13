@@ -26,6 +26,8 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ColourfulText } from '@/components/ui/colourful-text';
 import { SearchBar } from '@/components/ui/search-bar';
+import { EmailSignup } from '@/components/ui/email-signup';
+import { AnnouncementBanner } from '@/components/ui/announcement-banner';
 
 export default function Home() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
@@ -161,6 +163,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Announcement Banner */}
+      <AnnouncementBanner />
+      
       {/* Header with enhanced navigation */}
       <Header variant="main" />
 
@@ -183,14 +188,14 @@ export default function Home() {
                 Tender Automation Platform
                 <div className="inline-flex items-center ml-3 space-x-2">
                   <span className="text-sm text-gray-600 font-medium">powered by</span>
-                  <Image
+        <Image
                     src="/acuron.PNG"
                     alt="TenderPost Logo"
                     width={80}
                     height={80}
                     className="rounded-md"
                   />
-                </div>
+            </div>
               </h1>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
                 Get instant notifications for <strong>government tenders</strong> across all Industries in India. 
@@ -203,12 +208,12 @@ export default function Home() {
                   onSearch={(query) => console.log('Searching for:', query)}
                   className="max-w-lg"
                 />
-              </div>
+        </div>
 
               {/* Apple-style Live Status Pill */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 }}
                 className="mt-12 max-w-md mx-auto"
               >
@@ -223,23 +228,23 @@ export default function Home() {
                         <div className="text-lg font-bold text-gray-900">167,725</div>
                         <div className="text-xs text-gray-600 font-medium">Live Tenders</div>
                       </div>
-                    </div>
-                    
+            </div>
+
                     <div className="w-px h-8 bg-gray-200"></div>
                     
                     <div className="flex items-center space-x-3">
                       <div className="relative">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                         <div className="absolute inset-0 w-3 h-3 bg-green-400 rounded-full animate-ping animation-delay-500"></div>
-                      </div>
-                      <div>
+              </div>
+              <div>
                         <div className="text-lg font-bold text-gray-900">33,977</div>
                         <div className="text-xs text-gray-600 font-medium">Fresh Tenders</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              </div>
+              </div>
+              </div>
+            </div>
+          </motion.div>
             </motion.div>
 
 
@@ -501,7 +506,7 @@ export default function Home() {
                 <Link href="/make-payment" className="block">
                   <Button 
                     className={`w-full py-3 font-semibold rounded-lg transition-colors ${
-                      plan.popular 
+                      plan.popular
                         ? 'bg-blue-500 hover:bg-blue-600 text-white' 
                         : 'bg-gray-900 hover:bg-gray-800 text-white'
                     }`}
@@ -569,11 +574,11 @@ export default function Home() {
                       ? 'bg-gradient-to-r from-blue-500 to-green-500 rotate-180' 
                       : 'bg-gradient-to-r from-blue-500/20 to-green-500/20 group-hover:from-blue-500/40 group-hover:to-green-500/40'
                   }`}>
-                    {openFaq === index ? (
+                  {openFaq === index ? (
                       <MinusCircle className="h-5 w-5 text-white" />
-                    ) : (
+                  ) : (
                       <PlusCircle className={`h-5 w-5 ${openFaq === index ? 'text-white' : 'text-blue-600'}`} />
-                    )}
+                  )}
                   </div>
                 </button>
                 {openFaq === index && (
@@ -594,69 +599,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Enhanced CTA Section - Web3 Style */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30 relative overflow-hidden">
-        {/* Modern textured background */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.08)_1px,transparent_0)] bg-[length:24px_24px]"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      {/* Email Signup Section - Glassmorphism Style */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.1)_1px,transparent_0)] bg-[length:24px_24px]"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         
-        <div className="max-w-5xl mx-auto text-center relative">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="backdrop-blur-sm bg-white/10 rounded-3xl p-12 border border-white/20"
-            style={{
-              background: `linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)`,
-              boxShadow: '0 20px 60px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2) inset'
-            }}
-          >
-            <motion.h2 
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-4xl md:text-5xl font-bold text-white mb-6"
-            >
-              Ready to Transform Your
-              <br />
-              <span className="bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent">
-                Tender Success Rate?
-              </span>
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-xl text-white/90 mb-10 max-w-4xl mx-auto leading-relaxed"
-            >
-              Join thousands of businesses across India that trust TenderPost to track government tenders 
-              and opportunities. Start winning more tenders with next-generation AI-powered insights today.
-            </motion.p>
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center"
-            >
-              <Link href="/make-payment">
-                <Button 
-                  className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-4 h-auto rounded-2xl font-semibold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
-                >
-                  <Zap className="mr-3 h-6 w-6" />
-                  Start Tender Tracking Now
-                </Button>
-              </Link>
-              <Button 
-                variant="outline"
-                className="border-2 border-white/50 text-white hover:bg-white hover:text-blue-600 text-lg px-10 py-4 h-auto rounded-2xl font-semibold backdrop-blur-sm transition-all duration-300 hover:scale-105"
-              >
-                <Users className="mr-3 h-6 w-6" />
-                Contact Our Tender Experts
-              </Button>
-            </motion.div>
-          </motion.div>
+        <div className="max-w-2xl mx-auto relative">
+          <EmailSignup />
         </div>
       </section>
 
