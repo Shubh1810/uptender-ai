@@ -24,6 +24,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { ColourfulText } from '@/components/ui/colourful-text';
 
 export default function Home() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
@@ -174,10 +175,10 @@ export default function Home() {
               className="text-left"
             >
               <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-                Your 
-                <span className="bg-gradient-to-r from-teal-300 via-emerald-300 to-yellow-300 bg-clip-text text-transparent">
-                  {' '}AI powered{' '}
-                </span>
+                Your{' '}
+                <span className="text-4xl md:text-6xl font-bold">
+                  <ColourfulText text="AI powered" />
+                </span>{' '}
                 Tender Automation Platform
               </h1>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
