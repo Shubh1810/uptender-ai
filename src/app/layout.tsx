@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tender Post AI - Smart Tender Notifier & Automation Platform for India | Government Tenders, Healthcare Tenders",
+  title: "TenderPost - AI Tender Notifier & Automation Platform for India | Government Tenders, Healthcare Tenders",
   description: "Revolutionary AI-powered tender management platform for India. Get instant notifications for government tenders, healthcare tenders, construction tenders. Advanced tender automation, bid analysis, and tender tracking system. Win more tenders with AI-driven insights.",
   keywords: [
     "tender notifier India",
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
     "central government tenders",
     "tender database India"
   ].join(", "),
-  authors: [{ name: "Tender Post AI Team" }],
-  creator: "Tender Post AI",
-  publisher: "Tender Post AI",
+  authors: [{ name: "TenderPost Team" }],
+  creator: "TenderPost",
+  publisher: "TenderPost",
   robots: {
     index: true,
     follow: true,
@@ -70,10 +70,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tender Post AI - Smart Tender Notifier & Automation Platform for India',
-    description: 'Revolutionary AI-powered tender management for government tenders, healthcare tenders, construction tenders in India. Advanced tender automation & bid analysis.',
+    title: 'TenderPost - AI Tender Notifier & Automation Platform for India',
+    description: 'Revolutionary AI-powered tender management for government tenders across industries in India. Advanced tender automation & bid analysis.',
     images: ['/uptenderlogo.png'],
-    creator: '@tenderpostai',
+    creator: '@tenderpost',
   },
   alternates: {
     canonical: 'https://tenderpost.org',
@@ -111,7 +111,7 @@ export const metadata: Metadata = {
     },
   },
   other: {
-    'theme-color': '#3b82f6',
+    'theme-color': '#10b981',
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
@@ -139,15 +139,15 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "Tender Post AI",
+              "name": "TenderPost",
               "url": "https://tenderpost.org",
               "logo": "https://tenderpost.org/uptenderlogo.png",
-              "description": "AI-powered tender management platform for India providing notifications and automation for government tenders, healthcare tenders, and construction tenders.",
+              "description": "AI-powered tender management platform for India providing notifications and automation for government tenders across all industries.",
               "foundingDate": "2024",
               "founders": [
                 {
                   "@type": "Person",
-                  "name": "Tender Post AI Team"
+                  "name": "TenderPost Team"
                 }
               ],
               "areaServed": {
@@ -167,8 +167,8 @@ export default function RootLayout({
                 "availableLanguage": ["English", "Hindi"]
               },
               "sameAs": [
-                "https://twitter.com/tenderpostai",
-                "https://linkedin.com/company/tenderpostai"
+                "https://twitter.com/tenderpost",
+                "https://linkedin.com/company/tenderpost"
               ]
             }),
           }}
@@ -181,9 +181,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "name": "Tender Post AI",
+              "name": "TenderPost",
               "url": "https://tenderpost.org",
-              "description": "Smart tender notifier and automation platform for India covering government tenders, healthcare tenders, construction tenders with AI-powered analysis.",
+              "description": "Smart tender notifier and automation platform for India covering government tenders across all industries with AI-powered analysis.",
               "potentialAction": {
                 "@type": "SearchAction",
                 "target": {
@@ -194,7 +194,7 @@ export default function RootLayout({
               },
               "author": {
                 "@type": "Organization",
-                "name": "Tender Post AI"
+                "name": "TenderPost"
               }
             }),
           }}
@@ -207,10 +207,10 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              "name": "Tender Post AI Platform",
+              "name": "TenderPost Platform",
               "operatingSystem": "Web Browser",
               "applicationCategory": "BusinessApplication",
-              "description": "AI-powered tender management and notification platform for Indian government tenders, healthcare tenders, construction tenders with advanced automation and bid analysis.",
+              "description": "AI-powered tender management and notification platform for Indian government tenders across all industries with advanced automation and bid analysis.",
               "offers": {
                 "@type": "Offer",
                 "price": "499",
