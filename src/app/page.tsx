@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ColourfulText } from '@/components/ui/colourful-text';
+import { SearchBar } from '@/components/ui/search-bar';
 
 export default function Home() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
@@ -164,15 +165,15 @@ export default function Home() {
       <Header variant="main" />
 
       {/* Professional Hero Section */}
-      <section className="relative flex items-center bg-cover bg-center py-20 lg:min-h-screen lg:py-0" style={{ backgroundImage: "url('/heroback.png')" }}>
+      <section className="relative flex items-start bg-cover bg-center py-12 lg:min-h-screen lg:py-16" style={{ backgroundImage: "url('/mainback.png')" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 items-start lg:pt-16">
             {/* Left side content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-left"
+              className="text-left mt-8 lg:mt-0"
             >
               <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
                 Your{' '}
@@ -180,13 +181,23 @@ export default function Home() {
                   <ColourfulText text="AI powered" />
                 </span>{' '}
                 Tender Automation Platform
+                <div className="inline-flex items-center ml-3 space-x-2">
+                  <span className="text-sm text-gray-600 font-medium">powered by</span>
+                  <Image
+                    src="/acuron.PNG"
+                    alt="TenderPost Logo"
+                    width={100}
+                    height={100}
+                    className="rounded-md"
+                  />
+                </div>
               </h1>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
                 Get instant notifications for <strong>government tenders</strong> across all Industries in India. 
                 AI-powered tender analysis, bid automation, and intelligent next-gen tender tracking system.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="space-y-4 mb-8">
                 <Link href="/make-payment">
                   <Button 
                     size="lg"
@@ -196,59 +207,59 @@ export default function Home() {
                     Start Getting Tender Alerts
                   </Button>
                 </Link>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="relative bg-white text-gray-900 border-2 border-transparent bg-clip-padding font-semibold px-8 py-3 h-auto shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-teal-300 before:via-emerald-300 before:to-yellow-300 hover:before:from-teal-400 hover:before:via-emerald-400 hover:before:to-yellow-400"
-                >
-                  <Search className="mr-2 h-5 w-5" />
-                  Search Tenders Now
-                </Button>
+                
+                <div className="relative w-full max-w-lg">
+                  <div className="relative bg-white/90 backdrop-blur-xl rounded-full border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:shadow-2xl focus-within:border-blue-200/50">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search tenders by keyword..."
+                      className="w-full pl-12 pr-16 py-4 bg-transparent rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 font-medium"
+                    />
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                      <div className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 cursor-pointer transition-colors duration-200">
+                        <Search className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Professional Trust Indicators */}
-              <div className="grid grid-cols-2 gap-6 mt-12">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.8 }}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="text-4xl font-bold bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent mb-2">1,000+</div>
-                  <div className="text-sm font-medium text-gray-700 mb-1">Government Portals</div>
-                  <div className="text-xs text-gray-500">Monitored 24/7 across India</div>
-                </motion.div>
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.9 }}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-yellow-400 bg-clip-text text-transparent mb-2">50K+</div>
-                  <div className="text-sm font-medium text-gray-700 mb-1">Daily Notifications</div>
-                  <div className="text-xs text-gray-500">Real-time tender alerts sent</div>
-                </motion.div>
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 1.0 }}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-teal-400 bg-clip-text text-transparent mb-2">98.5%</div>
-                  <div className="text-sm font-medium text-gray-700 mb-1">Accuracy Rate</div>
-                  <div className="text-xs text-gray-500">AI-powered tender matching</div>
-                </motion.div>
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 1.1 }}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="text-4xl font-bold bg-gradient-to-r from-teal-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent mb-2">65%</div>
-                  <div className="text-sm font-medium text-gray-700 mb-1">Win Rate Boost</div>
-                  <div className="text-xs text-gray-500">Average improvement reported</div>
-                </motion.div>
-              </div>
+              {/* Apple-style Live Status Pill */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="mt-12 max-w-md mx-auto"
+              >
+                <div className="bg-white/90 backdrop-blur-xl rounded-full px-8 py-6 shadow-2xl border border-white/20 hover:shadow-3xl transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div className="absolute inset-0 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-gray-900">167,725</div>
+                        <div className="text-xs text-gray-600 font-medium">Live Tenders</div>
+                      </div>
+                    </div>
+                    
+                    <div className="w-px h-8 bg-gray-200"></div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div className="absolute inset-0 w-3 h-3 bg-green-400 rounded-full animate-ping animation-delay-500"></div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-gray-900">33,977</div>
+                        <div className="text-xs text-gray-600 font-medium">Fresh Tenders</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
 
 

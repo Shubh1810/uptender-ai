@@ -130,3 +130,7 @@
 .font-kings {
   font-family: var(--font-kings), cursive;
 }
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
