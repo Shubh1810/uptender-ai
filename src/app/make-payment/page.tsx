@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -23,7 +23,8 @@ interface PaymentStatus {
   message?: string;
 }
 
-export default function MakePaymentPage() {
+// Component that handles search params - needs to be wrapped in Suspense
+function PaymentContent() {
   const searchParams = useSearchParams();
   
   // Get plan info from URL parameters
@@ -465,5 +466,39 @@ export default function MakePaymentPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function PaymentLoading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-lg mx-auto">
+        <div className="text-center">
+          <div className="mx-auto h-16 w-16 rounded-2xl flex items-center justify-center mb-6 shadow-xl">
+            <Image 
+              src="/tplogo.png" 
+              alt="Tender Post AI Logo" 
+              className="h-16 w-16 rounded-2xl object-contain"
+              width={64}
+              height={64}
+            />
+          </div>
+          <div className="flex items-center justify-center space-x-2">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+            <span className="text-lg text-gray-600">Loading payment page...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main page component with Suspense wrapper
+export default function MakePaymentPage() {
+  return (
+    <Suspense fallback={<PaymentLoading />}>
+      <PaymentContent />
+    </Suspense>
   );
 } 
