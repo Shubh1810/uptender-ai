@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Kings } from "next/font/google";
+import { Geist, Geist_Mono, Kings, Roboto, Ubuntu } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -18,6 +18,20 @@ const kings = Kings({
   subsets: ["latin"],
   weight: "400",
 });
+
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700", "900"],
+});
+
+const ubuntu = Ubuntu({
+  variable: "--font-ubuntu",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+});
+
+
 
 export const metadata: Metadata = {
   title: "TenderPost - AI Tender Notifier & Automation Platform for India | Government Tenders, Healthcare Tenders",
@@ -173,6 +187,9 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Google Fonts - Chiron Sung HK */}
+        <link href="https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@200..900&display=swap" rel="stylesheet" />
         
         {/* Comprehensive Favicon and Icon Links */}
         <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="16x16" />
@@ -354,7 +371,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${roboto.variable} ${ubuntu.variable} antialiased`}
       >
         {children}
         <Analytics />

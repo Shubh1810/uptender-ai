@@ -32,6 +32,16 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
     }
   }, [shouldShow]);
 
+  // Listen for dev trigger event
+  useEffect(() => {
+    const handleDevTrigger = () => {
+      setIsVisible(true);
+    };
+
+    window.addEventListener('show-waitlist-overlay', handleDevTrigger);
+    return () => window.removeEventListener('show-waitlist-overlay', handleDevTrigger);
+  }, []);
+
   const handleClose = () => {
     setIsVisible(false);
     markAsSeen();
@@ -121,7 +131,7 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
               </button>
 
               {/* Content */}
-              <div className="relative p-8">
+              <div className="relative p-6">
                 {!isSuccess ? (
                   <>
                     {/* Header with TenderPost Logo */}
@@ -130,14 +140,14 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.2, type: "spring" }}
-                        className="flex items-center justify-center mb-4"
+                        className="mb-4"
                       >
                         <Image
                           src="/tplogo.png" 
                           alt="TenderPost Logo" 
-                          className="h-16 w-16 rounded-xl object-contain"
-                          width={64}
-                          height={64}
+                          className="h-12 w-12 object-contain mx-auto"
+                          width={48}
+                          height={48}
                         />
                       </motion.div>
                       
@@ -166,18 +176,18 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 }}
-                      className="space-y-3 mb-6"
+                      className="space-y-2 mb-5"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full" />
+                        <div className="w-2 h-2 bg-blue-900 rounded-full" />
                         <span className="text-sm text-gray-700">Early access to premium features</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                        <div className="w-2 h-2 bg-blue-900 rounded-full" />
                         <span className="text-sm text-gray-700">Exclusive launch discounts</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                        <div className="w-2 h-2 bg-blue-900 rounded-full" />
                         <span className="text-sm text-gray-700">Priority customer support</span>
                       </div>
                     </motion.div>

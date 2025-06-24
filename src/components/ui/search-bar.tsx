@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Sparkles } from 'lucide-react';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -44,14 +44,14 @@ export function SearchBar({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={placeholder}
-              className="w-full pl-12 pr-14 py-3.5 bg-transparent rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 font-medium text-sm"
+              className="font-ubuntu w-full pl-12 pr-14 py-3.5 bg-transparent rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 font-medium text-sm"
             />
             <button
               type="submit"
               onClick={handleSearchClick}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-full p-2 cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
             >
-              <Search className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" />
             </button>
           </div>
         </div>
