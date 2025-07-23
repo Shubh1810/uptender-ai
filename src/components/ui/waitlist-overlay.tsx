@@ -179,15 +179,15 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                       className="space-y-2 mb-5"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-blue-900 rounded-full" />
+                        <div className="w-2 h-2 bg-black rounded-full" />
                         <span className="text-sm text-gray-700">Early access to premium features</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-blue-900 rounded-full" />
+                        <div className="w-2 h-2 bg-black rounded-full" />
                         <span className="text-sm text-gray-700">Exclusive launch discounts</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-blue-900 rounded-full" />
+                        <div className="w-2 h-2 bg-black rounded-full" />
                         <span className="text-sm text-gray-700">Priority customer support</span>
                       </div>
                     </motion.div>

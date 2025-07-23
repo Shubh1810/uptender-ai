@@ -196,19 +196,30 @@ export default function Home() {
 
       {/* Professional Hero Section */}
       <section 
-        className="hero-section relative flex items-center bg-cover bg-center py-20 lg:min-h-screen lg:py-24 z-10 pt-24" 
-        style={{ backgroundImage: "url('/mainbackk.png')" }}
+        className="hero-section relative py-20 lg:min-h-screen lg:py-31 z-10 pt-32"
+        style={{
+          backgroundColor: '#fefcf3',
+          backgroundImage: `radial-gradient(circle, #d1d5db 1px, transparent 1px)`,
+          backgroundSize: '16px 16px',
+          backgroundPosition: '0 0, 8px 8px'
+        }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center lg:pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div 
+            className="relative flex items-center bg-cover bg-center rounded-3xl p-8 lg:p-32 bg-white min-h-[500px] lg:min-h-[700px]" 
+            style={{ 
+              backgroundImage: "url('/mainbackk.PNG')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center center',
+              backgroundColor: '#f8fafc' // Fallback color if image fails to load
+            }}
+          >
+            <div className="w-full z-10">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left side content */}
-            <div className="text-center lg:text-left mt-16 lg:mt-12 px-4 lg:pl-24">
-              <h1 className="font-ubuntu text-4xl md:text-5xl text-gray-900 mb-2 leading-tight">
-                Your{' '}
-                <span className="text-4xl md:text-5xl font-semibold font-mono">
-                  AI powered
-                </span>{' '}
-                <span className="font-semibold">Tender</span> Automation Platform{' '}
+            <div className="text-center lg:text-left mt-8 lg:mt-12 px-2 lg:pl-24">
+              <h1 className="font-ubuntu text-2xl md:text-4xl text-gray-900 mb-2 leading-tight">
+                Your <span className="text-2xl md:text-4xl font-semibold font-mono">AI powered Tender Automation</span> <span className="font-semibold">Platform</span>{' '}
                 <span className="inline-flex items-center ml-2 text-sm text-gray-600 font-medium">
                   powered by{' '}
                   <Image
@@ -220,7 +231,7 @@ export default function Home() {
                   />
                 </span>
               </h1>
-              <p className="font-ubuntu text-xs text-gray-600 mb-6 leading-relaxed">
+              <p className="font-ubuntu text-xs text-gray-600 mb-6 leading-relaxed px-1 lg:px-0">
                 Get instant notifications for <strong>government tenders</strong> across all Industries in India. 
                 AI-powered tender analysis, bid automation, and intelligent next-gen tender tracking system.
               </p>
@@ -257,15 +268,42 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right side - Empty now */}
-            <div className="hidden lg:block">
+                {/* Right side - Empty now */}
+                <div className="hidden lg:block">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Trusted By Section - Floating below container */}
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+            <div className="text-center">
+              <p className="text-sm text-gray-500 font-medium mb-6">Trusted by leading organizations</p>
+              <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-12 opacity-60">
+                {/* Placeholder for company logos */}
+                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
+                  <span className="text-xs text-gray-400">Logo 1</span>
+                </div>
+                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
+                  <span className="text-xs text-gray-400">Logo 2</span>
+                </div>
+                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
+                  <span className="text-xs text-gray-400">Logo 3</span>
+                </div>
+                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
+                  <span className="text-xs text-gray-400">Logo 4</span>
+                </div>
+                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
+                  <span className="text-xs text-gray-400">Logo 5</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Minimal Workflow Section */}
-      <section id="workflow" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10">
+      <section id="workflow" className="py-20 px-4 sm:px-6 lg:px-8 relative z-10" style={{ backgroundColor: '#fefcf3' }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-3 text-gray-900">
@@ -357,7 +395,7 @@ export default function Home() {
       </section>
 
       {/* Professional Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10">
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative z-10" style={{ backgroundColor: '#fefcf3' }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
@@ -502,10 +540,62 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Professional Email Signup Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900 relative z-10">
-        <div className="max-w-2xl mx-auto">
-          <EmailSignup />
+      {/* Modern Minimal CTA Section */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gray-900 relative z-10 overflow-hidden">
+        {/* Background gradient effects */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
+        
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          {/* Email icon floating */}
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl mb-8 border border-white/20">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+
+          {/* Heading */}
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Join the Waitlist
+          </h2>
+          <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto">
+            Be the first to access AI-powered tender notifications. Get early access and exclusive launch pricing.
+          </p>
+
+          {/* Floating email form */}
+          <div className="relative max-w-md mx-auto">
+            <form className="relative">
+              <input
+                type="email"
+                placeholder="Enter your email address"
+                className="w-full h-14 pl-6 pr-32 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-transparent transition-all duration-300"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 top-2 h-10 px-6 bg-white text-gray-900 rounded-xl font-medium hover:bg-white/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/40"
+              >
+                Join
+              </button>
+            </form>
+          </div>
+
+          {/* Trust indicators */}
+          <div className="mt-8 flex items-center justify-center space-x-6 text-white/60 text-sm">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <span>No spam</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <span>Early access</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <span>5,000+ joined</span>
+            </div>
+          </div>
         </div>
       </section>
 

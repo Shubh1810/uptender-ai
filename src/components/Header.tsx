@@ -181,17 +181,6 @@ function MainNavigation() {
         </a>
       </div>
       
-      {/* Dev button - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <button
-          onClick={triggerWaitlist}
-          className="text-xs bg-red-100 hover:bg-red-200 text-red-600 px-2 py-1 rounded border border-red-300 transition-colors"
-          title="Dev: Trigger Waitlist Overlay"
-        >
-          DEV
-        </button>
-      )}
-      
       <Link href="/signup">
         <Button className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900">
           Sign Up
