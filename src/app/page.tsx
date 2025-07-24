@@ -31,6 +31,49 @@ import { WaitlistOverlay } from '@/components/ui/waitlist-overlay';
 
 export default function Home() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
+  const [ctaEmail, setCtaEmail] = React.useState('');
+  const [ctaLoading, setCtaLoading] = React.useState(false);
+  const [ctaSuccess, setCtaSuccess] = React.useState(false);
+
+  const handleCtaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ctaEmail || ctaLoading) return;
+
+    setCtaLoading(true);
+    
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: ctaEmail,
+          source: 'cta-section'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCtaSuccess(true);
+        setCtaEmail('');
+        
+        // Auto-reset success state after 5 seconds
+        setTimeout(() => {
+          setCtaSuccess(false);
+        }, 5000);
+      } else {
+        console.error('Signup failed:', data.error);
+        alert(data.error || 'Failed to join waitlist. Please try again.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      alert('Network error. Please check your connection and try again.');
+    } finally {
+      setCtaLoading(false);
+    }
+  };
 
   const features = [
     {
@@ -623,19 +666,29 @@ export default function Home() {
 
           {/* Floating email form */}
           <div className="relative max-w-md mx-auto">
-            <form className="relative">
+            <form onSubmit={handleCtaSubmit} className="relative">
               <input
                 type="email"
                 placeholder="Enter your email address"
+                value={ctaEmail}
+                onChange={(e) => setCtaEmail(e.target.value)}
                 className="w-full h-14 pl-6 pr-32 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-transparent transition-all duration-300"
+                disabled={ctaLoading}
+                required
               />
               <button
                 type="submit"
                 className="absolute right-2 top-2 h-10 px-6 bg-white text-gray-900 rounded-xl font-medium hover:bg-white/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/40"
+                disabled={ctaLoading}
               >
-                Join
+                {ctaLoading ? 'Joining...' : 'Join'}
               </button>
             </form>
+            {ctaSuccess && (
+              <p className="mt-4 text-green-500 text-sm text-center">
+                Thank you for joining! We'll be in touch soon.
+              </p>
+            )}
           </div>
 
           {/* Trust indicators */}
