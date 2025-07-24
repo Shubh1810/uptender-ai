@@ -38,9 +38,10 @@ export function Header({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -50 }}
               transition={{ duration: 0.5 }}
-              className="fixed top-0 left-0 right-0 bg-gradient-to-r from-red-900 via-red-800 to-red-900 text-white py-2 px-4 shadow-lg z-[100]"
+              className="fixed top-0 left-0 right-0 bg-gradient-to-r from-red-900 via-red-800 to-red-900 text-white py-2.5 px-4 z-[100]"
               style={{
-                background: 'linear-gradient(90deg, #722F37 0%, #8B1538 50%, #722F37 100%)'
+                background: 'linear-gradient(90deg, #722F37 0%, #8B1538 50%, #722F37 100%)',
+                height: '44px'
               }}
             >
               {/* Animated background pattern */}
@@ -120,7 +121,7 @@ export function Header({
         </AnimatePresence>
       )}
       
-      <header className={`${baseClasses} ${stickyClasses} ${patternClasses} ${className}`}>
+      <header className={`${baseClasses} ${stickyClasses} ${patternClasses} ${className} ${variant === 'main' && announcementVisible ? 'border-t-0' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="flex items-center space-x-2">

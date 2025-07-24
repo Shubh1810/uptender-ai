@@ -196,7 +196,7 @@ export default function Home() {
 
       {/* Professional Hero Section */}
       <section 
-        className="hero-section relative py-20 lg:min-h-screen lg:py-31 z-10 pt-32"
+        className="hero-section relative py-16 lg:py-24 z-10 pt-32"
         style={{
           backgroundColor: '#fefcf3',
           backgroundImage: `radial-gradient(circle, #d1d5db 1px, transparent 1px)`,
@@ -206,7 +206,7 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div 
-            className="relative flex items-center bg-cover bg-center rounded-3xl p-8 lg:p-32 bg-white min-h-[500px] lg:min-h-[700px]" 
+            className="relative flex items-center bg-cover bg-center rounded-3xl p-6 lg:p-24 bg-white min-h-[400px] lg:min-h-[550px]" 
             style={{ 
               backgroundImage: "url('/mainbackk.PNG')",
               backgroundSize: 'cover',
@@ -219,7 +219,7 @@ export default function Home() {
             {/* Left side content */}
             <div className="text-center lg:text-left mt-8 lg:mt-12 px-2 lg:pl-24">
               <h1 className="font-ubuntu text-2xl md:text-4xl text-gray-900 mb-2 leading-tight">
-                Your <span className="text-2xl md:text-4xl font-semibold font-mono">AI powered Tender Automation</span> <span className="font-semibold">Platform</span>{' '}
+                Your <span className="text-2xl md:text-4xl font-semibold font-mono">AI-powered Tender Automation</span> <span className="font-semibold">Platform</span>{' '}
                 <span className="inline-flex items-center ml-2 text-sm text-gray-600 font-medium">
                   powered by{' '}
                   <Image
@@ -280,21 +280,78 @@ export default function Home() {
             <div className="text-center">
               <p className="text-sm text-gray-500 font-medium mb-6">Trusted by leading organizations</p>
               <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-12 opacity-60">
-                {/* Placeholder for company logos */}
-                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                  <span className="text-xs text-gray-400">Logo 1</span>
+                {/* Real company logos */}
+                <div className="h-12 w-auto flex items-center justify-center">
+                  <Image
+                    src="/iso.webp"
+                    alt="ISO Certified"
+                    width={80}
+                    height={48}
+                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  />
                 </div>
-                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                  <span className="text-xs text-gray-400">Logo 2</span>
+                <div className="h-12 w-auto flex items-center justify-center">
+                  <Image
+                    src="/Make_In_India.png"
+                    alt="Make In India"
+                    width={120}
+                    height={48}
+                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  />
                 </div>
-                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                  <span className="text-xs text-gray-400">Logo 3</span>
+                <div className="h-12 w-auto flex items-center justify-center">
+                  <Image
+                    src="/msme.png"
+                    alt="MSME Registered"
+                    width={100}
+                    height={48}
+                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  />
                 </div>
-                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                  <span className="text-xs text-gray-400">Logo 4</span>
+                <div className="h-12 w-auto flex items-center justify-center">
+                  <Image
+                    src="/NSIC.PNG"
+                    alt="NSIC"
+                    width={90}
+                    height={48}
+                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  />
                 </div>
-                <div className="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                  <span className="text-xs text-gray-400">Logo 5</span>
+                <div className="h-12 w-auto flex items-center justify-center">
+                  <Image
+                    src="/ce-mark.png"
+                    alt="CE Mark"
+                    width={80}
+                    height={48}
+                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  />
+                </div>
+                <div className="h-12 w-auto flex items-center justify-center">
+                  <Image
+                    src="/who.png"
+                    alt="WHO"
+                    width={80}
+                    height={48}
+                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  />
+                </div>
+                <div className="h-12 w-auto flex items-center justify-center">
+                  <Image
+                    src="/atma.png"
+                    alt="ATMA"
+                    width={80}
+                    height={48}
+                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  />
+                </div>
+                <div className="h-12 w-auto flex items-center justify-center">
+                  <Image
+                    src="/cdsco-logo.webp"
+                    alt="CDSCO"
+                    width={90}
+                    height={48}
+                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  />
                 </div>
               </div>
             </div>
@@ -319,7 +376,7 @@ export default function Home() {
             {/* AI Detection */}
             <div className="text-center">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Brain className="h-6 w-6 text-blue-600" />
+                <span className="text-blue-600 font-bold text-lg">AI</span>
               </div>
               <p className="text-sm font-medium text-gray-900">AI Detection</p>
             </div>
