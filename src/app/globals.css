@@ -152,12 +152,7 @@
   animation-delay: 0.5s;
 }
 
-/* Header positioning transitions */
+/* Header positioning */
 header {
   transition: top 0.3s ease-in-out;
-}
-
-/* Smooth content transitions when announcement banner toggles */
-.hero-section {
-  transition: padding-top 0.3s ease-in-out;
 }

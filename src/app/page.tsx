@@ -232,7 +232,7 @@ export default function Home() {
         <div className="absolute top-1/3 right-20 w-18 h-18 bg-cyan-300/10 rounded-full blur-lg animate-pulse" style={{ animationDelay: '4.2s' }} />
       </div>
 
-      {/* Header with integrated announcement banner */}
+      {/* Header */}
       <Header variant="main" />
 
 
@@ -297,12 +297,12 @@ export default function Home() {
                     
                     {/* Content */}
                     <div className="relative z-10">
-                      {/* Live Tenders Only */}
+                      {/* Live Tenders - Not Connected */}
                       <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/30"></div>
+                        <div className="w-3 h-3 bg-gray-400 rounded-full shadow-lg"></div>
                         <div>
-                          <div className="font-ubuntu text-xl font-bold text-gray-900">167,725</div>
-                          <div className="font-ubuntu text-xs text-gray-600 font-medium">Live Tenders</div>
+                          <div className="font-ubuntu text-xl font-bold text-gray-600">0</div>
+                          <div className="font-ubuntu text-xs text-gray-500 font-medium">Live Tenders · Not Connected</div>
                         </div>
                       </div>
                     </div>
