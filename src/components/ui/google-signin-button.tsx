@@ -17,10 +17,10 @@ export function GoogleSignInButton({ className = '', children }: GoogleSignInBut
     try {
       setLoading(true);
       
-      // Get the redirect URL - use environment variable for production, fallback to current origin
-      const redirectUrl = process.env.NEXT_PUBLIC_APP_URL 
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
-        : `${window.location.origin}/auth/callback`;
+      // ALWAYS use current origin (works for both localhost and production)
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      
+      console.log('Signing in with redirect URL:', redirectUrl); // Debug log
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
