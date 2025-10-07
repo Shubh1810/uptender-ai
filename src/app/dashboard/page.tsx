@@ -28,17 +28,52 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+      try {
+        // Get the session first (more reliable right after OAuth)
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          setUser(session.user);
+          setLoading(false);
+        } else {
+          // Fallback: try getUser if session not found
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (user) {
+            setUser(user);
+            setLoading(false);
+          } else {
+            // Give it one more chance - wait a bit for cookies to settle
+            setTimeout(async () => {
+              const { data: { session: retrySession } } = await supabase.auth.getSession();
+              if (retrySession?.user) {
+                setUser(retrySession.user);
+                setLoading(false);
+              } else {
+                router.push('/');
+              }
+            }, 500);
+          }
+        }
+      } catch (error) {
+        console.error('Error getting user:', error);
         router.push('/');
-      } else {
-        setUser(user);
       }
-      setLoading(false);
     };
 
     getUser();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        setLoading(false);
+      } else {
+        router.push('/');
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [router, supabase.auth]);
 
   const handleSignOut = async () => {

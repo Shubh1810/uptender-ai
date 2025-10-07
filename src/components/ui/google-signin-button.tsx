@@ -16,10 +16,16 @@ export function GoogleSignInButton({ className = '', children }: GoogleSignInBut
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true);
+      
+      // Get the redirect URL - use environment variable for production, fallback to current origin
+      const redirectUrl = process.env.NEXT_PUBLIC_APP_URL 
+        ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
+        : `${window.location.origin}/auth/callback`;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
