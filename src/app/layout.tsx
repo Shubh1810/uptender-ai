@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Kings, Roboto, Ubuntu } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { CookieBanner } from "@/components/ui/cookie-banner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -374,6 +375,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${roboto.variable} ${ubuntu.variable} antialiased`}
       >
         {children}
+        <CookieBanner />
         <Analytics />
       </body>
     </html>

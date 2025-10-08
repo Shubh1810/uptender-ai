@@ -27,37 +27,35 @@ export default function DashboardPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    let mounted = true;
+    let retryCount = 0;
+    const maxRetries = 3;
+
     const getUser = async () => {
       try {
         // Get the session first (more reliable right after OAuth)
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (session?.user) {
+        if (session?.user && mounted) {
+          console.log('✅ User found in session:', session.user.email);
           setUser(session.user);
           setLoading(false);
+        } else if (retryCount < maxRetries) {
+          // Retry with exponential backoff
+          retryCount++;
+          console.log(`⏳ Retry ${retryCount}/${maxRetries}: Waiting for session...`);
+          setTimeout(getUser, retryCount * 500); // 500ms, 1s, 1.5s
         } else {
-          // Fallback: try getUser if session not found
-          const { data: { user } } = await supabase.auth.getUser();
-          
-          if (user) {
-            setUser(user);
-            setLoading(false);
-          } else {
-            // Give it one more chance - wait a bit for cookies to settle
-            setTimeout(async () => {
-              const { data: { session: retrySession } } = await supabase.auth.getSession();
-              if (retrySession?.user) {
-                setUser(retrySession.user);
-                setLoading(false);
-              } else {
-                router.push('/');
-              }
-            }, 500);
+          console.log('❌ No session found after retries');
+          if (mounted) {
+            router.push('/');
           }
         }
       } catch (error) {
         console.error('Error getting user:', error);
-        router.push('/');
+        if (mounted) {
+          router.push('/');
+        }
       }
     };
 
@@ -65,15 +63,19 @@ export default function DashboardPage() {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
+      console.log('🔔 Auth state changed:', _event, session?.user?.email);
+      if (session?.user && mounted) {
         setUser(session.user);
         setLoading(false);
-      } else {
+      } else if (_event === 'SIGNED_OUT' && mounted) {
         router.push('/');
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [router, supabase.auth]);
 
   const handleSignOut = async () => {
