@@ -326,7 +326,7 @@ export default function Home() {
                 {/* Real company logos */}
                 <div className="h-12 w-auto flex items-center justify-center">
                   <Image
-                    src="/iso.webp"
+                    src="/isop.png"
                     alt="ISO Certified"
                     width={80}
                     height={48}
@@ -344,7 +344,7 @@ export default function Home() {
                 </div>
                 <div className="h-12 w-auto flex items-center justify-center">
                   <Image
-                    src="/msme.png"
+                    src="/msme2.svg"
                     alt="MSME Registered"
                     width={100}
                     height={48}
@@ -391,9 +391,9 @@ export default function Home() {
                   <Image
                     src="/cdsco-logo.webp"
                     alt="CDSCO"
-                    width={90}
-                    height={48}
-                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    width={110}
+                    height={58}
+                    className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
               </div>
