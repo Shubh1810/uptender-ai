@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { trackTenderSearch, trackTenderExternalClick } from '@/lib/posthog/events';
 
 interface Tender {
   title: string;
@@ -84,6 +85,13 @@ export default function SearchPage() {
       setTenders(data.items || []);
       setTotalCount(data.count || 0);
       setCurrentPage(page);
+      
+      // Track tender search event
+      trackTenderSearch({
+        query: query || undefined,
+        resultsCount: data.count || 0,
+        page: page,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load tenders');
       console.error('Error fetching tenders:', err);
@@ -212,6 +220,13 @@ export default function SearchPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-shrink-0 ml-4"
+                  onClick={() => {
+                    trackTenderExternalClick({
+                      tenderId: tender.ref_no,
+                      tenderTitle: tender.title,
+                      url: tender.url,
+                    });
+                  }}
                 >
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2">
                     <ExternalLink className="h-4 w-4 mr-2" />

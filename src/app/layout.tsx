@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Kings, Roboto, Ubuntu } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { CookieBanner } from "@/components/ui/cookie-banner";
+import { PostHogProvider, PostHogPageView } from "@/lib/posthog/provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -374,8 +375,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${roboto.variable} ${ubuntu.variable} antialiased`}
       >
-        {children}
-        <CookieBanner />
+        <PostHogProvider>
+          <PostHogPageView />
+          {children}
+          <CookieBanner />
+        </PostHogProvider>
         <Analytics />
       </body>
     </html>

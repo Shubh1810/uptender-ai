@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Send, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { trackEmailSignup } from '@/lib/posthog/events';
 
 interface EmailSignupProps {
   className?: string;
@@ -33,10 +34,19 @@ export function EmailSignup({ className = '' }: EmailSignupProps) {
 
       if (response.ok) {
         setIsSubmitted(true);
+        trackEmailSignup({
+          email: email,
+          source: 'email_signup_component',
+          success: true,
+        });
         setEmail('');
       } else {
         console.error('Signup failed:', data.error);
-        // You could add error state handling here
+        trackEmailSignup({
+          email: email,
+          source: 'email_signup_component',
+          success: false,
+        });
         alert(data.error || 'Failed to join waitlist. Please try again.');
       }
     } catch (error) {

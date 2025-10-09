@@ -36,13 +36,14 @@ NOTIFICATION_EMAIL=your-email@example.com
 
 
 # ============================================
-# POSTHOG - Analytics (Optional)
+# POSTHOG - Analytics (INTEGRATED & PRODUCTION READY)
 # ============================================
-# Required for: User analytics, tracking
+# Required for: User analytics, autocapture, event tracking
 # Get from: https://posthog.com/project/settings
+# Status: ✅ Fully integrated with autocapture & custom events
+# Region: US (configured via proxy rewrites)
 
 NEXT_PUBLIC_POSTHOG_KEY=phc_your_posthog_key_here
-NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 
 
 # ============================================
@@ -70,9 +71,8 @@ NODE_ENV=development
 5. `RESEND_API_KEY` - For sending emails
 6. `NOTIFICATION_EMAIL` - Your email to receive signup notifications
 
-### 🟢 **LOW PRIORITY (Optional/Analytics)**
-7. `NEXT_PUBLIC_POSTHOG_KEY` - For user analytics (optional)
-8. `NEXT_PUBLIC_POSTHOG_HOST` - PostHog server URL (optional)
+### 🟢 **LOW PRIORITY (Recommended for Production)**
+7. `NEXT_PUBLIC_POSTHOG_KEY` - For user analytics & autocapture (✅ fully integrated)
 
 ---
 
@@ -138,22 +138,33 @@ NOTIFICATION_EMAIL=admin@yoursite.com
 
 ---
 
-### 4️⃣ **POSTHOG Keys** (Optional - Analytics)
+### 4️⃣ **POSTHOG Keys** (✅ Fully Integrated - Production Ready)
 
+**What's Included:**
+- ✅ Autocapture (clicks, forms, pageviews, errors)
+- ✅ Custom event tracking (search, sign-in, payments)
+- ✅ User identification
+- ✅ US region optimization
+- ✅ Privacy-compliant (GDPR ready)
+
+**How to Get Your Key:**
 ```bash
 1. Go to: https://posthog.com/signup
 2. Create account / Sign in
-3. Navigate to: Project Settings
-4. Find: "Project API Key"
-5. Copy: The key (starts with "phc_")
+3. Create a new project (select US region)
+4. Navigate to: Project Settings → Project API Key
+5. Copy: The API key (starts with "phc_")
 6. Paste in .env.local
 ```
 
 **Example:**
 ```bash
 NEXT_PUBLIC_POSTHOG_KEY=phc_1234567890abcdefghijklmnopqrstuvwxyz
-NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 ```
+
+**Note:** PostHog HOST is already configured via proxy rewrites for US region. No need to add NEXT_PUBLIC_POSTHOG_HOST.
+
+**Documentation:** See `POSTHOG_INTEGRATION.md` for complete setup guide.
 
 ---
 
@@ -239,9 +250,8 @@ RAZORPAY_KEY_SECRET=
 RESEND_API_KEY=
 NOTIFICATION_EMAIL=
 
-# POSTHOG (OPTIONAL)
+# POSTHOG (RECOMMENDED FOR PRODUCTION)
 NEXT_PUBLIC_POSTHOG_KEY=
-NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 
 # APP CONFIG
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -262,7 +272,7 @@ Then fill in the values after the `=` sign.
 | `RAZORPAY_KEY_SECRET` | 🟡 For Payments | Payment verification | [Razorpay Dashboard](https://dashboard.razorpay.com) |
 | `RESEND_API_KEY` | 🟡 For Emails | Email notifications | [Resend](https://resend.com) |
 | `NOTIFICATION_EMAIL` | 🟡 For Emails | Your admin email | Your email address |
-| `NEXT_PUBLIC_POSTHOG_KEY` | 🟢 Optional | Analytics | [PostHog](https://posthog.com) |
+| `NEXT_PUBLIC_POSTHOG_KEY` | 🟢 Recommended | Analytics & Autocapture | [PostHog](https://posthog.com) |
 
 ---
 

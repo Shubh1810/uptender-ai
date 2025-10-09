@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
+import { trackUserSignedIn } from '@/lib/posthog/events';
 
 interface GoogleSignInButtonProps {
   className?: string;
@@ -21,6 +22,9 @@ export function GoogleSignInButton({ className = '', children }: GoogleSignInBut
       const redirectUrl = `${window.location.origin}/auth/callback`;
       
       console.log('Signing in with redirect URL:', redirectUrl); // Debug log
+      
+      // Track sign-in attempt
+      trackUserSignedIn({ method: 'google' });
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

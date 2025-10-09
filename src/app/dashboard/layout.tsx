@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { identifyUser, trackUserSignedOut, trackDashboardViewed } from '@/lib/posthog/events';
 
 export default function DashboardLayout({
   children,
@@ -42,6 +43,13 @@ export default function DashboardLayout({
         if (session?.user && mounted) {
           setUser(session.user);
           setLoading(false);
+          
+          // Identify user in PostHog
+          identifyUser({
+            userId: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+          });
         } else if (retryCount < maxRetries) {
           retryCount++;
           setTimeout(getUser, retryCount * 500);
@@ -76,9 +84,18 @@ export default function DashboardLayout({
   }, [router, supabase.auth]);
 
   const handleSignOut = async () => {
+    trackUserSignedOut();
     await supabase.auth.signOut();
     router.push('/');
   };
+
+  // Track dashboard section views
+  useEffect(() => {
+    if (user && pathname) {
+      const section = pathname.split('/').pop() || 'home';
+      trackDashboardViewed({ section });
+    }
+  }, [pathname, user]);
 
   if (loading) {
     return (
