@@ -18,10 +18,13 @@ export function GoogleSignInButton({ className = '', children }: GoogleSignInBut
     try {
       setLoading(true);
       
-      // ALWAYS use current origin (works for both localhost and production)
-      const redirectUrl = `${window.location.origin}/auth/callback`;
+      // Use environment variable if set, otherwise use current origin
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+      const redirectUrl = `${siteUrl}/auth/callback`;
       
-      console.log('Signing in with redirect URL:', redirectUrl); // Debug log
+      console.log('🔐 Site URL:', siteUrl);
+      console.log('🔗 Redirect URL:', redirectUrl);
+      console.log('🌍 Current origin:', window.location.origin);
       
       // Track sign-in attempt
       trackUserSignedIn({ method: 'google' });
@@ -38,11 +41,11 @@ export function GoogleSignInButton({ className = '', children }: GoogleSignInBut
       });
 
       if (error) {
-        console.error('Error signing in with Google:', error.message);
+        console.error('❌ Error signing in with Google:', error.message);
         alert('Failed to sign in with Google. Please try again.');
       }
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error('❌ Unexpected error:', error);
       alert('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
