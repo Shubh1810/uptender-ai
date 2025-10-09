@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Kings, Roboto, Ubuntu } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { Suspense } from "react";
 import { CookieBanner } from "@/components/ui/cookie-banner";
 import { PostHogProvider, PostHogPageView } from "@/lib/posthog/provider";
 import "./globals.css";
@@ -376,7 +377,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${roboto.variable} ${ubuntu.variable} antialiased`}
       >
         <PostHogProvider>
-          <PostHogPageView />
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
           {children}
           <CookieBanner />
         </PostHogProvider>
