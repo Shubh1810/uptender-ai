@@ -72,60 +72,32 @@ export default function SearchPage() {
         ...(query && { query }),
       });
 
-      const url = `https://tenderpost-api.onrender.com/api/tenders?${params}`;
-      console.log('🔍 Fetching tenders from:', url);
-
-      // Add timeout for long requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
-
-      const response = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-
-      clearTimeout(timeoutId);
-
-      console.log('📊 Response status:', response.status);
+      const response = await fetch(
+        `https://tenderpost-api.onrender.com/api/tenders?${params}`
+      );
 
       if (!response.ok) {
-        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+        throw new Error('Failed to fetch tenders');
       }
 
       const data: TenderResponse = await response.json();
-      console.log('✅ Received data:', {
-        source: data.source,
-        count: data.count,
-        items: data.items?.length || 0
-      });
-
       setTenders(data.items || []);
       setTotalCount(data.count || 0);
       setCurrentPage(page);
     } catch (err) {
-      if (err instanceof Error) {
-        if (err.name === 'AbortError') {
-          setError('Request timed out. The API might be starting up (this can take 30-60 seconds on first load). Please try again.');
-        } else {
-          setError(err.message);
-        }
-      } else {
-        setError('Failed to load tenders');
-      }
-      console.error('❌ Error fetching tenders:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load tenders');
+      console.error('Error fetching tenders:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Don't auto-load on mount - let user click search
-  // useEffect(() => {
-  //   if (user) {
-  //     fetchTenders();
-  //   }
-  // }, [user]);
+  // Initial load
+  useEffect(() => {
+    if (user) {
+      fetchTenders();
+    }
+  }, [user]);
 
   // Search handler
   const handleSearch = (e: React.FormEvent) => {
@@ -211,21 +183,9 @@ export default function SearchPage() {
       {/* Tenders List */}
       {!loading && !error && tenders.length === 0 && (
         <div className="text-center py-20">
-          <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-2">Ready to search tenders</p>
-          <p className="text-sm text-gray-400 mb-6">
-            {searchQuery 
-              ? 'No tenders found for your search. Try different keywords.'
-              : 'Click the Search button above to load tenders from your API'}
-          </p>
-          {!searchQuery && (
-            <Button
-              onClick={() => fetchTenders(1, '')}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Load All Tenders
-            </Button>
-          )}
+          <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500 mb-2">No tenders found</p>
+          <p className="text-sm text-gray-400">Try adjusting your search terms</p>
         </div>
       )}
 
