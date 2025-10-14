@@ -16,7 +16,6 @@ import {
   Activity,
   Zap,
   Users,
-  ChevronDown,
   LogOut,
   Menu,
   X,
@@ -177,27 +176,30 @@ export default function DashboardLayout({
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Project Selector */}
+          {/* TenderPost Logo */}
           <div className="p-3 border-b border-gray-200">
-            <button className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
-              <div className="flex items-center space-x-2">
-                <div className="w-5 h-5 rounded bg-amber-100 flex items-center justify-center">
-                  <span className="text-xs">📦</span>
-                </div>
-                <span>Default project</span>
-              </div>
-              <ChevronDown className="h-4 w-4 text-gray-400" />
-            </button>
+            <Link href="/" className="flex items-center space-x-1 px-3 py-2">
+              <Image
+                src="/tplogo.png"
+                alt="TenderPost"
+                width={24}
+                height={24}
+                className="rounded-lg"
+              />
+              <span className="text-lg font-bold text-gray-900">
+                <span className="font-inter">Tender</span><span className="font-kings -ml-0.5">Post</span>
+              </span>
+            </Link>
           </div>
 
-          {/* Home Link */}
+          {/* Dashboard Link */}
           <div className="p-3 border-b border-gray-200">
             <Link
-              href="/"
+              href="/dashboard"
               className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
             >
               <LayoutDashboard className="h-4 w-4" />
-              <span>Home</span>
+              <span>Dashboard</span>
             </Link>
           </div>
 
