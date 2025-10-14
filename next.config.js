@@ -12,7 +12,8 @@ const nextConfig = {
       'tenderpost.org',
       'www.tenderpost.org',
       'images.unsplash.com',
-      'via.placeholder.com'
+      'via.placeholder.com',
+      'lh3.googleusercontent.com' // Google profile pictures
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 31536000, // 1 year
