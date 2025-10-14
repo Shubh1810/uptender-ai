@@ -34,6 +34,7 @@ export default function DashboardLayout({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
@@ -50,6 +51,12 @@ export default function DashboardLayout({
         if (session?.user && mounted) {
           setUser(session.user);
           setLoading(false);
+          setImageError(false); // Reset image error state
+          
+          // Debug: Log user metadata to check for profile picture
+          console.log('👤 User metadata:', session.user.user_metadata);
+          console.log('🖼️ Avatar URL:', session.user.user_metadata?.avatar_url);
+          console.log('📸 Picture URL:', session.user.user_metadata?.picture);
           
           // Identify user in PostHog
           identifyUser({
@@ -79,6 +86,7 @@ export default function DashboardLayout({
       if (session?.user && mounted) {
         setUser(session.user);
         setLoading(false);
+        setImageError(false); // Reset image error on user change
       } else if (_event === 'SIGNED_OUT' && mounted) {
         router.push('/');
       }
@@ -271,13 +279,17 @@ export default function DashboardLayout({
                   </p>
                   <p className="text-xs text-gray-500">{user.email}</p>
                 </div>
-                {user.user_metadata?.avatar_url || user.user_metadata?.picture ? (
+                {!imageError && (user.user_metadata?.avatar_url || user.user_metadata?.picture) ? (
                   <Image
                     src={user.user_metadata?.avatar_url || user.user_metadata?.picture || ''}
                     alt={user.user_metadata?.full_name || 'User'}
                     width={32}
                     height={32}
                     className="w-8 h-8 rounded-full object-cover"
+                    onError={() => {
+                      console.error('❌ Failed to load profile image');
+                      setImageError(true);
+                    }}
                   />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-sky-400 flex items-center justify-center text-white text-sm font-semibold">

@@ -37,6 +37,7 @@ export function GoogleSignInButton({ className = '', children }: GoogleSignInBut
             access_type: 'offline',
             prompt: 'consent',
           },
+          scopes: 'profile email openid',
         },
       });
 
