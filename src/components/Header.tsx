@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePostHog } from 'posthog-js/react';
 import { Button } from '@/components/ui/button';
 import { GoogleSignInButton } from '@/components/ui/google-signin-button';
 
@@ -19,16 +20,29 @@ export function Header({
   showBackButton = false,
   backButtonText = 'Back to Home'
 }: HeaderProps) {
+  const posthog = usePostHog();
   const baseClasses = "bg-white/40 backdrop-blur-sm";
   const stickyClasses = variant === 'main' ? "fixed top-0 left-0 right-0 z-[90]" : "";
   const patternClasses = variant === 'main' ? "header-dots-pattern" : "";
+  
+  const trackLogoClick = () => {
+    posthog?.capture('header_logo_clicked', {
+      variant,
+      timestamp: new Date().toISOString(),
+    });
+    console.log('📊 PostHog tracked: Logo clicked');
+  };
   
   return (
     <>
       <header className={`${baseClasses} ${stickyClasses} ${patternClasses} ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link 
+            href="/" 
+            className="flex items-center space-x-2"
+            onClick={trackLogoClick}
+          >
             <Image
               src="/tplogo.png" 
               alt="TenderPost - AI Tender Notifier Platform for India" 
@@ -62,6 +76,8 @@ export function Header({
 }
 
 function MainNavigation() {
+  const posthog = usePostHog();
+
   const triggerWaitlist = () => {
     // Force show waitlist overlay immediately
     localStorage.removeItem('waitlist-overlay-seen');
@@ -69,19 +85,44 @@ function MainNavigation() {
     window.dispatchEvent(new CustomEvent('show-waitlist-overlay'));
   };
 
+  const trackNavClick = (section: string) => {
+    posthog?.capture('header_navigation_clicked', {
+      section,
+      location: 'main_header',
+      timestamp: new Date().toISOString(),
+    });
+    console.log('📊 PostHog tracked:', section);
+  };
+
   return (
     <nav className="flex items-center space-x-8">
       <div className="hidden md:flex items-center space-x-8 font-ubuntu">
-        <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">
+        <a 
+          href="#features" 
+          className="text-gray-600 hover:text-gray-900 transition-colors"
+          onClick={() => trackNavClick('features')}
+        >
           Tender Features
         </a>
-        <a href="#categories" className="text-gray-600 hover:text-gray-900 transition-colors">
+        <a 
+          href="#categories" 
+          className="text-gray-600 hover:text-gray-900 transition-colors"
+          onClick={() => trackNavClick('categories')}
+        >
           Tender Categories
         </a>
-        <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
+        <a 
+          href="#pricing" 
+          className="text-gray-600 hover:text-gray-900 transition-colors"
+          onClick={() => trackNavClick('pricing')}
+        >
           Pricing
         </a>
-        <a href="#faq" className="text-gray-600 hover:text-gray-900 transition-colors">
+        <a 
+          href="#faq" 
+          className="text-gray-600 hover:text-gray-900 transition-colors"
+          onClick={() => trackNavClick('faq')}
+        >
           FAQs
         </a>
       </div>
@@ -95,15 +136,38 @@ function MainNavigation() {
 
 // Alternative navigation for tender-guide and other internal pages
 export function InternalPageNavigation() {
+  const posthog = usePostHog();
+
+  const trackInternalNavClick = (page: string) => {
+    posthog?.capture('internal_header_navigation_clicked', {
+      page,
+      location: 'internal_header',
+      timestamp: new Date().toISOString(),
+    });
+    console.log('📊 PostHog tracked internal nav:', page);
+  };
+
   return (
     <nav className="hidden md:flex items-center space-x-8 font-ubuntu">
-      <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+      <Link 
+        href="/" 
+        className="text-gray-600 hover:text-gray-900 transition-colors"
+        onClick={() => trackInternalNavClick('home')}
+      >
         Home
       </Link>
-      <Link href="/#features" className="text-gray-600 hover:text-gray-900 transition-colors">
+      <Link 
+        href="/#features" 
+        className="text-gray-600 hover:text-gray-900 transition-colors"
+        onClick={() => trackInternalNavClick('features')}
+      >
         Features
       </Link>
-      <Link href="/#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
+      <Link 
+        href="/#pricing" 
+        className="text-gray-600 hover:text-gray-900 transition-colors"
+        onClick={() => trackInternalNavClick('pricing')}
+      >
         Pricing
       </Link>
       <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900">

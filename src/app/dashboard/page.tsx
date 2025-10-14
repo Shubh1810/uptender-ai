@@ -1,72 +1,148 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { FileText, Search as SearchIcon } from 'lucide-react';
+import { 
+  Search as SearchIcon,
+  FileText,
+  BarChart3,
+  Bell,
+  Settings,
+  Target,
+  Zap,
+  Activity,
+  TrendingUp,
+  Brain,
+  Shield,
+  PenTool,
+  CheckCircle,
+  Clock,
+  Bookmark,
+  History,
+  Mail,
+  Filter,
+  Eye
+} from 'lucide-react';
 
 export default function DashboardHome() {
+  const [activeTab, setActiveTab] = useState('all');
+
+  const tabs = [
+    { id: 'all', label: 'All' },
+    { id: 'create', label: 'Create new' },
+    { id: 'ai-tools', label: 'AI Tools' },
+    { id: 'tenders', label: 'Tender management' },
+    { id: 'recents', label: 'Recents' },
+  ];
+
+  const createNewItems = [
+    { icon: SearchIcon, label: 'New tender search', href: '/dashboard/search' },
+    { icon: Brain, label: 'New AI bid draft', href: '/dashboard/ai-draft' },
+    { icon: PenTool, label: 'New document', href: '/dashboard/doc-generator' },
+    { icon: Bell, label: 'New alert', href: '/dashboard/alerts' },
+    { icon: Filter, label: 'New saved filter', href: '/dashboard/filters' },
+    { icon: Target, label: 'New bid goal', href: '/dashboard/goals' },
+  ];
+
+  const aiToolsItems = [
+    { icon: Brain, label: 'AI Bid Draft', href: '/dashboard/ai-draft' },
+    { icon: Zap, label: 'AI Review', href: '/dashboard/ai-review' },
+    { icon: SearchIcon, label: 'Smart Search', href: '/dashboard/search' },
+    { icon: FileText, label: 'Document Generator', href: '/dashboard/doc-generator' },
+    { icon: Shield, label: 'Compliance Checker', href: '/dashboard/compliance' },
+    { icon: CheckCircle, label: 'Bid Optimizer', href: '/dashboard/optimizer' },
+  ];
+
+  const tenderManagementItems = [
+    { icon: SearchIcon, label: 'Search Tenders', href: '/dashboard/search' },
+    { icon: FileText, label: 'My Tenders', href: '/dashboard/tenders' },
+    { icon: Activity, label: 'Active Bids', href: '/dashboard/active-bids' },
+    { icon: History, label: 'Tender History', href: '/dashboard/history' },
+    { icon: Bookmark, label: 'Watchlist', href: '/dashboard/watchlist' },
+    { icon: BarChart3, label: 'Bid Analytics', href: '/dashboard/bid-analytics' },
+  ];
+
+  const recentsItems = [
+    { icon: Clock, label: 'Recent searches', href: '/dashboard/search' },
+    { icon: Eye, label: 'Recently viewed', href: '/dashboard/recent' },
+    { icon: FileText, label: 'Recent tenders', href: '/dashboard/tenders' },
+    { icon: Brain, label: 'Recent AI drafts', href: '/dashboard/ai-draft' },
+    { icon: Bell, label: 'Recent alerts', href: '/dashboard/notifier' },
+    { icon: BarChart3, label: 'Recent analytics', href: '/dashboard/analytics' },
+  ];
+
+  const getSectionData = () => {
+    if (activeTab === 'create') return [{ title: 'Create new', items: createNewItems }];
+    if (activeTab === 'ai-tools') return [{ title: 'AI Tools', items: aiToolsItems }];
+    if (activeTab === 'tenders') return [{ title: 'Tender management', items: tenderManagementItems }];
+    if (activeTab === 'recents') return [{ title: 'Recents', items: recentsItems }];
+    
+    return [
+      { title: 'Create new', items: createNewItems },
+      { title: 'AI Tools', items: aiToolsItems },
+      { title: 'Tender management', items: tenderManagementItems },
+      { title: 'Recents', items: recentsItems },
+    ];
+  };
+
   return (
-    <main className="p-4 lg:p-8">
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome back! 👋
-        </h2>
-        <p className="text-gray-600">Here's what's happening with your tenders today.</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {[
-          { label: 'Live Tenders', value: '0', change: 'Search to find', color: 'bg-blue-50 text-blue-600' },
-          { label: 'Saved Tenders', value: '0', change: 'No tenders saved', color: 'bg-green-50 text-green-600' },
-          { label: 'Notifications', value: '0', change: 'All caught up', color: 'bg-purple-50 text-purple-600' },
-          { label: 'Active Bids', value: '0', change: 'No active bids', color: 'bg-orange-50 text-orange-600' },
-        ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-            <p className="text-sm text-gray-600 mb-2">{stat.label}</p>
-            <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-            <p className={`text-xs ${stat.color.split(' ')[1]}`}>{stat.change}</p>
+    <main className="min-h-screen">
+      {/* Search Bar */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center space-x-4">
+          <div className="flex-1 relative">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
-        ))}
-      </div>
+          <button className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm transition-all">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60 blur-sm animate-pulse"></div>
+            <div className="absolute inset-0.5 rounded-full bg-gray-100 hover:bg-gray-200"></div>
+            <span className="relative z-10">AI</span>
+          </button>
+        </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href="/dashboard/search">
-            <div className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer">
-              <SearchIcon className="h-8 w-8 text-blue-600 mb-2" />
-              <h4 className="font-semibold text-gray-900 mb-1">Search Tenders</h4>
-              <p className="text-sm text-gray-600">Find tenders from across India</p>
-            </div>
-          </Link>
-          <Link href="/dashboard/tenders">
-            <div className="p-4 border-2 border-gray-200 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all cursor-pointer">
-              <FileText className="h-8 w-8 text-gray-600 mb-2" />
-              <h4 className="font-semibold text-gray-900 mb-1">My Saved Tenders</h4>
-              <p className="text-sm text-gray-600">View your saved tenders</p>
-            </div>
-          </Link>
+        {/* Tabs */}
+        <div className="flex items-center space-x-1 mt-4 -mb-px">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'border-orange-500 text-orange-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h3>
-        <div className="text-center py-12">
-          <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">No recent activity yet</p>
-          <p className="text-sm text-gray-400 mb-6">
-            Start searching for tenders to see your activity here
-          </p>
-          <Link href="/dashboard/search">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              Search Tenders
-            </Button>
-          </Link>
+      {/* Grid Content */}
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {getSectionData().map((section) => (
+            <div key={section.title}>
+              <h2 className="text-base font-semibold text-gray-900 mb-4">{section.title}</h2>
+              <div className="space-y-2">
+                {section.items.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors group"
+                  >
+                    <item.icon className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                    <span className="group-hover:text-gray-900">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </main>

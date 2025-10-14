@@ -262,7 +262,7 @@ export default function Home() {
             {/* Left side content */}
             <div className="text-center lg:text-left mt-8 lg:mt-12 px-2 lg:pl-24">
               <h1 className="font-ubuntu text-2xl md:text-4xl text-gray-900 mb-2 leading-tight">
-                Your <span className="text-2xl md:text-4xl font-semibold font-mono">AI-powered Tender Automation</span> <span className="font-semibold">Platform</span>{' '}
+                Your <span className="text-2xl md:text-4xl font-semibold font-inter">AI-powered Tender Automation</span> <span className="font-semibold">Platform</span>{' '}
                 <span className="inline-flex items-center ml-2 text-sm text-gray-600 font-medium">
                   powered by{' '}
                   <Image

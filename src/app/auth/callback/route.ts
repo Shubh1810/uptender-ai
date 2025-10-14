@@ -11,27 +11,17 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (!error && data.session) {
-      // Use NEXT_PUBLIC_SITE_URL if set, otherwise fallback to origin logic
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+      const forwardedHost = request.headers.get('x-forwarded-host');
+      const isLocalEnv = process.env.NODE_ENV === 'development';
       
+      // Build redirect URL
       let redirectUrl: string;
-      if (siteUrl) {
-        // Use environment variable (respects http vs https)
-        redirectUrl = `${siteUrl}${next}`;
-        console.log('🔗 Callback redirecting to (from SITE_URL):', redirectUrl);
+      if (isLocalEnv) {
+        redirectUrl = `${origin}${next}`;
+      } else if (forwardedHost) {
+        redirectUrl = `https://${forwardedHost}${next}`;
       } else {
-        // Fallback to origin-based logic
-        const forwardedHost = request.headers.get('x-forwarded-host');
-        const isLocalEnv = process.env.NODE_ENV === 'development';
-        
-        if (isLocalEnv) {
-          redirectUrl = `${origin}${next}`;
-        } else if (forwardedHost) {
-          redirectUrl = `https://${forwardedHost}${next}`;
-        } else {
-          redirectUrl = `${origin}${next}`;
-        }
-        console.log('🔗 Callback redirecting to (from origin):', redirectUrl);
+        redirectUrl = `${origin}${next}`;
       }
       
       // Create response with redirect
@@ -43,7 +33,6 @@ export async function GET(request: Request) {
   }
 
   // return the user to an error page with instructions
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin;
-  return NextResponse.redirect(`${siteUrl}/auth/auth-code-error`);
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
 

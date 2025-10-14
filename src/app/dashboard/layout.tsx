@@ -5,15 +5,23 @@ import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { 
-  LayoutDashboard, 
-  FileText, 
-  Bell, 
-  Settings, 
+  LayoutDashboard,
+  BarChart3,
+  Search,
+  Bell,
+  Settings,
+  FileText,
+  TrendingUp,
+  Target,
+  Activity,
+  Zap,
+  Users,
+  ChevronDown,
   LogOut,
   Menu,
   X,
-  Search,
-  TrendingUp
+  Brain,
+  Shield
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -112,17 +120,48 @@ export default function DashboardLayout({
     return null;
   }
 
-  const navigation = [
-    { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Search Tenders', icon: Search, href: '/dashboard/search' },
-    { name: 'My Tenders', icon: FileText, href: '/dashboard/tenders' },
-    { name: 'Notifications', icon: Bell, href: '/dashboard/notifications' },
-    { name: 'Analytics', icon: TrendingUp, href: '/dashboard/analytics' },
-    { name: 'Settings', icon: Settings, href: '/dashboard/settings' },
+  const navigationSections = [
+    {
+      title: 'Tender Management',
+      items: [
+        { name: 'Search Tenders', icon: Search, href: '/dashboard/search' },
+        { name: 'My Tenders', icon: FileText, href: '/dashboard/tenders' },
+        { name: 'Active Bids', icon: Activity, href: '/dashboard/active-bids' },
+        { name: 'Tender History', icon: BarChart3, href: '/dashboard/history' },
+        { name: 'Watchlist', icon: Bell, href: '/dashboard/watchlist' },
+      ]
+    },
+    {
+      title: 'Analytics',
+      items: [
+        { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+        { name: 'Tender analytics', icon: BarChart3, href: '/dashboard/analytics' },
+        { name: 'Bid analytics', icon: TrendingUp, href: '/dashboard/bid-analytics' },
+        { name: 'Market insights', icon: Target, href: '/dashboard/insights' },
+      ]
+    },
+    {
+      title: 'Notifications',
+      items: [
+        { name: 'Notifier Manager', icon: Bell, href: '/dashboard/notifier' },
+        { name: 'Alert Settings', icon: Settings, href: '/dashboard/alerts' },
+        { name: 'Email Preferences', icon: Users, href: '/dashboard/email-prefs' },
+      ]
+    },
+    {
+      title: 'AI Tools',
+      items: [
+        { name: 'AI Bid Draft', icon: Zap, href: '/dashboard/ai-draft' },
+        { name: 'AI Review', icon: Brain, href: '/dashboard/ai-review' },
+        { name: 'Smart Search', icon: Search, href: '/dashboard/search' },
+        { name: 'Document Generator', icon: FileText, href: '/dashboard/doc-generator' },
+        { name: 'Compliance Checker', icon: Shield, href: '/dashboard/compliance' },
+      ]
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f9fafb]">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -131,102 +170,109 @@ export default function DashboardLayout({
         />
       )}
 
-      {/* Sidebar */}
+      {/* Minimal Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-gray-200 transition-transform lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 h-screen w-56 bg-white border-r border-gray-200 transition-transform lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <Link href="/" className="flex items-center space-x-2">
-              <Image
-                src="/tplogo.png"
-                alt="TenderPost"
-                width={32}
-                height={32}
-                className="rounded-lg"
-              />
-              <span className="text-xl font-bold text-gray-900">
-                <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
-              </span>
-            </Link>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1 rounded-lg hover:bg-gray-100"
-            >
-              <X className="h-5 w-5" />
+          {/* Project Selector */}
+          <div className="p-3 border-b border-gray-200">
+            <button className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+              <div className="flex items-center space-x-2">
+                <div className="w-5 h-5 rounded bg-amber-100 flex items-center justify-center">
+                  <span className="text-xs">📦</span>
+                </div>
+                <span>Default project</span>
+              </div>
+              <ChevronDown className="h-4 w-4 text-gray-400" />
             </button>
           </div>
 
-          {/* User Profile */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-sky-400 flex items-center justify-center text-white font-semibold">
-                {user.email?.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user.user_metadata?.full_name || user.email?.split('@')[0]}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
-              </div>
-            </div>
+          {/* Home Link */}
+          <div className="p-3 border-b border-gray-200">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Home</span>
+            </Link>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="font-medium">{item.name}</span>
-                </Link>
-              );
-            })}
+          {/* Navigation Sections */}
+          <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
+            {navigationSections.map((section) => (
+              <div key={section.title}>
+                <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  {section.title}
+                </h3>
+                <div className="space-y-1">
+                  {section.items.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
+                          isActive
+                            ? 'bg-gray-100 text-gray-900 font-medium'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        }`}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
 
-          {/* Sign Out */}
-          <div className="p-4 border-t border-gray-200">
+          {/* User Profile & Sign Out */}
+          <div className="p-3 border-t border-gray-200 space-y-2">
+            <button className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </button>
             <button
               onClick={handleSignOut}
-              className="flex items-center space-x-3 w-full px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
             >
-              <LogOut className="h-5 w-5" />
-              <span className="font-medium">Sign Out</span>
+              <LogOut className="h-4 w-4" />
+              <span>Sign out</span>
             </button>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="lg:pl-64">
-        {/* Top Navigation */}
+      <div className="lg:pl-56">
+        {/* Top Bar with Search */}
         <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-          <div className="flex items-center justify-between px-4 py-4 lg:px-8">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-
-            {/* Notifications */}
-            <div className="ml-auto">
-              <button className="relative p-2 rounded-lg hover:bg-gray-100">
-                <Bell className="h-6 w-6 text-gray-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          <div className="px-6 py-3">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100"
+              >
+                <Menu className="h-5 w-5" />
               </button>
+              
+              {/* User Info */}
+              <div className="ml-auto flex items-center space-x-3">
+                <div className="hidden md:block text-right">
+                  <p className="text-sm font-medium text-gray-900">
+                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                  </p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-sky-400 flex items-center justify-center text-white text-sm font-semibold">
+                  {user.email?.charAt(0).toUpperCase()}
+                </div>
+              </div>
             </div>
           </div>
         </header>
