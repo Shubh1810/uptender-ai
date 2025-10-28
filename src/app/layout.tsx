@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     description: 'Revolutionary AI-powered tender management platform for India. Get instant notifications for government tenders, healthcare tenders, construction tenders with advanced AI automation.',
     images: [
       {
-        url: '/metalogo.jpeg',
+        url: '/uptenderlogo.png',
         width: 1200,
         height: 630,
         alt: 'TenderPost - AI Tender Management Platform',
@@ -95,7 +95,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'TenderPost - AI Tender Notifier & Automation Platform for India',
     description: 'Revolutionary AI-powered tender management for government tenders across industries in India. Advanced tender automation & bid analysis.',
-    images: ['/metalogo.jpeg'],
+    images: ['/uptenderlogo.png'],
     creator: '@tenderpost',
   },
   alternates: {
@@ -116,48 +116,48 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/metalogo.jpeg',
-        type: 'image/jpeg',
+        url: '/uptenderlogo.png',
+        type: 'image/png',
         sizes: '32x32',
       },
       {
-        url: '/metalogo.jpeg',
-        type: 'image/jpeg',
+        url: '/uptenderlogo.png',
+        type: 'image/png',
         sizes: '16x16',
       },
       {
-        url: '/metalogo.jpeg',
-        type: 'image/jpeg',
+        url: '/uptenderlogo.png',
+        type: 'image/png',
         sizes: '192x192',
       },
       {
-        url: '/metalogo.jpeg',
-        type: 'image/jpeg',
+        url: '/uptenderlogo.png',
+        type: 'image/png',
         sizes: '512x512',
       },
     ],
-    shortcut: '/metalogo.jpeg',
+    shortcut: '/uptenderlogo.png',
     apple: {
-      url: '/metalogo.jpeg',
+      url: '/uptenderlogo.png',
       sizes: '180x180',
-      type: 'image/jpeg',
+      type: 'image/png',
     },
     other: [
       {
         rel: 'icon',
-        url: '/metalogo.jpeg',
-        type: 'image/jpeg',
+        url: '/uptenderlogo.png',
+        type: 'image/png',
         sizes: '16x16',
       },
       {
         rel: 'icon',
-        url: '/metalogo.jpeg',
-        type: 'image/jpeg',
+        url: '/uptenderlogo.png',
+        type: 'image/png',
         sizes: '32x32',
       },
       {
         rel: 'apple-touch-icon',
-        url: '/metalogo.jpeg',
+        url: '/uptenderlogo.png',
         sizes: '180x180',
       },
       {
@@ -172,7 +172,7 @@ export const metadata: Metadata = {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
     'msapplication-TileColor': '#ffffff',
-    'msapplication-TileImage': '/metalogo.jpeg',
+    'msapplication-TileImage': '/uptenderlogo.png',
     'msapplication-config': '/browserconfig.xml',
   },
 };
@@ -195,36 +195,36 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@200..900&display=swap" rel="stylesheet" />
         
         {/* Comprehensive Favicon and Icon Links */}
-        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="16x16" />
-        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="32x32" />
-        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="48x48" />
-        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="64x64" />
-        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="128x128" />
-        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="192x192" />
-        <link rel="icon" href="/metalogo.jpeg" type="image/jpeg" sizes="512x512" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="180x180" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="152x152" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="144x144" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="120x120" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="114x114" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="76x76" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="72x72" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="60x60" />
-        <link rel="apple-touch-icon" href="/metalogo.jpeg" sizes="57x57" />
-        <link rel="shortcut icon" href="/metalogo.jpeg" type="image/jpeg" />
+        <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="16x16" />
+        <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="48x48" />
+        <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="64x64" />
+        <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="128x128" />
+        <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="192x192" />
+        <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="180x180" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="152x152" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="144x144" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="120x120" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="114x114" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="76x76" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="72x72" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="60x60" />
+        <link rel="apple-touch-icon" href="/uptenderlogo.png" sizes="57x57" />
+        <link rel="shortcut icon" href="/uptenderlogo.png" type="image/png" />
         
         {/* Safari Specific */}
-        <link rel="mask-icon" href="/metalogo.jpeg" color="#000000" />
+        <link rel="mask-icon" href="/uptenderlogo.png" color="#000000" />
         <meta name="apple-mobile-web-app-title" content="TenderPost" />
         <meta name="application-name" content="TenderPost" />
         
         {/* Microsoft Tiles */}
         <meta name="msapplication-TileColor" content="#ffffff" />
-        <meta name="msapplication-TileImage" content="/metalogo.jpeg" />
-        <meta name="msapplication-square70x70logo" content="/metalogo.jpeg" />
-        <meta name="msapplication-square150x150logo" content="/metalogo.jpeg" />
-        <meta name="msapplication-wide310x150logo" content="/metalogo.jpeg" />
-        <meta name="msapplication-square310x310logo" content="/metalogo.jpeg" />
+        <meta name="msapplication-TileImage" content="/uptenderlogo.png" />
+        <meta name="msapplication-square70x70logo" content="/uptenderlogo.png" />
+        <meta name="msapplication-square150x150logo" content="/uptenderlogo.png" />
+        <meta name="msapplication-wide310x150logo" content="/uptenderlogo.png" />
+        <meta name="msapplication-square310x310logo" content="/uptenderlogo.png" />
         
         {/* Structured Data - Organization */}
         <script
@@ -235,7 +235,7 @@ export default function RootLayout({
               "@type": "Organization",
               "name": "TenderPost",
               "url": "https://tenderpost.org",
-              "logo": "https://tenderpost.org/metalogo.jpeg",
+              "logo": "https://tenderpost.org/uptenderlogo.png",
               "description": "AI-powered tender management platform for India providing notifications and automation for government tenders across all industries.",
               "foundingDate": "2024",
               "founders": [
@@ -320,7 +320,7 @@ export default function RootLayout({
                 "Healthcare Tender Alerts",
                 "Construction Tender Management"
               ],
-              "screenshot": "https://tenderpost.org/metalogo.jpeg"
+              "screenshot": "https://tenderpost.org/uptenderlogo.png"
             }),
           }}
         />
