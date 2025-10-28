@@ -33,8 +33,14 @@ interface TenderResponse {
   source: string;
   count: number;
   items: Tender[];
-  debug_steps: any[];
-  timestamp: string;
+  debug_steps?: Array<{
+    step: string;
+    status: string;
+    details: any;
+    timestamp: string;
+  }>;
+  total_processing_time?: number;
+  captcha_screenshot?: any;
 }
 
 export default function SearchPage() {
@@ -82,9 +88,22 @@ export default function SearchPage() {
       }
 
       const data: TenderResponse = await response.json();
+      
+      // Check if API returned an error in debug_steps
+      const hasError = data.debug_steps?.some(step => step.status === 'error');
+      if (hasError && data.items.length === 0) {
+        const errorStep = data.debug_steps?.find(step => step.status === 'error');
+        throw new Error(errorStep?.details?.message || 'API processing error');
+      }
+      
       setTenders(data.items || []);
       setTotalCount(data.count || 0);
       setCurrentPage(page);
+      
+      // Log processing time for debugging
+      if (data.total_processing_time) {
+        console.log(`✅ Tenders loaded in ${data.total_processing_time}s`);
+      }
       
       // Track tender search event
       trackTenderSearch({
@@ -93,8 +112,9 @@ export default function SearchPage() {
         page: page,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tenders');
-      console.error('Error fetching tenders:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load tenders';
+      setError(errorMessage);
+      console.error('❌ Error fetching tenders:', err);
     } finally {
       setLoading(false);
     }
