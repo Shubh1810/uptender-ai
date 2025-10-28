@@ -55,7 +55,7 @@ export function Header({
               <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
             </span>
             {variant === 'main' && (
-              <div className="flex items-center space-x-1 ml-3 bg-white/40 backdrop-blur-sm rounded-full px-2 py-1 border border-white/30 shadow-sm">
+              <div className="hidden md:flex items-center space-x-1 ml-3 bg-white/40 backdrop-blur-sm rounded-full px-2 py-1 border border-white/30 shadow-sm">
                 <div className="w-1.5 h-1.5 bg-gray-400 rounded-full shadow-sm"></div>
                 <span className="font-ubuntu text-xs font-medium text-gray-700">0</span>
                 <span className="font-ubuntu text-[10px] text-gray-500">Live</span>
@@ -66,7 +66,10 @@ export function Header({
           {variant === 'main' ? (
             <MainNavigation />
           ) : (
-            <InternalPageNavigation />
+            <>
+              <InternalPageNavigation />
+              <InternalPageDesktopNav />
+            </>
           )}
         </div>
       </div>
@@ -127,8 +130,9 @@ function MainNavigation() {
         </a>
       </div>
       
-      <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900">
-        Sign in with Google
+      <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-sm md:text-base px-3 md:px-4">
+        <span className="hidden md:inline">Sign in with Google</span>
+        <span className="md:hidden">Sign in</span>
       </GoogleSignInButton>
     </nav>
   );
@@ -136,6 +140,28 @@ function MainNavigation() {
 
 // Alternative navigation for tender-guide and other internal pages
 export function InternalPageNavigation() {
+  const posthog = usePostHog();
+
+  const trackInternalNavClick = (page: string) => {
+    posthog?.capture('internal_header_navigation_clicked', {
+      page,
+      location: 'internal_header',
+      timestamp: new Date().toISOString(),
+    });
+    console.log('📊 PostHog tracked internal nav:', page);
+  };
+
+  return (
+    <nav className="flex md:hidden items-center space-x-2">
+      <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-sm px-3">
+        <span>Sign in</span>
+      </GoogleSignInButton>
+    </nav>
+  );
+}
+
+// Desktop navigation for internal pages
+export function InternalPageDesktopNav() {
   const posthog = usePostHog();
 
   const trackInternalNavClick = (page: string) => {
@@ -170,8 +196,8 @@ export function InternalPageNavigation() {
       >
         Pricing
       </Link>
-      <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900">
-        Sign in with Google
+      <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-base px-4">
+        <span>Sign in with Google</span>
       </GoogleSignInButton>
     </nav>
   );
