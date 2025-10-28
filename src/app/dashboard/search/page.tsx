@@ -43,16 +43,57 @@ interface TenderResponse {
   captcha_screenshot?: any;
 }
 
+// Cache key for localStorage
+const TENDERS_CACHE_KEY = 'tenderpost_cached_tenders';
+const CACHE_TIMESTAMP_KEY = 'tenderpost_cache_timestamp';
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
 export default function SearchPage() {
   const [user, setUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [lastFetchTime, setLastFetchTime] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
+
+  // Load cached tenders on mount
+  useEffect(() => {
+    const loadCachedTenders = () => {
+      try {
+        const cachedData = localStorage.getItem(TENDERS_CACHE_KEY);
+        const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+        
+        if (cachedData && cacheTimestamp) {
+          const timestamp = parseInt(cacheTimestamp);
+          const now = Date.now();
+          
+          // Check if cache is still valid (within 30 minutes)
+          if (now - timestamp < CACHE_DURATION) {
+            const parsed = JSON.parse(cachedData);
+            setTenders(parsed.tenders || []);
+            setTotalCount(parsed.totalCount || 0);
+            setCurrentPage(parsed.currentPage || 1);
+            setSearchQuery(parsed.searchQuery || '');
+            setLastFetchTime(new Date(timestamp).toLocaleTimeString());
+            console.log('✅ Loaded tenders from cache');
+          } else {
+            console.log('⏰ Cache expired, clearing...');
+            localStorage.removeItem(TENDERS_CACHE_KEY);
+            localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load cache:', err);
+      }
+    };
+    
+    loadCachedTenders();
+  }, []);
 
   // Auth check
   useEffect(() => {
@@ -70,7 +111,16 @@ export default function SearchPage() {
   // Fetch tenders from API
   const fetchTenders = async (page = 1, query = '') => {
     setLoading(true);
+    setLoadingProgress(0);
     setError(null);
+    
+    // Simulate progress bar for better UX (fills over 60 seconds)
+    const progressInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev >= 95) return prev; // Stop at 95% until real data arrives
+        return prev + 2; // Increment by 2% every interval
+      });
+    }, 1200); // Every 1.2 seconds = 50 intervals to reach 95% in ~60 seconds
     
     try {
       const params = new URLSearchParams({
@@ -96,9 +146,33 @@ export default function SearchPage() {
         throw new Error(errorStep?.details?.message || 'API processing error');
       }
       
-      setTenders(data.items || []);
-      setTotalCount(data.count || 0);
+      // Complete progress bar
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
+
+      const fetchedTenders = data.items || [];
+      const fetchedCount = data.count || 0;
+
+      setTenders(fetchedTenders);
+      setTotalCount(fetchedCount);
       setCurrentPage(page);
+      
+      // Cache the results in localStorage
+      const cacheData = {
+        tenders: fetchedTenders,
+        totalCount: fetchedCount,
+        currentPage: page,
+        searchQuery: query,
+      };
+      
+      try {
+        localStorage.setItem(TENDERS_CACHE_KEY, JSON.stringify(cacheData));
+        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+        setLastFetchTime(new Date().toLocaleTimeString());
+        console.log('💾 Tenders cached successfully');
+      } catch (cacheErr) {
+        console.error('Failed to cache tenders:', cacheErr);
+      }
       
       // Log processing time for debugging
       if (data.total_processing_time) {
@@ -108,24 +182,21 @@ export default function SearchPage() {
       // Track tender search event
       trackTenderSearch({
         query: query || undefined,
-        resultsCount: data.count || 0,
+        resultsCount: fetchedCount,
         page: page,
       });
     } catch (err) {
+      clearInterval(progressInterval);
       const errorMessage = err instanceof Error ? err.message : 'Failed to load tenders';
       setError(errorMessage);
       console.error('❌ Error fetching tenders:', err);
     } finally {
       setLoading(false);
+      setLoadingProgress(0);
     }
   };
 
-  // Initial load
-  useEffect(() => {
-    if (user) {
-      fetchTenders();
-    }
-  }, [user]);
+  // Don't auto-fetch on mount - rely on cached data or manual fetch
 
   // Search handler
   const handleSearch = (e: React.FormEvent) => {
@@ -176,10 +247,17 @@ export default function SearchPage() {
         </form>
       </div>
 
-      {/* Results Count */}
-      {!loading && !error && (
-        <div className="mb-4 text-sm text-gray-600">
-          Found <span className="font-semibold text-gray-900">{totalCount}</span> tenders
+      {/* Results Count & Cache Info */}
+      {!loading && !error && tenders.length > 0 && (
+        <div className="mb-4 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Found <span className="font-semibold text-gray-900">{totalCount}</span> tenders
+          </div>
+          {lastFetchTime && (
+            <div className="text-xs text-gray-500">
+              💾 Last updated: {lastFetchTime}
+            </div>
+          )}
         </div>
       )}
 
@@ -200,11 +278,44 @@ export default function SearchPage() {
         </div>
       )}
 
-      {/* Loading State */}
+      {/* Loading State with Circular Progress */}
       {loading && (
         <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="h-12 w-12 text-blue-600 animate-spin mb-4" />
-          <p className="text-gray-600">Loading tenders...</p>
+          {/* Circular Progress Bar */}
+          <div className="relative w-32 h-32 mb-6">
+            <svg className="transform -rotate-90 w-32 h-32">
+              {/* Background circle */}
+              <circle
+                cx="64"
+                cy="64"
+                r="56"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
+                className="text-gray-200"
+              />
+              {/* Progress circle */}
+              <circle
+                cx="64"
+                cy="64"
+                r="56"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
+                strokeDasharray={2 * Math.PI * 56}
+                strokeDashoffset={2 * Math.PI * 56 * (1 - loadingProgress / 100)}
+                className="text-blue-600 transition-all duration-300 ease-out"
+                strokeLinecap="round"
+              />
+            </svg>
+            {/* Percentage text */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-2xl font-bold text-blue-600">{Math.round(loadingProgress)}%</span>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 font-medium mb-2">Loading tenders...</p>
+          <p className="text-sm text-gray-500">This may take 30-60 seconds on first load</p>
         </div>
       )}
 
