@@ -28,12 +28,42 @@ import { Footer } from '@/components/Footer';
 import { SearchBar } from '@/components/ui/search-bar';
 import { EmailSignup } from '@/components/ui/email-signup';
 import { WaitlistOverlay } from '@/components/ui/waitlist-overlay';
+import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
 
 export default function Home() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
   const [ctaEmail, setCtaEmail] = React.useState('');
   const [ctaLoading, setCtaLoading] = React.useState(false);
   const [ctaSuccess, setCtaSuccess] = React.useState(false);
+  const [tenderStats, setTenderStats] = React.useState<TenderStats>({
+    liveTendersCount: 0,
+    lastUpdated: '',
+    isConnected: false,
+  });
+  
+  // Load live tenders count on mount and listen for updates
+  React.useEffect(() => {
+    const loadStats = async () => {
+      const stats = await getLiveTendersCount();
+      setTenderStats(stats);
+    };
+    
+    loadStats();
+    
+    // Refresh stats every 30 seconds to sync with other users
+    const refreshInterval = setInterval(loadStats, 30000);
+    
+    // Listen for updates from search page on this client
+    const handleUpdate = (event: Event) => {
+      loadStats();
+    };
+    
+    window.addEventListener('live-tenders-updated', handleUpdate);
+    return () => {
+      window.removeEventListener('live-tenders-updated', handleUpdate);
+      clearInterval(refreshInterval);
+    };
+  }, []);
 
   const handleCtaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -297,12 +327,16 @@ export default function Home() {
                     
                     {/* Content */}
                     <div className="relative z-10">
-                      {/* Live Tenders - Not Connected */}
+                      {/* Live Tenders - Dynamic */}
                       <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 bg-gray-400 rounded-full shadow-lg"></div>
+                        <div className={`w-3 h-3 rounded-full shadow-lg ${tenderStats.isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
                         <div>
-                          <div className="font-ubuntu text-xl font-bold text-gray-600">0</div>
-                          <div className="font-ubuntu text-xs text-gray-500 font-medium">Live Tenders · Not Connected</div>
+                          <div className={`font-ubuntu text-xl font-bold ${tenderStats.isConnected ? 'text-green-600' : 'text-gray-600'}`}>
+                            {tenderStats.liveTendersCount.toLocaleString()}
+                          </div>
+                          <div className="font-ubuntu text-xs text-gray-500 font-medium">
+                            Live Tenders {tenderStats.isConnected ? '· Connected' : '· Not Connected'}
+                          </div>
                         </div>
                       </div>
                     </div>

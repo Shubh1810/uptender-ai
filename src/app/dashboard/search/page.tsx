@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { trackTenderSearch, trackTenderExternalClick } from '@/lib/posthog/events';
+import { saveLiveTendersCount } from '@/lib/tender-stats';
 
 interface Tender {
   title: string;
@@ -32,6 +33,7 @@ interface Tender {
 interface TenderResponse {
   source: string;
   count: number;
+  live_tenders: number;  // Total live tenders globally
   items: Tender[];
   debug_steps?: Array<{
     step: string;
@@ -129,8 +131,16 @@ export default function SearchPage() {
         ...(query && { query }),
       });
 
+      // Use localhost in development, Render API in production
+      const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+      const apiBaseUrl = isDevelopment 
+        ? 'http://localhost:8080'  // Local API
+        : 'https://tenderpost-api.onrender.com';  // Production API
+      
+      console.log(`🌐 Using API: ${apiBaseUrl} (${isDevelopment ? 'Development' : 'Production'})`);
+
       const response = await fetch(
-        `https://tenderpost-api.onrender.com/api/tenders?${params}`
+        `${apiBaseUrl}/api/tenders?${params}`
       );
 
       if (!response.ok) {
@@ -152,10 +162,16 @@ export default function SearchPage() {
 
       const fetchedTenders = data.items || [];
       const fetchedCount = data.count || 0;
+      const liveTendersCount = data.live_tenders || 0;  // Get global live tenders count
 
       setTenders(fetchedTenders);
       setTotalCount(fetchedCount);
       setCurrentPage(page);
+      
+      // Save GLOBAL live tenders count for display across all pages (header, hero section)
+      // This is the total number of live tenders available, not just the current page
+      console.log(`📊 Total Live Tenders: ${liveTendersCount}, Current Page Count: ${fetchedCount}`);
+      saveLiveTendersCount(liveTendersCount);
       
       // Cache the results in localStorage
       const cacheData = {
