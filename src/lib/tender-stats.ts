@@ -1,12 +1,11 @@
 // Tender Statistics Management
 // Stores and retrieves live tenders count globally across all users via API
-
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+// Count persists forever until next search (no expiration)
 
 export interface TenderStats {
   liveTendersCount: number;
   lastUpdated: string;
-  isConnected: boolean;
+  isConnected: boolean;  // Always true if data exists
 }
 
 /**
@@ -43,6 +42,7 @@ export async function saveLiveTendersCount(count: number): Promise<void> {
 
 /**
  * Get live tenders count from server (global for all users)
+ * Count persists forever - always shows as "Connected" if data exists
  */
 export async function getLiveTendersCount(): Promise<TenderStats> {
   try {
@@ -58,21 +58,19 @@ export async function getLiveTendersCount(): Promise<TenderStats> {
     const result = await response.json();
     const data = result.data;
     
-    if (data) {
-      const now = Date.now();
-      const savedTime = new Date(data.lastUpdated).getTime();
-      const isRecent = now - savedTime < CACHE_DURATION;
-      
+    if (data && data.liveTendersCount > 0) {
+      // Always show as connected if we have data (no expiration)
       return {
         liveTendersCount: data.liveTendersCount,
         lastUpdated: new Date(data.lastUpdated).toLocaleTimeString(),
-        isConnected: isRecent,
+        isConnected: true,  // Always connected if data exists
       };
     }
   } catch (err) {
     console.error('Failed to get live tenders count:', err);
   }
   
+  // Only return disconnected if no data exists
   return {
     liveTendersCount: 0,
     lastUpdated: '',

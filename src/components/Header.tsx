@@ -38,23 +38,34 @@ export function Header({
   // Load live tenders count on mount and listen for updates
   useEffect(() => {
     const loadStats = async () => {
-      const stats = await getLiveTendersCount();
-      setTenderStats(stats);
+      try {
+        const stats = await getLiveTendersCount();
+        setTenderStats(stats);
+        console.log('🔝 Header: Live tenders updated:', stats.liveTendersCount, stats.isConnected ? '✅ Connected' : '⚠️ Not Connected');
+      } catch (error) {
+        console.error('❌ Header: Failed to load tender stats:', error);
+      }
     };
     
+    // Initial load
     loadStats();
     
     // Refresh stats every 30 seconds to sync with other users
-    const refreshInterval = setInterval(loadStats, 30000);
-    
-    // Listen for updates from search page on this client
-    const handleUpdate = (event: Event) => {
+    const refreshInterval = setInterval(() => {
+      console.log('🔄 Header: Auto-refreshing tender stats...');
       loadStats();
+    }, 30000);
+    
+    // Listen for immediate updates from search page on this client
+    const handleUpdate = (event: CustomEvent) => {
+      console.log('📡 Header: Received live-tenders-updated event:', event.detail);
+      // Force immediate reload to get fresh data from server
+      setTimeout(loadStats, 100); // Small delay to ensure server has saved
     };
     
-    window.addEventListener('live-tenders-updated', handleUpdate);
+    window.addEventListener('live-tenders-updated', handleUpdate as EventListener);
     return () => {
-      window.removeEventListener('live-tenders-updated', handleUpdate);
+      window.removeEventListener('live-tenders-updated', handleUpdate as EventListener);
       clearInterval(refreshInterval);
     };
   }, []);
