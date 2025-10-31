@@ -4,7 +4,7 @@ create table if not exists public.profiles (
   full_name text,
   company text,
   business_type text check (business_type in (
-    'Proprietorship','Pvt Ltd','LLP','MSME','Startup','Consultant','Individual'
+    'Proprietorship','Private Limited','Limited Liability Partnership','Micro, Small & Medium Enterprises (MSME)','Startup','Consultant','Individual'
   )),
   gst_number_enc bytea, -- optional encrypted GST
   gst_verified boolean default false,
