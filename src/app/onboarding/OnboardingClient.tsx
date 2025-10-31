@@ -16,6 +16,7 @@ export default function OnboardingClient() {
   const [loading, setLoading] = React.useState(false);
 
   const [fullName, setFullName] = React.useState('');
+  const [isFullNameLocked, setIsFullNameLocked] = React.useState(false);
   const [company, setCompany] = React.useState('');
   const [businessType, setBusinessType] = React.useState('Proprietorship');
   const [gstNumber, setGstNumber] = React.useState('');
@@ -41,10 +42,53 @@ export default function OnboardingClient() {
     const stepParam = searchParams?.get('step');
     if (stepParam === '1' || stepParam === '2' || stepParam === '3') {
       setStep(parseInt(stepParam, 10) as Step);
+      return; // Don't check onboarding if step is explicitly set
     }
 
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user && !stepParam) setStep(2);
+      if (data.user) {
+        // Check if user has completed onboarding before redirecting to step 2
+        supabase
+          .from('profiles')
+          .select('onboarding_completed, full_name')
+          .eq('id', data.user.id)
+          .maybeSingle()
+          .then(({ data: profile, error }) => {
+            if (error) {
+              console.error('Error fetching profile:', error);
+              // On error, default to step 2
+              if (!stepParam) setStep(2);
+            } else if (profile) {
+              // If onboarding is completed, redirect to dashboard
+              if (profile.onboarding_completed === true || profile.onboarding_completed === 'true') {
+                window.location.href = '/dashboard';
+                return;
+              }
+              // If not completed, go to step 2
+              if (!stepParam) setStep(2);
+              
+              // Set full name if available
+              if (profile.full_name) {
+                setFullName(profile.full_name);
+                setIsFullNameLocked(true);
+              }
+            } else {
+              // No profile exists, go to step 2
+              if (!stepParam) setStep(2);
+            }
+          });
+        
+        // Also check user_metadata from auth for full name
+        const oauthFullName = 
+          data.user.user_metadata?.full_name || 
+          data.user.user_metadata?.name || 
+          data.user.user_metadata?.display_name;
+        
+        if (oauthFullName) {
+          setFullName(oauthFullName);
+          setIsFullNameLocked(true);
+        }
+      }
     });
   }, [supabase, searchParams]);
 
@@ -90,10 +134,26 @@ export default function OnboardingClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to save onboarding');
-      setStep(3);
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Onboarding API error:', errorData);
+        throw new Error(
+          errorData.details 
+            ? `Validation error: ${JSON.stringify(errorData.details)}` 
+            : errorData.error || 'Failed to save onboarding'
+        );
+      }
+      
+      const result = await res.json();
+      console.log('Onboarding saved successfully:', result);
+      
+      // Redirect to dashboard after successful onboarding
+      window.location.href = '/dashboard';
     } catch (e) {
-      alert((e as Error).message);
+      const errorMessage = (e as Error).message || 'An error occurred';
+      console.error('Onboarding submit error:', e);
+      alert(`Failed to save onboarding: ${errorMessage}\n\nPlease check the browser console for details.`);
     } finally {
       setLoading(false);
     }
@@ -146,7 +206,14 @@ export default function OnboardingClient() {
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Company Details</h2>
                 <div className="grid grid-cols-1 gap-4">
-                  <input className="border rounded-md px-3 py-2" placeholder="Full name" value={fullName} onChange={e => setFullName(e.target.value)} />
+                  <input 
+                    className={`border rounded-md px-3 py-2 ${isFullNameLocked ? 'bg-gray-100 cursor-not-allowed' : ''}`} 
+                    placeholder="Full name" 
+                    value={fullName} 
+                    onChange={e => setFullName(e.target.value)} 
+                    disabled={isFullNameLocked}
+                    readOnly={isFullNameLocked}
+                  />
                   <input className="border rounded-md px-3 py-2" placeholder="Company name" value={company} onChange={e => setCompany(e.target.value)} />
                   <select className="border rounded-md px-3 py-2" value={businessType} onChange={e => setBusinessType(e.target.value)}>
                     {['Proprietorship','Pvt Ltd','LLP','MSME','Startup','Consultant','Individual'].map(o => (

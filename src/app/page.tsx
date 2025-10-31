@@ -428,7 +428,7 @@ export default function Home() {
       </section>
 
       {/* Workflow Section - Revamped to 3-step carousel (Save, Get Notified, Win) */}
-      <section id="workflow" className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 relative z-10 flex items-center" style={{ backgroundColor: '#fefcf3' }}>
+      <section ref={(el) => { (window as any).__workflowSection = el; }} id="workflow" className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 relative z-10 flex items-center" style={{ backgroundColor: '#fefcf3' }}>
         {(() => {
           const steps = [
             {
@@ -448,28 +448,28 @@ export default function Home() {
                       <path d="M0,220 C150,340 300,100 450,220 S750,340 900,220 1050,100 1200,220" stroke="white" strokeWidth="2" fill="none" opacity="0.7" />
                       <path d="M0,320 C150,440 300,200 450,320 S750,440 900,320 1050,200 1200,320" stroke="white" strokeWidth="2" fill="none" opacity="0.5" />
                     </svg>
-                  </div>
+          </div>
                   <div className="relative space-y-3 w-full">
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
                       <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
                       <div className="flex flex-col">
                         <span className="font-medium text-gray-900">Profile information</span>
                         <span className="text-xs text-gray-500">Name, phone, GSTIN, company details</span>
-                      </div>
-                    </div>
+              </div>
+            </div>
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
                       <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
                       <div className="flex flex-col">
                         <span className="font-medium text-gray-900">Saved documents</span>
                         <span className="text-xs text-gray-500">PAN, MSME, past bids, templates</span>
-                      </div>
-                    </div>
+            </div>
+              </div>
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
                       <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
                       <div className="flex flex-col">
                         <span className="font-medium text-gray-900">Preferred categories</span>
                         <span className="text-xs text-gray-500">Sectors, locations, budget range</span>
-                      </div>
+            </div>
                     </div>
                   </div>
                 </div>
@@ -491,8 +491,8 @@ export default function Home() {
                       <path d="M0,120 C150,240 300,0 450,120 S750,240 900,120 1050,0 1200,120" stroke="white" strokeWidth="2" fill="none" />
                       <path d="M0,220 C150,340 300,100 450,220 S750,340 900,220 1050,100 1200,220" stroke="white" strokeWidth="2" fill="none" opacity="0.7" />
                       <path d="M0,320 C150,440 300,200 450,320 S750,440 900,320 1050,200 1200,320" stroke="white" strokeWidth="2" fill="none" opacity="0.5" />
-                    </svg>
-                  </div>
+              </svg>
+            </div>
                   <div className="relative grid gap-3 w-full">
                     {/* Gmail card */}
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
@@ -501,24 +501,24 @@ export default function Home() {
                           <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.273L12 10.91l10.091-7.09h.273c.904 0 1.636.732 1.636 1.636z"/>
                           </svg>
-                        </div>
+              </div>
                         <span>Email alert</span>
-                      </div>
+            </div>
                       <span className="text-green-600 text-sm font-medium">Enabled</span>
-                    </div>
+          </div>
 
                     {/* WhatsApp card */}
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                           <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
-                          </svg>
-                        </div>
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
+                </svg>
+              </div>
                         <span>WhatsApp alert</span>
                       </div>
                       <span className="text-green-600 text-sm font-medium">Enabled</span>
-                    </div>
+              </div>
 
                     {/* AI relevance card */}
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
@@ -550,17 +550,17 @@ export default function Home() {
                       <path d="M0,120 C150,240 300,0 450,120 S750,240 900,120 1050,0 1200,120" stroke="white" strokeWidth="2" fill="none" />
                       <path d="M0,220 C150,340 300,100 450,220 S750,340 900,220 1050,100 1200,220" stroke="white" strokeWidth="2" fill="none" opacity="0.7" />
                       <path d="M0,320 C150,440 300,200 450,320 S750,440 900,320 1050,200 1200,320" stroke="white" strokeWidth="2" fill="none" opacity="0.5" />
-                    </svg>
-                  </div>
+                </svg>
+              </div>
                   <div className="relative space-y-3 w-full">
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
                       <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
                       Compliance checklist
-                    </div>
+            </div>
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
                       <Target className="h-5 w-5 text-purple-600 mr-3" />
                       Competitive insights
-                    </div>
+          </div>
                     <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
                       <TrendingUp className="h-5 w-5 text-rose-600 mr-3" />
                       Likelihood to win
@@ -572,71 +572,175 @@ export default function Home() {
           ] as const;
 
           const [active, setActive] = React.useState<number>(0);
-          const [played, setPlayed] = React.useState<boolean>(false);
-          const sectionRef = React.useRef<HTMLDivElement | null>(null);
+          const [isLocked, setIsLocked] = React.useState<boolean>(false);
+          const [completedCycle, setCompletedCycle] = React.useState<boolean>(false);
+          const sectionRef = React.useRef<HTMLElement | null>(null);
+          const contentRef = React.useRef<HTMLDivElement | null>(null);
+          const scrollPosRef = React.useRef<number>(0);
+          const touchStartYRef = React.useRef<number>(0);
+          const lastScrollTimeRef = React.useRef<number>(0);
 
+          // Lock scroll when section is fully in view
           React.useEffect(() => {
-            const node = sectionRef.current;
+            const node = (window as any).__workflowSection as HTMLElement | null;
             if (!node) return;
+            
             const observer = new IntersectionObserver(
               (entries) => {
                 const entry = entries[0];
-                if (entry.isIntersecting && !played) {
-                  setPlayed(true);
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
+                  if (!isLocked && !completedCycle) {
+                    setIsLocked(true);
+                    // Store scroll position BEFORE locking
+                    scrollPosRef.current = window.scrollY;
+                    // Lock scroll using overflow (better than position: fixed)
+                    document.documentElement.style.overflow = 'hidden';
+                    document.body.style.overflow = 'hidden';
+                  }
+                } else if (completedCycle || !entry.isIntersecting) {
+                  if (isLocked) {
+                    setIsLocked(false);
+                    // Unlock scroll
+                    document.documentElement.style.overflow = '';
+                    document.body.style.overflow = '';
+                    // Restore scroll position from ref (not from style)
+                    window.scrollTo(0, scrollPosRef.current);
+                  }
                 }
               },
-              { threshold: 0.3 }
+              { threshold: [0, 0.9] }
             );
+            
             observer.observe(node);
-            return () => observer.disconnect();
-          }, [played]);
-
-          React.useEffect(() => {
-            if (!played) return;
-            let cancelled = false;
-            let step = 0;
-            const id = setInterval(() => {
-              step += 1;
-              if (cancelled) return;
-              setActive((prev) => {
-                if (prev >= steps.length - 1) {
-                  clearInterval(id);
-                  return prev;
-                }
-                return prev + 1;
-              });
-              if (step >= steps.length - 1) {
-                clearInterval(id);
-              }
-            }, 2000);
             return () => {
-              cancelled = true;
-              clearInterval(id);
+              observer.disconnect();
+              if (isLocked) {
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
+              }
             };
-          }, [played]);
+          }, [isLocked, completedCycle]);
+
+          // Handle scroll to advance carousel when locked - attach to section only
+          React.useEffect(() => {
+            if (!isLocked || completedCycle) return;
+            
+            const el = (window as any).__workflowSection as HTMLElement | null;
+            if (!el) return;
+
+            const handleWheel = (e: WheelEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              const now = performance.now();
+              if (now - lastScrollTimeRef.current < 600) return;
+              lastScrollTimeRef.current = now;
+              
+              if (Math.abs(e.deltaY) < 10) return;
+              
+              setActive((prev) => {
+                const direction = e.deltaY > 0 ? 1 : -1;
+                const next = Math.min(Math.max(prev + direction, 0), steps.length - 1);
+                
+                if (next === steps.length - 1 && direction === 1) {
+                  // Completed cycle - unlock after brief delay
+                  setTimeout(() => {
+                    setCompletedCycle(true);
+                    setIsLocked(false);
+                    document.documentElement.style.overflow = '';
+                    document.body.style.overflow = '';
+                    window.scrollTo(0, scrollPosRef.current);
+                  }, 300);
+                }
+                
+                return next;
+              });
+            };
+
+            const handleTouchStart = (e: TouchEvent) => {
+              const touch = e.touches[0];
+              if (touch) {
+                touchStartYRef.current = touch.clientY;
+              }
+            };
+
+            const handleTouchMove = (e: TouchEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              const touch = e.touches[0];
+              if (!touch) return;
+              
+              const dy = touch.clientY - touchStartYRef.current;
+              if (Math.abs(dy) < 30) return;
+              
+              const now = performance.now();
+              if (now - lastScrollTimeRef.current < 600) return;
+              lastScrollTimeRef.current = now;
+              
+              setActive((prev) => {
+                const direction = dy < 0 ? 1 : -1; // Swipe up = next, swipe down = prev
+                const next = Math.min(Math.max(prev + direction, 0), steps.length - 1);
+                
+                if (next === steps.length - 1 && direction === 1) {
+                  setTimeout(() => {
+                    setCompletedCycle(true);
+                    setIsLocked(false);
+                    document.documentElement.style.overflow = '';
+                    document.body.style.overflow = '';
+                    window.scrollTo(0, scrollPosRef.current);
+                  }, 300);
+                }
+                
+                return next;
+              });
+              
+              touchStartYRef.current = touch.clientY;
+            };
+
+            // Attach listeners to section element, not window
+            el.addEventListener('wheel', handleWheel, { passive: false });
+            el.addEventListener('touchstart', handleTouchStart, { passive: true });
+            el.addEventListener('touchmove', handleTouchMove, { passive: false });
+            
+            return () => {
+              el.removeEventListener('wheel', handleWheel);
+              el.removeEventListener('touchstart', handleTouchStart);
+              el.removeEventListener('touchmove', handleTouchMove);
+            };
+          }, [isLocked, completedCycle, steps.length]);
 
           return (
-            <div ref={sectionRef} className="max-w-5xl mx-auto -translate-y-4 md:-translate-y-6 lg:-translate-y-10">
+            <div ref={contentRef} className="max-w-5xl mx-auto -translate-y-4 md:-translate-y-6 lg:-translate-y-10">
               {/* Tabs */}
               <div className="w-full max-w-xl mx-auto lg:mx-0 flex items-center gap-6 text-base md:text-lg font-medium text-gray-600 mb-8 justify-center lg:justify-start">
                 {steps.map((s, idx) => (
-                  <button
+                  <motion.button
                     key={s.key}
                     type="button"
                     onClick={() => setActive(idx)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     className={`transition-colors ${active === idx ? 'text-gray-900 font-semibold' : 'hover:text-gray-700'}`}
                     aria-current={active === idx}
                     aria-controls={`workflow-panel-${s.key}`}
                   >
                     {s.label}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
 
               {/* Panels */}
               <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center justify-items-center">
                 {/* Left copy */}
-                <div className="w-full max-w-xl text-center lg:text-left">
+                <motion.div 
+                  key={`content-${active}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="w-full max-w-xl text-center lg:text-left"
+                >
                   <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-gray-900">
                     {steps[active].title}
                   </h2>
@@ -646,16 +750,24 @@ export default function Home() {
                   <Link href={steps[active].cta.href}>
                     <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-6">
                       {steps[active].cta.text}
-                    </Button>
-                  </Link>
-                </div>
+              </Button>
+            </Link>
+                </motion.div>
 
                 {/* Right visual */}
-                <div id={`workflow-panel-${steps[active].key}`} className="min-h-[260px] w-full max-w-md mx-auto -mt-6 md:-mt-8 lg:-mt-12 self-start">
+                <motion.div 
+                  key={`visual-${active}`}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.4 }}
+                  id={`workflow-panel-${steps[active].key}`} 
+                  className="min-h-[260px] w-full max-w-md mx-auto -mt-6 md:-mt-8 lg:-mt-12 self-start"
+                >
                   {steps[active].right}
-                </div>
-              </div>
-            </div>
+                </motion.div>
+          </div>
+        </div>
           );
         })()}
       </section>

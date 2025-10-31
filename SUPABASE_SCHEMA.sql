@@ -62,16 +62,33 @@ create policy "self-saved-delete" on public.saved_tenders for delete using (auth
 -- Bootstrap trigger to auto-create profile and preferences at signup
 create or replace function public.handle_new_user()
 returns trigger as $$
+declare
+  user_full_name text;
 begin
+  -- Extract full name from Google metadata (tries multiple possible fields)
+  user_full_name := coalesce(
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'name',
+    new.raw_user_meta_data->>'display_name',
+    ''
+  );
+
+  -- Insert profile (with name from Google if available)
   insert into public.profiles (id, full_name, onboarding_completed)
-  values (new.id, coalesce(new.raw_user_meta_data->>'name',''), false)
+  values (new.id, user_full_name, false)
   on conflict (id) do nothing;
 
+  -- Insert user preferences (defaults will be applied)
   insert into public.user_preferences (user_id)
   values (new.id)
   on conflict (user_id) do nothing;
 
   return new;
+exception
+  when others then
+    -- Log error but don't fail the user creation
+    raise warning 'Error creating profile for user %: %', new.id, sqlerrm;
+    return new;
 end; $$ language plpgsql security definer;
 
 drop trigger if exists on_auth_user_created on auth.users;

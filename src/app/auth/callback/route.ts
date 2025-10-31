@@ -76,20 +76,36 @@ export async function GET(request: Request) {
       // Decide onboarding vs dashboard by checking profiles.onboarding_completed
       const { data: { user } } = await (await createClient()).auth.getUser();
       let redirectPath = next; // default from query (?next=...)
-      try {
-        if (user) {
+      
+      if (user) {
+        try {
           const supa = await createClient();
-          const { data: prof } = await supa
+          const { data: prof, error: profError } = await supa
             .from('profiles')
             .select('onboarding_completed')
             .eq('id', user.id)
             .maybeSingle();
-          if (!prof || prof.onboarding_completed !== true) {
-            // Send user to onboarding step 2 explicitly
+          
+          if (profError) {
+            console.error('Error checking onboarding status:', profError);
+            // If we can't check, assume onboarding needed
             redirectPath = '/onboarding?step=2';
+          } else if (!prof) {
+            // No profile exists, need onboarding
+            redirectPath = '/onboarding?step=2';
+          } else if (prof.onboarding_completed !== true && prof.onboarding_completed !== 'true') {
+            // Onboarding not completed (handle both boolean and string)
+            redirectPath = '/onboarding?step=2';
+          } else {
+            // Onboarding completed, go to dashboard
+            redirectPath = '/dashboard';
           }
+        } catch (e) {
+          console.error('Exception checking onboarding status:', e);
+          // On error, assume onboarding needed
+          redirectPath = '/onboarding?step=2';
         }
-      } catch {}
+      }
 
       // Create response with redirect (to onboarding or dashboard)
       const response = NextResponse.redirect(baseRedirect(redirectPath));
