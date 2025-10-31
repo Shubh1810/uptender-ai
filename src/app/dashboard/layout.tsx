@@ -92,8 +92,24 @@ export default function DashboardLayout({
 
   const handleSignOut = async () => {
     trackUserSignedOut();
-    await supabase.auth.signOut();
-    router.push('/');
+    try {
+      // Sign out from Supabase - this should clear the session
+      const { error } = await supabase.auth.signOut({
+        scope: 'global'
+      });
+      
+      if (error) {
+        console.error('Sign out error:', error);
+      }
+      
+      // Force redirect to ensure logout is processed
+      // Using window.location instead of router to ensure full page reload
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Force redirect even on error
+      window.location.href = '/';
+    }
   };
 
   // Track dashboard section views
