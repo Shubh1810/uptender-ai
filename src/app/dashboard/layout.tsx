@@ -91,9 +91,30 @@ export default function DashboardLayout({
   }, [router, supabase.auth]);
 
   const handleSignOut = async () => {
-    trackUserSignedOut();
-    await supabase.auth.signOut();
-    router.push('/');
+    try {
+      trackUserSignedOut();
+      
+      // Get the site URL for redirect (production or localhost)
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+      
+      // Sign out with redirect option for production
+      const { error } = await supabase.auth.signOut({
+        scope: 'global'
+      });
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        // Even if signOut fails, redirect to homepage
+      }
+      
+      // Use window.location.href for a full page reload to clear all state
+      // This ensures cookies are cleared properly in production
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out exception:', error);
+      // Fallback: force redirect even on error
+      window.location.href = '/';
+    }
   };
 
   // Track dashboard section views
