@@ -18,6 +18,19 @@ interface HeaderProps {
   backButtonText?: string;
 }
 
+function getInitialsFromUser(user: User | null): string {
+  const meta = (user?.user_metadata as Record<string, any>) || {};
+  const fullName: string | undefined = meta.full_name || meta.name || meta.fullName;
+  const email: string | undefined = user?.email || meta.email;
+  // Prefer first name from full name; otherwise use email username
+  const source = (fullName && fullName.trim()) || email || '';
+  if (!source) return '';
+  const namePart = source.includes('@') ? source.split('@')[0] : source;
+  const firstName = namePart.trim().split(/\s+/).filter(Boolean)[0] || '';
+  const firstInitial = firstName.charAt(0);
+  return firstInitial.toUpperCase();
+}
+
 export function Header({ 
   variant = 'main', 
   className = '', 
@@ -196,27 +209,25 @@ function MainNavigation() {
       </div>
       
       {user ? (
-        // Logged in user - show Dashboard button with profile picture
-        <Link href="/dashboard">
-          <Button className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-sm md:text-base px-3 md:px-4 flex items-center gap-2">
-            {user.user_metadata?.avatar_url && (
-              <Image
-                src={user.user_metadata.avatar_url}
-                alt="Profile"
-                width={24}
-                height={24}
-                className="rounded-full"
-              />
-            )}
-            <span className="hidden md:inline">Dashboard</span>
-            <span className="md:hidden">Dashboard</span>
-          </Button>
+        // Logged in user - show clickable avatar linking to dashboard
+        <Link href="/dashboard" className="inline-flex items-center">
+          {user.user_metadata?.avatar_url ? (
+            <Image
+              src={user.user_metadata.avatar_url}
+              alt="Profile"
+              width={36}
+              height={36}
+              className="rounded-full border border-gray-300 shadow-sm"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center text-sm font-semibold border border-white/40 shadow-sm">{getInitialsFromUser(user)}</div>
+          )}
         </Link>
       ) : (
-        // Not logged in - show sign in button
-        <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-sm md:text-base px-3 md:px-4">
-          <span className="hidden md:inline">Sign in with Google</span>
-          <span className="md:hidden">Sign in</span>
+        // Not logged in - show Get started button
+        <GoogleSignInButton hideIcon startOnboarding className="get-started-cta text-sm md:text-base">
+          <span className="hidden md:inline">Get started</span>
+          <span className="md:hidden">Get started</span>
         </GoogleSignInButton>
       )}
     </nav>
@@ -258,23 +269,22 @@ export function InternalPageNavigation() {
   return (
     <nav className="flex md:hidden items-center space-x-2">
       {user ? (
-        <Link href="/dashboard">
-          <Button className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-sm px-3 flex items-center gap-2">
-            {user.user_metadata?.avatar_url && (
-              <Image
-                src={user.user_metadata.avatar_url}
-                alt="Profile"
-                width={20}
-                height={20}
-                className="rounded-full"
-              />
-            )}
-            <span>Dashboard</span>
-          </Button>
+        <Link href="/dashboard" className="inline-flex items-center">
+          {user.user_metadata?.avatar_url ? (
+            <Image
+              src={user.user_metadata.avatar_url}
+              alt="Profile"
+              width={32}
+              height={32}
+              className="rounded-full border border-gray-300 shadow-sm"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center text-xs font-semibold border border-white/40 shadow-sm">{getInitialsFromUser(user)}</div>
+          )}
         </Link>
       ) : (
-        <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-sm px-3">
-          <span>Sign in</span>
+        <GoogleSignInButton hideIcon startOnboarding className="get-started-cta text-sm">
+          <span>Get started</span>
         </GoogleSignInButton>
       )}
     </nav>
@@ -337,23 +347,22 @@ export function InternalPageDesktopNav() {
         Pricing
       </Link>
       {user ? (
-        <Link href="/dashboard">
-          <Button className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-base px-4 flex items-center gap-2">
-            {user.user_metadata?.avatar_url && (
-              <Image
-                src={user.user_metadata.avatar_url}
-                alt="Profile"
-                width={24}
-                height={24}
-                className="rounded-full"
-              />
-            )}
-            <span>Dashboard</span>
-          </Button>
+        <Link href="/dashboard" className="inline-flex items-center">
+          {user.user_metadata?.avatar_url ? (
+            <Image
+              src={user.user_metadata.avatar_url}
+              alt="Profile"
+              width={36}
+              height={36}
+              className="rounded-full border border-gray-300 shadow-sm"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center text-sm font-semibold border border-white/40 shadow-sm">{getInitialsFromUser(user)}</div>
+          )}
         </Link>
       ) : (
-        <GoogleSignInButton className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 text-base px-4">
-          <span>Sign in with Google</span>
+        <GoogleSignInButton hideIcon startOnboarding className="get-started-cta text-base">
+          <span>Get started</span>
         </GoogleSignInButton>
       )}
     </nav>

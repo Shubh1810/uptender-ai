@@ -14,6 +14,8 @@ import {
   BarChart3,
   Bell,
   Target,
+  Save,
+  Trophy,
   TrendingUp,
   Search,
   Heart,
@@ -152,7 +154,7 @@ export default function Home() {
   const pricingPlans = [
     {
       name: 'Basic',
-      price: 9134,
+      price: 999,
       description: 'Essential tender tracking for small businesses',
       features: [
         'Government tender notifications',
@@ -164,7 +166,7 @@ export default function Home() {
     },
     {
       name: 'Professional',
-      price: 12353,
+      price: 1249,
       description: 'Advanced features for growing companies',
       features: [
         'All Basic features',
@@ -177,7 +179,7 @@ export default function Home() {
     },
     {
       name: 'Enterprise',
-      price: 14983,
+      price: 1499,
       description: 'Complete solution for large organizations',
       features: [
         'All Professional features',
@@ -187,7 +189,8 @@ export default function Home() {
         'Custom integrations',
         'White-label options'
       ],
-      popular: true
+      popular: true,
+      showBadge: false
     }
   ];
 
@@ -246,33 +249,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Blue Glow Blur Balls - Background Design Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Large blur balls */}
-        <div className="absolute top-20 left-10 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-40 right-20 w-80 h-80 bg-sky-300/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-32 left-1/4 w-72 h-72 bg-blue-500/12 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }} />
-        
-        {/* Medium blur balls */}
-        <div className="absolute top-1/3 left-1/2 w-48 h-48 bg-cyan-400/8 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-20 right-10 w-56 h-56 bg-blue-300/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }} />
-        <div className="absolute top-2/3 left-20 w-44 h-44 bg-sky-400/9 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '5s' }} />
-        <div className="absolute top-10 right-1/3 w-52 h-52 bg-blue-600/8 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '6s' }} />
-        
-        {/* Small blur balls */}
-        <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-cyan-300/12 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1.5s' }} />
-        <div className="absolute bottom-1/3 left-1/3 w-28 h-28 bg-blue-400/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '3.5s' }} />
-        <div className="absolute top-1/2 right-16 w-36 h-36 bg-sky-500/8 rounded-full blur-xl animate-pulse" style={{ animationDelay: '2.5s' }} />
-        <div className="absolute bottom-1/4 right-1/3 w-40 h-40 bg-blue-300/9 rounded-full blur-xl animate-pulse" style={{ animationDelay: '4.5s' }} />
-        <div className="absolute top-3/4 left-1/2 w-24 h-24 bg-cyan-400/11 rounded-full blur-xl animate-pulse" style={{ animationDelay: '5.5s' }} />
-        
-        {/* Extra small accent balls */}
-        <div className="absolute top-16 left-1/3 w-20 h-20 bg-blue-500/12 rounded-full blur-lg animate-pulse" style={{ animationDelay: '0.5s' }} />
-        <div className="absolute bottom-16 left-16 w-16 h-16 bg-sky-400/14 rounded-full blur-lg animate-pulse" style={{ animationDelay: '2.8s' }} />
-        <div className="absolute top-1/3 right-20 w-18 h-18 bg-cyan-300/10 rounded-full blur-lg animate-pulse" style={{ animationDelay: '4.2s' }} />
-      </div>
-
+    <div className="min-h-screen" style={{ backgroundColor: '#fefcf3' }}>
       {/* Header */}
       <Header variant="main" />
 
@@ -289,8 +266,10 @@ export default function Home() {
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Full-bleed hero background on desktop only: keep mobile/tablet unchanged */}
+          <div className="lg:mx-[calc(50%-50vw+12px)]">
           <div 
-            className="relative flex items-center bg-cover bg-center rounded-3xl p-6 lg:p-24 bg-white min-h-[400px] lg:min-h-[550px]" 
+            className="relative flex items-center bg-cover bg-center rounded-3xl px-4 sm:px-6 lg:px-8 py-6 lg:py-24 pb-12 bg-white min-h-[400px] lg:min-h-[650px]" 
             style={{ 
               backgroundImage: "url('/mainbackk.PNG')",
               backgroundSize: 'cover',
@@ -365,9 +344,9 @@ export default function Home() {
           
           {/* Trusted By Section - Floating below container */}
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-            <div className="text-center">
-              <p className="text-sm text-gray-500 font-medium mb-6">Trusted by leading organizations</p>
-              <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-12 opacity-60">
+            <div className="flex flex-col items-center lg:flex-row lg:items-center gap-4 lg:gap-16">
+              <p className="text-sm text-gray-500 font-medium whitespace-nowrap">Trusted by leading organizations</p>
+              <div className="flex flex-wrap items-center gap-4 lg:gap-9 opacity-60 justify-center lg:justify-start">
                 {/* Real company logos */}
                 <div className="h-12 w-auto flex items-center justify-center">
                   <Image
@@ -375,7 +354,7 @@ export default function Home() {
                     alt="ISO Certified"
                     width={80}
                     height={48}
-                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    className="h-8 lg:h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
                 <div className="h-12 w-auto flex items-center justify-center">
@@ -384,7 +363,7 @@ export default function Home() {
                     alt="Make In India"
                     width={120}
                     height={48}
-                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    className="h-8 lg:h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
                 <div className="h-12 w-auto flex items-center justify-center">
@@ -393,7 +372,7 @@ export default function Home() {
                     alt="MSME Registered"
                     width={100}
                     height={48}
-                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    className="h-8 lg:h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
                 <div className="h-12 w-auto flex items-center justify-center">
@@ -402,7 +381,7 @@ export default function Home() {
                     alt="NSIC"
                     width={90}
                     height={48}
-                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    className="h-8 lg:h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
                 <div className="h-12 w-auto flex items-center justify-center">
@@ -411,7 +390,7 @@ export default function Home() {
                     alt="CE Mark"
                     width={80}
                     height={48}
-                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    className="h-8 lg:h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
                 <div className="h-12 w-auto flex items-center justify-center">
@@ -420,7 +399,7 @@ export default function Home() {
                     alt="WHO"
                     width={80}
                     height={48}
-                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    className="h-8 lg:h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
                 <div className="h-12 w-auto flex items-center justify-center">
@@ -429,7 +408,7 @@ export default function Home() {
                     alt="ATMA"
                     width={80}
                     height={48}
-                    className="h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    className="h-8 lg:h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
                 <div className="h-12 w-auto flex items-center justify-center">
@@ -438,105 +417,251 @@ export default function Home() {
                     alt="CDSCO"
                     width={110}
                     height={58}
-                    className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                    className="h-10 lg:h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
                   />
                 </div>
               </div>
             </div>
           </div>
+          </div>
         </div>
       </section>
 
-      {/* Minimal Workflow Section */}
-      <section id="workflow" className="py-20 px-4 sm:px-6 lg:px-8 relative z-10" style={{ backgroundColor: '#fefcf3' }}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-3 text-gray-900">
-              Smart Tender Notifications
-            </h2>
-            <p className="text-lg text-gray-600">
-              AI detection → Multi-channel alerts → Win more tenders
-            </p>
-          </div>
+      {/* Workflow Section - Revamped to 3-step carousel (Save, Get Notified, Win) */}
+      <section id="workflow" className="py-24 px-4 sm:px-6 lg:px-8 relative z-10" style={{ backgroundColor: '#fefcf3' }}>
+        {(() => {
+          const steps = [
+            {
+              key: 'save',
+              label: 'Save',
+              title: 'Save time with auto-filled tender details',
+              description:
+                'We securely save your preferences, documents and past bids so forms are auto‑filled the next time you apply.',
+              cta: { href: '/onboarding', text: 'Start saving' },
+              icon: Save,
+              right: (
+                <div className="relative rounded-3xl p-6 border shadow-xl overflow-hidden h-[280px] flex items-center" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
+                  {/* DNA-like white wavy lines overlay */}
+                  <div className="absolute inset-0 pointer-events-none opacity-30">
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="none">
+                      <path d="M0,120 C150,240 300,0 450,120 S750,240 900,120 1050,0 1200,120" stroke="white" strokeWidth="2" fill="none" />
+                      <path d="M0,220 C150,340 300,100 450,220 S750,340 900,220 1050,100 1200,220" stroke="white" strokeWidth="2" fill="none" opacity="0.7" />
+                      <path d="M0,320 C150,440 300,200 450,320 S750,440 900,320 1050,200 1200,320" stroke="white" strokeWidth="2" fill="none" opacity="0.5" />
+                    </svg>
+                  </div>
+                  <div className="relative space-y-3 w-full">
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-900">Profile information</span>
+                        <span className="text-xs text-gray-500">Name, phone, GSTIN, company details</span>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-900">Saved documents</span>
+                        <span className="text-xs text-gray-500">PAN, MSME, past bids, templates</span>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-900">Preferred categories</span>
+                        <span className="text-xs text-gray-500">Sectors, locations, budget range</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: 'notify',
+              label: 'Get notified',
+              title: 'Get notified the moment a tender matches',
+              description:
+                'Real‑time alerts across email and WhatsApp with AI‑selected relevance so you only see what matters.',
+              cta: { href: '/make-payment?plan=professional&amount=12353', text: 'Enable alerts' },
+              icon: Bell,
+              right: (
+                <div className="relative rounded-3xl p-6 border shadow-xl h-[280px] flex items-center overflow-hidden" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
+                  {/* DNA-like white wavy lines overlay */}
+                  <div className="absolute inset-0 pointer-events-none opacity-30">
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="none">
+                      <path d="M0,120 C150,240 300,0 450,120 S750,240 900,120 1050,0 1200,120" stroke="white" strokeWidth="2" fill="none" />
+                      <path d="M0,220 C150,340 300,100 450,220 S750,340 900,220 1050,100 1200,220" stroke="white" strokeWidth="2" fill="none" opacity="0.7" />
+                      <path d="M0,320 C150,440 300,200 450,320 S750,440 900,320 1050,200 1200,320" stroke="white" strokeWidth="2" fill="none" opacity="0.5" />
+                    </svg>
+                  </div>
+                  <div className="relative grid gap-3 w-full">
+                    {/* Gmail card */}
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.273L12 10.91l10.091-7.09h.273c.904 0 1.636.732 1.636 1.636z"/>
+                          </svg>
+                        </div>
+                        <span>Email alert</span>
+                      </div>
+                      <span className="text-green-600 text-sm font-medium">Enabled</span>
+                    </div>
 
-          {/* Simplified Workflow */}
-          <div className="flex items-center justify-center space-x-8 mb-12">
-            {/* AI Detection */}
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <span className="text-blue-600 font-bold text-lg">AI</span>
+                    {/* WhatsApp card */}
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
+                          </svg>
+                        </div>
+                        <span>WhatsApp alert</span>
+                      </div>
+                      <span className="text-green-600 text-sm font-medium">Enabled</span>
+                    </div>
+
+                    {/* AI relevance card */}
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">AI</span>
+                        </div>
+                        <span>AI relevance</span>
+                      </div>
+                      <span className="text-green-600 text-sm font-medium">High</span>
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: 'win',
+              label: 'Win tenders',
+              title: 'Win tenders with confidence',
+              description:
+                'Guided checklists, compliance reminders and AI suggestions help you submit stronger, on‑time bids.',
+              cta: { href: '/dashboard', text: 'Explore tenders' },
+              icon: Trophy,
+              right: (
+                <div className="relative rounded-3xl p-6 border shadow-xl h-[280px] flex items-center overflow-hidden" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
+                  {/* DNA-like white wavy lines overlay */}
+                  <div className="absolute inset-0 pointer-events-none opacity-30">
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="none">
+                      <path d="M0,120 C150,240 300,0 450,120 S750,240 900,120 1050,0 1200,120" stroke="white" strokeWidth="2" fill="none" />
+                      <path d="M0,220 C150,340 300,100 450,220 S750,340 900,220 1050,100 1200,220" stroke="white" strokeWidth="2" fill="none" opacity="0.7" />
+                      <path d="M0,320 C150,440 300,200 450,320 S750,440 900,320 1050,200 1200,320" stroke="white" strokeWidth="2" fill="none" opacity="0.5" />
+                    </svg>
+                  </div>
+                  <div className="relative space-y-3 w-full">
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
+                      Compliance checklist
+                    </div>
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
+                      <Target className="h-5 w-5 text-purple-600 mr-3" />
+                      Competitive insights
+                    </div>
+                    <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
+                      <TrendingUp className="h-5 w-5 text-rose-600 mr-3" />
+                      Likelihood to win
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+          ] as const;
+
+          const [active, setActive] = React.useState<number>(0);
+          const [played, setPlayed] = React.useState<boolean>(false);
+          const sectionRef = React.useRef<HTMLDivElement | null>(null);
+
+          React.useEffect(() => {
+            const node = sectionRef.current;
+            if (!node) return;
+            const observer = new IntersectionObserver(
+              (entries) => {
+                const entry = entries[0];
+                if (entry.isIntersecting && !played) {
+                  setPlayed(true);
+                }
+              },
+              { threshold: 0.3 }
+            );
+            observer.observe(node);
+            return () => observer.disconnect();
+          }, [played]);
+
+          React.useEffect(() => {
+            if (!played) return;
+            let cancelled = false;
+            let step = 0;
+            const id = setInterval(() => {
+              step += 1;
+              if (cancelled) return;
+              setActive((prev) => {
+                if (prev >= steps.length - 1) {
+                  clearInterval(id);
+                  return prev;
+                }
+                return prev + 1;
+              });
+              if (step >= steps.length - 1) {
+                clearInterval(id);
+              }
+            }, 2000);
+            return () => {
+              cancelled = true;
+              clearInterval(id);
+            };
+          }, [played]);
+
+          return (
+            <div ref={sectionRef} className="max-w-7xl mx-auto">
+              {/* Tabs */}
+              <div className="flex items-center gap-6 text-sm text-gray-500 mb-8">
+                {steps.map((s, idx) => (
+                  <button
+                    key={s.key}
+                    type="button"
+                    onClick={() => setActive(idx)}
+                    className={`transition-colors ${active === idx ? 'text-gray-900 font-semibold' : 'hover:text-gray-700'}`}
+                    aria-current={active === idx}
+                    aria-controls={`workflow-panel-${s.key}`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
               </div>
-              <p className="text-sm font-medium text-gray-900">AI Detection</p>
-            </div>
 
-            {/* Arrow */}
-            <div className="text-gray-400">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
+              {/* Panels */}
+              <div className="grid lg:grid-cols-2 gap-10 items-center">
+                {/* Left copy */}
+                <div>
+                  <div className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 mb-4">
+                    {React.createElement(steps[active].icon, { className: 'h-4 w-4 mr-2' })}
+                    {steps[active].label}
+                  </div>
+                  <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-gray-900">
+                    {steps[active].title}
+                  </h2>
+                  <p className="text-lg text-gray-600 mb-6">
+                    {steps[active].description}
+                  </p>
+                  <Link href={steps[active].cta.href}>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-6">
+                      {steps[active].cta.text}
+                    </Button>
+                  </Link>
+                </div>
 
-            {/* Notifications */}
-            <div className="text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Bell className="h-6 w-6 text-green-600" />
-              </div>
-              <p className="text-sm font-medium text-gray-900">Instant Alerts</p>
-            </div>
-
-            {/* Arrow */}
-            <div className="text-gray-400">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-
-            {/* Success */}
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Target className="h-6 w-6 text-purple-600" />
-              </div>
-              <p className="text-sm font-medium text-gray-900">Win Tenders</p>
-            </div>
-          </div>
-
-          {/* Notification Channels */}
-          <div className="text-center mb-8">
-            <p className="text-sm text-gray-600 mb-4">Get notified instantly via:</p>
-            <div className="flex justify-center items-center space-x-4">
-              {/* WhatsApp */}
-              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
-                </svg>
-              </div>
-
-              {/* Gmail */}
-              <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.273L12 10.91l10.091-7.09h.273c.904 0 1.636.732 1.636 1.636z"/>
-                </svg>
-              </div>
-
-              {/* iMessage */}
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.74 0-3.35-.56-4.656-1.515L3 20l1.515-4.344A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-                </svg>
+                {/* Right visual */}
+                <div id={`workflow-panel-${steps[active].key}`} className="min-h-[260px]">
+                  {steps[active].right}
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Call to Action */}
-          <div className="text-center">
-            <Link href="/make-payment?plan=professional&amount=12353">
-              <Button className="relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 px-8 py-3">
-                <Bell className="mr-2 h-5 w-5" />
-                Start Getting Alerts
-              </Button>
-            </Link>
-          </div>
-        </div>
+          );
+        })()}
       </section>
 
       {/* Professional Features Section */}
@@ -572,14 +697,14 @@ export default function Home() {
       </section>
 
       {/* Simplified Pricing Section */}
-      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 relative z-10">
+      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Simple One-Time Pricing
+            <h2 className="text-5xl font-bold text-gray-900 mb-4">
+              Pricing that fits all
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Choose the plan that fits your business needs. One-time payment, lifetime access.
+              No Credit card required. Cancel anytime.
             </p>
           </div>
 
@@ -587,13 +712,12 @@ export default function Home() {
             {pricingPlans.map((plan, index) => (
               <div
                 key={plan.name}
-                className={`relative bg-white rounded-xl p-8 border-2 transition-all duration-200 hover:shadow-lg ${
-                  plan.popular 
-                    ? 'border-blue-500 shadow-lg' 
-                    : 'border-gray-200 hover:border-blue-300'
-                }`}
+                className="relative rounded-xl p-8 border border-gray-900 transition-all duration-200 hover:shadow-lg flex flex-col h-full"
+                style={{
+                  backgroundColor: plan.popular ? '#fefcf3' : 'white'
+                }}
               >
-                {plan.popular && (
+                {plan.popular && (plan as any).showBadge !== false && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                       Most Popular
@@ -601,20 +725,28 @@ export default function Home() {
                   </div>
                 )}
                 
+                {plan.popular && (
+                  <div className="absolute -bottom-10 -right-9 opacity-9 pointer-events-none">
+                    <Image
+                      src="/ashok.webp"
+                      alt="Ashok Chakra"
+                      width={240}
+                      height={240}
+                      className="w-64 h-64"
+                    />
+                  </div>
+                )}
+                
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  <h3 className={`text-2xl font-bold mb-3 ${
+                    plan.popular ? 'text-[#b84d00] italic font-playfair' : 'text-gray-900'
+                  }`}>
                     {plan.name}
                   </h3>
-                  <p className="text-gray-600 mb-6">{plan.description}</p>
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold text-gray-900">
-                      ₹{plan.price.toLocaleString()}
-                    </span>
-                    <span className="text-gray-600 text-lg ml-2">one-time</span>
-                  </div>
+                  <p className="text-gray-600">{plan.description}</p>
                 </div>
 
-                <ul className={`space-y-3 ${plan.name === 'Basic' ? 'mb-16' : 'mb-8'}`}>
+                <ul className="space-y-3 mb-8 flex-grow">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start">
                       <CheckCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-green-500" />
@@ -623,17 +755,31 @@ export default function Home() {
                   ))}
                 </ul>
 
-                <Link href={`/make-payment?plan=${plan.name.toLowerCase()}&amount=${plan.price}`} className="block">
-                  <Button 
-                    className={`w-full py-3 font-semibold rounded-lg transition-colors ${
-                      plan.popular
-                        ? 'bg-blue-500 hover:bg-blue-600 text-white' 
-                        : 'bg-gray-900 hover:bg-gray-800 text-white'
-                    }`}
-                  >
-                    Get Started
-                  </Button>
-                </Link>
+                <div className="mt-auto">
+                  <div className="mb-6">
+                    <p className="text-gray-600 mb-2">Starting from</p>
+                    <div className="mb-2">
+                      <span className="text-4xl font-bold text-gray-900">
+                        ₹{plan.price.toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm">per month, billed yearly.</p>
+                  </div>
+
+                  <div>
+                    <Link href={`/make-payment?plan=${plan.name.toLowerCase()}&amount=${plan.price}`} className="inline-block">
+                      <Button 
+                        className={`w-auto py-6 px-4 font-semibold rounded-full transition-colors text-base ${
+                          plan.popular
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white border-0' 
+                            : 'bg-white hover:bg-gray-50 text-gray-900 border border-gray-900'
+                        }`}
+                      >
+                        Get this plan
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -686,26 +832,29 @@ export default function Home() {
       </section>
 
       {/* Modern Minimal CTA Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gray-900 relative z-10 overflow-hidden">
-        {/* Background gradient effects */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      <section className="py-32 px-4 sm:px-6 lg:px-8 relative z-10 overflow-hidden" style={{ backgroundColor: '#ff8c42' }}>
+        {/* Wavy motif lines */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Top wavy lines */}
+          <svg className="absolute top-0 left-0 w-full opacity-30" viewBox="0 0 1200 100" preserveAspectRatio="none" style={{ height: '80px' }}>
+            <path d="M0,50 Q300,20 600,50 T1200,50" stroke="white" strokeWidth="2" fill="none" />
+            <path d="M0,40 Q200,60 400,40 T800,40 T1200,40" stroke="white" strokeWidth="2" fill="none" />
+            <path d="M0,60 Q250,30 500,60 T1000,60 T1200,60" stroke="white" strokeWidth="2" fill="none" />
+          </svg>
+          {/* Bottom wavy lines */}
+          <svg className="absolute bottom-0 left-0 w-full opacity-30" viewBox="0 0 1200 100" preserveAspectRatio="none" style={{ height: '80px' }}>
+            <path d="M0,50 Q300,80 600,50 T1200,50" stroke="white" strokeWidth="2" fill="none" />
+            <path d="M0,60 Q200,40 400,60 T800,60 T1200,60" stroke="white" strokeWidth="2" fill="none" />
+            <path d="M0,40 Q250,70 500,40 T1000,40 T1200,40" stroke="white" strokeWidth="2" fill="none" />
+          </svg>
         </div>
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          {/* Email icon floating */}
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl mb-8 border border-white/20">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </div>
-
           {/* Heading */}
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">
             Join the Waitlist
           </h2>
-          <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto">
+          <p className="text-xl mb-12 max-w-2xl mx-auto text-white/90">
             Be the first to access AI-powered tender notifications. Get early access and exclusive launch pricing.
           </p>
 
@@ -717,27 +866,27 @@ export default function Home() {
                 placeholder="Enter your email address"
                 value={ctaEmail}
                 onChange={(e) => setCtaEmail(e.target.value)}
-                className="w-full h-14 pl-6 pr-32 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-transparent transition-all duration-300"
+                className="w-full h-14 pl-6 pr-32 bg-white rounded-2xl text-gray-900 placeholder-gray-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300"
                 disabled={ctaLoading}
                 required
               />
               <button
                 type="submit"
-                className="absolute right-2 top-2 h-10 px-6 bg-white text-gray-900 rounded-xl font-medium hover:bg-white/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/40"
+                className="absolute right-2 top-2 h-10 px-6 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
                 disabled={ctaLoading}
               >
                 {ctaLoading ? 'Joining...' : 'Join'}
               </button>
             </form>
             {ctaSuccess && (
-              <p className="mt-4 text-green-500 text-sm text-center">
+              <p className="mt-4 text-white text-sm text-center font-medium">
                 Thank you for joining! We'll be in touch soon.
               </p>
             )}
           </div>
 
           {/* Trust indicators */}
-          <div className="mt-8 flex items-center justify-center space-x-6 text-white/60 text-sm">
+          <div className="mt-8 flex items-center justify-center space-x-6 text-sm text-white/80">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-white rounded-full"></div>
               <span>No spam</span>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Kings, Roboto, Ubuntu } from "next/font/google";
+import { Geist, Geist_Mono, Kings, Playfair_Display, Roboto, Ubuntu } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { CookieBanner } from "@/components/ui/cookie-banner";
@@ -20,6 +20,12 @@ const kings = Kings({
   variable: "--font-kings",
   subsets: ["latin"],
   weight: "400",
+});
+
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 const roboto = Roboto({
@@ -374,7 +380,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${roboto.variable} ${ubuntu.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${playfairDisplay.variable} ${roboto.variable} ${ubuntu.variable} antialiased`}
       >
         <PostHogProvider>
           <Suspense fallback={null}>

@@ -19,6 +19,12 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { trackTenderSearch, trackTenderExternalClick } from '@/lib/posthog/events';
 import { saveLiveTendersCount } from '@/lib/tender-stats';
+import {
+  saveTendersToLocalStorage,
+  loadTendersFromLocalStorage,
+  isStoredDataFresh,
+  type StoredTenderData
+} from '@/lib/tender-storage';
 
 interface Tender {
   title: string;
@@ -45,10 +51,7 @@ interface TenderResponse {
   captcha_screenshot?: any;
 }
 
-// Cache key for localStorage
-const TENDERS_CACHE_KEY = 'tenderpost_cached_tenders';
-const CACHE_TIMESTAMP_KEY = 'tenderpost_cache_timestamp';
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+// No local cache - users must search to see tenders
 
 export default function SearchPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -60,44 +63,14 @@ export default function SearchPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastFetchTime, setLastFetchTime] = useState<string | null>(null);
+  const [loadedFromCache, setLoadedFromCache] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
-  // Load cached tenders on mount
-  useEffect(() => {
-    const loadCachedTenders = () => {
-      try {
-        const cachedData = localStorage.getItem(TENDERS_CACHE_KEY);
-        const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-        
-        if (cachedData && cacheTimestamp) {
-          const timestamp = parseInt(cacheTimestamp);
-          const now = Date.now();
-          
-          // Check if cache is still valid (within 30 minutes)
-          if (now - timestamp < CACHE_DURATION) {
-            const parsed = JSON.parse(cachedData);
-            setTenders(parsed.tenders || []);
-            setTotalCount(parsed.totalCount || 0);
-            setCurrentPage(parsed.currentPage || 1);
-            setSearchQuery(parsed.searchQuery || '');
-            setLastFetchTime(new Date(timestamp).toLocaleTimeString());
-            console.log('✅ Loaded tenders from cache');
-          } else {
-            console.log('⏰ Cache expired, clearing...');
-            localStorage.removeItem(TENDERS_CACHE_KEY);
-            localStorage.removeItem(CACHE_TIMESTAMP_KEY);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load cache:', err);
-      }
-    };
-    
-    loadCachedTenders();
-  }, []);
+  // Increase API page size to handle thousands of tenders per request
+  const API_PAGE_LIMIT = 200;
 
-  // Auth check
+  // Auth check and load saved tenders
   useEffect(() => {
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -105,6 +78,42 @@ export default function SearchPage() {
         router.push('/');
       } else {
         setUser(session.user);
+        
+        // Load saved tenders from localStorage
+        const savedData = loadTendersFromLocalStorage(session.user.id);
+        if (savedData && savedData.tenders.length > 0) {
+          setTenders(savedData.tenders);
+          setTotalCount(savedData.totalCount);
+          setCurrentPage(savedData.page);
+          setSearchQuery(savedData.searchQuery);
+          setLastFetchTime(new Date(savedData.lastFetched).toLocaleTimeString());
+          setLoadedFromCache(true);
+          
+          // Check if data is fresh
+          const isFresh = isStoredDataFresh(savedData.lastFetched);
+          console.log(
+            `📦 Loaded ${savedData.tenders.length} tenders from localStorage (${isFresh ? 'fresh' : 'stale - consider refreshing'})`
+          );
+        } else {
+          // Nothing in local storage: try the global cache warmed by auth prefetch/CRON
+          try {
+            const res = await fetch('/api/tenders-cache', { cache: 'no-store' });
+            if (res.ok) {
+              const json = await res.json();
+              const cache = json?.data;
+              if (cache && Array.isArray(cache.tenders) && cache.tenders.length > 0) {
+                setTenders(cache.tenders);
+                setTotalCount(cache.totalCount || cache.tenders.length);
+                setCurrentPage(1);
+                setLastFetchTime(new Date(cache.lastFetched).toLocaleTimeString());
+                setLoadedFromCache(true);
+                console.log(`⚡ Loaded ${cache.tenders.length} tenders from global cache`);
+              }
+            }
+          } catch (e) {
+            console.warn('Failed to load global tender cache:', e);
+          }
+        }
       }
     };
     getUser();
@@ -127,7 +136,7 @@ export default function SearchPage() {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '50',
+        limit: `${API_PAGE_LIMIT}`,
         ...(query && { query }),
       });
 
@@ -167,28 +176,50 @@ export default function SearchPage() {
       setTenders(fetchedTenders);
       setTotalCount(fetchedCount);
       setCurrentPage(page);
+      setLoadedFromCache(false);
       
       // Save GLOBAL live tenders count for display across all pages (header, hero section)
       // This is the total number of live tenders available, not just the current page
       console.log(`📊 Total Live Tenders: ${liveTendersCount}, Current Page Count: ${fetchedCount}`);
       saveLiveTendersCount(liveTendersCount);
       
-      // Cache the results in localStorage
-      const cacheData = {
-        tenders: fetchedTenders,
-        totalCount: fetchedCount,
-        currentPage: page,
-        searchQuery: query,
-      };
-      
-      try {
-        localStorage.setItem(TENDERS_CACHE_KEY, JSON.stringify(cacheData));
-        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-        setLastFetchTime(new Date().toLocaleTimeString());
-        console.log('💾 Tenders cached successfully');
-      } catch (cacheErr) {
-        console.error('Failed to cache tenders:', cacheErr);
+      // Save to user's localStorage for persistence across sessions
+      if (user) {
+        const storageData: StoredTenderData = {
+          tenders: fetchedTenders,
+          totalCount: fetchedCount,
+          liveTendersCount: liveTendersCount,
+          lastFetched: new Date().toISOString(),
+          searchQuery: query,
+          page: page,
+        };
+        saveTendersToLocalStorage(user.id, storageData);
       }
+      
+      // Save to GLOBAL cache (server-side, shared across all users)
+      // This allows CRON to maintain fresh data, but users still need to click Search
+      try {
+        const globalCacheResponse = await fetch('/api/tenders-cache', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenders: fetchedTenders,
+            totalCount: fetchedCount,
+            liveTendersCount: liveTendersCount,
+            source: 'manual-search',
+          }),
+        });
+        
+        if (globalCacheResponse.ok) {
+          console.log('💾 Tenders saved to global cache (for CRON reference only)');
+        }
+      } catch (err) {
+        console.error('Failed to save to global cache:', err);
+      }
+      
+      // Set last fetch time for display
+      setLastFetchTime(new Date().toLocaleTimeString());
+      console.log('✅ Tenders fetched successfully');
       
       // Log processing time for debugging
       if (data.total_processing_time) {
@@ -211,8 +242,6 @@ export default function SearchPage() {
       setLoadingProgress(0);
     }
   };
-
-  // Don't auto-fetch on mount - rely on cached data or manual fetch
 
   // Search handler
   const handleSearch = (e: React.FormEvent) => {
@@ -461,7 +490,7 @@ export default function SearchPage() {
           </span>
           <Button
             onClick={() => fetchTenders(currentPage + 1, searchQuery)}
-            disabled={tenders.length < 50}
+            disabled={tenders.length < API_PAGE_LIMIT}
             variant="outline"
             className="px-4 py-2"
           >

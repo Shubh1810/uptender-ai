@@ -12,20 +12,87 @@ export async function GET(request: Request) {
     
     if (!error && data.session) {
       const forwardedHost = request.headers.get('x-forwarded-host');
+
       const isLocalEnv = process.env.NODE_ENV === 'development';
+      const isLocalHostHeader = request.headers.get('host')?.includes('localhost');
       
-      // Build redirect URL
-      let redirectUrl: string;
-      if (isLocalEnv) {
-        redirectUrl = `${origin}${next}`;
-      } else if (forwardedHost) {
-        redirectUrl = `https://${forwardedHost}${next}`;
-      } else {
-        redirectUrl = `${origin}${next}`;
-      }
+      // Build base redirect URL; we'll decide onboarding vs dashboard shortly
+      const baseRedirect = (path: string) => {
+        if (isLocalEnv) return `${origin}${path}`;
+        if (forwardedHost) return `https://${forwardedHost}${path}`;
+        return `${origin}${path}`;
+      };
       
-      // Create response with redirect
-      const response = NextResponse.redirect(redirectUrl);
+      // Kick off a background fetch to warm the tender cache so results are ready on dashboard
+      // We intentionally do not await this fully to avoid delaying the redirect.
+      (async () => {
+        try {
+          const API_PAGE_LIMIT = 200; // keep in sync with dashboard
+          const isDevelopment = isLocalEnv || isLocalHostHeader;
+          const apiBaseUrl = isDevelopment 
+            ? 'http://localhost:8080'
+            : 'https://tenderpost-api.onrender.com';
+
+          const params = new URLSearchParams({ page: '1', limit: `${API_PAGE_LIMIT}` });
+          const res = await fetch(`${apiBaseUrl}/api/tenders?${params.toString()}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          const tenders = Array.isArray(data?.items) ? data.items : [];
+          const totalCount = typeof data?.count === 'number' ? data.count : tenders.length;
+          const liveTendersCount = typeof data?.live_tenders === 'number' ? data.live_tenders : 0;
+
+          // Save to global cache endpoint so dashboard can pick it up immediately
+          await fetch(`${origin}/api/tenders-cache`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tenders,
+              totalCount,
+              liveTendersCount,
+              source: 'auth-prefetch',
+            }),
+            // no-cache to ensure edge functions don't cache unintendedly
+            cache: 'no-store',
+          });
+
+          // Also update the global live tenders stat so signed-out users see the count in header/hero
+          if (liveTendersCount > 0) {
+            await fetch(`${origin}/api/tender-stats`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                liveTendersCount,
+                updatedBy: 'auth-prefetch',
+              }),
+              cache: 'no-store',
+            });
+          }
+        } catch (e) {
+          // best-effort prefetch; ignore errors
+          console.error('Auth prefetch failed:', e);
+        }
+      })();
+
+      // Decide onboarding vs dashboard by checking profiles.onboarding_completed
+      const { data: { user } } = await (await createClient()).auth.getUser();
+      let redirectPath = next; // default from query (?next=...)
+      try {
+        if (user) {
+          const supa = await createClient();
+          const { data: prof } = await supa
+            .from('profiles')
+            .select('onboarding_completed')
+            .eq('id', user.id)
+            .maybeSingle();
+          if (!prof || prof.onboarding_completed !== true) {
+            // Send user to onboarding step 2 explicitly
+            redirectPath = '/onboarding?step=2';
+          }
+        }
+      } catch {}
+
+      // Create response with redirect (to onboarding or dashboard)
+      const response = NextResponse.redirect(baseRedirect(redirectPath));
       
       // Ensure cookies are set properly
       return response;
