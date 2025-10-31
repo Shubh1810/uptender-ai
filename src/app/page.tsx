@@ -428,7 +428,7 @@ export default function Home() {
       </section>
 
       {/* Workflow Section - Revamped to 3-step carousel (Save, Get Notified, Win) */}
-      <section id="workflow" className="py-24 px-4 sm:px-6 lg:px-8 relative z-10" style={{ backgroundColor: '#fefcf3' }}>
+      <section id="workflow" className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 relative z-10 flex items-center" style={{ backgroundColor: '#fefcf3' }}>
         {(() => {
           const steps = [
             {
@@ -637,10 +637,6 @@ export default function Home() {
               <div className="grid lg:grid-cols-2 gap-10 items-center">
                 {/* Left copy */}
                 <div>
-                  <div className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 mb-4">
-                    {React.createElement(steps[active].icon, { className: 'h-4 w-4 mr-2' })}
-                    {steps[active].label}
-                  </div>
                   <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-gray-900">
                     {steps[active].title}
                   </h2>
@@ -665,7 +661,7 @@ export default function Home() {
       </section>
 
       {/* Professional Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative z-10" style={{ backgroundColor: '#fefcf3' }}>
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative z-10" style={{ backgroundImage: 'linear-gradient(to bottom, #fefcf3 0%, #fefcf3 60%, #ffffff 100%)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
