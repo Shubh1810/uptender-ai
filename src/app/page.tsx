@@ -440,7 +440,7 @@ export default function Home() {
               cta: { href: '/onboarding', text: 'Start saving' },
               icon: Save,
               right: (
-                <div className="relative rounded-3xl p-6 border shadow-xl overflow-hidden h-[280px] flex items-center" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
+                <div className="relative rounded-3xl p-6 border shadow-xl overflow-hidden h-[400px] flex items-center" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
                   {/* DNA-like white wavy lines overlay */}
                   <div className="absolute inset-0 pointer-events-none opacity-30">
                     <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="none">
@@ -484,7 +484,7 @@ export default function Home() {
               cta: { href: '/make-payment?plan=professional&amount=12353', text: 'Enable alerts' },
               icon: Bell,
               right: (
-                <div className="relative rounded-3xl p-6 border shadow-xl h-[280px] flex items-center overflow-hidden" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
+                <div className="relative rounded-3xl p-6 border shadow-xl h-[400px] flex items-center overflow-hidden" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
                   {/* DNA-like white wavy lines overlay */}
                   <div className="absolute inset-0 pointer-events-none opacity-30">
                     <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="none">
@@ -543,7 +543,7 @@ export default function Home() {
               cta: { href: '/dashboard', text: 'Explore tenders' },
               icon: Trophy,
               right: (
-                <div className="relative rounded-3xl p-6 border shadow-xl h-[280px] flex items-center overflow-hidden" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
+                <div className="relative rounded-3xl p-6 border shadow-xl h-[400px] flex items-center overflow-hidden" style={{ backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #0b1a3b 100%)' }}>
                   {/* DNA-like white wavy lines overlay */}
                   <div className="absolute inset-0 pointer-events-none opacity-30">
                     <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="none">
@@ -616,9 +616,9 @@ export default function Home() {
           }, [played]);
 
           return (
-            <div ref={sectionRef} className="max-w-7xl mx-auto">
+            <div ref={sectionRef} className="max-w-5xl mx-auto -translate-y-4 md:-translate-y-6 lg:-translate-y-10">
               {/* Tabs */}
-              <div className="flex items-center gap-6 text-sm text-gray-500 mb-8">
+              <div className="w-full max-w-xl mx-auto lg:mx-0 flex items-center gap-6 text-base md:text-lg font-medium text-gray-600 mb-8 justify-center lg:justify-start">
                 {steps.map((s, idx) => (
                   <button
                     key={s.key}
@@ -634,9 +634,9 @@ export default function Home() {
               </div>
 
               {/* Panels */}
-              <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center justify-items-center">
                 {/* Left copy */}
-                <div>
+                <div className="w-full max-w-xl text-center lg:text-left">
                   <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-gray-900">
                     {steps[active].title}
                   </h2>
@@ -651,7 +651,7 @@ export default function Home() {
                 </div>
 
                 {/* Right visual */}
-                <div id={`workflow-panel-${steps[active].key}`} className="min-h-[260px]">
+                <div id={`workflow-panel-${steps[active].key}`} className="min-h-[260px] w-full max-w-md mx-auto -mt-6 md:-mt-8 lg:-mt-12 self-start">
                   {steps[active].right}
                 </div>
               </div>
