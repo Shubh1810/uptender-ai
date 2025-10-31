@@ -93,19 +93,12 @@ export async function GET(request: Request) {
           } else if (!prof) {
             // No profile exists, need onboarding
             redirectPath = '/onboarding?step=2';
+          } else if (prof.onboarding_completed !== true && prof.onboarding_completed !== 'true') {
+            // Onboarding not completed (handle both boolean and string)
+            redirectPath = '/onboarding?step=2';
           } else {
-            // Check for true (boolean), 'true' (string), or 1 (number) to handle all cases
-            const isCompleted = prof.onboarding_completed === true || 
-                                prof.onboarding_completed === 'true' || 
-                                prof.onboarding_completed === 1;
-            
-            if (!isCompleted) {
-              // Onboarding not completed
-              redirectPath = '/onboarding?step=2';
-            } else {
-              // Onboarding completed, go to dashboard
-              redirectPath = '/dashboard';
-            }
+            // Onboarding completed, go to dashboard
+            redirectPath = '/dashboard';
           }
         } catch (e) {
           console.error('Exception checking onboarding status:', e);

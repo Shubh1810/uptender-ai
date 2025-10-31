@@ -286,12 +286,7 @@ export default function OnboardingClient() {
               if (!stepParam) setStep(2);
             } else if (profile) {
               // If onboarding is completed, redirect to dashboard
-              // Check for true (boolean), 'true' (string), or 1 (number) to handle all cases
-              const isCompleted = profile.onboarding_completed === true || 
-                                  profile.onboarding_completed === 'true' || 
-                                  profile.onboarding_completed === 1;
-              
-              if (isCompleted) {
+              if (profile.onboarding_completed === true || profile.onboarding_completed === 'true') {
                 window.location.href = '/dashboard';
                 return;
               }

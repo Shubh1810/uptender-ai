@@ -27,8 +27,8 @@ export function GoogleSignInButton({ className = '', children, startOnboarding =
       
       // Use environment variable if set, otherwise use current origin
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-      // Callback will decide: onboarded users → /dashboard, else → /onboarding?step=2
-      const redirectUrl = `${siteUrl}/auth/callback`;
+      // Ask callback to consider onboarding by passing next=/onboarding default
+      const redirectUrl = `${siteUrl}/auth/callback?next=/onboarding`;
       
       console.log('🔐 Site URL:', siteUrl);
       console.log('🔗 Redirect URL:', redirectUrl);
