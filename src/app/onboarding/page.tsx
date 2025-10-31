@@ -103,6 +103,7 @@ export default function OnboardingPage() {
   };
 
   return (
+    <React.Suspense fallback={<div className="min-h-screen" />}> 
     <div className="min-h-screen flex flex-col">
       <Header />
       <main
@@ -242,6 +243,7 @@ export default function OnboardingPage() {
         </div>
       </main>
     </div>
+    </React.Suspense>
   );
 }
 
