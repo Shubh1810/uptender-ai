@@ -380,7 +380,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${playfairDisplay.variable} ${roboto.variable} ${ubuntu.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${playfairDisplay.variable} ${roboto.variable} ${ubuntu.variable} antialiased overflow-x-hidden`}
       >
         <PostHogProvider>
           <Suspense fallback={null}>

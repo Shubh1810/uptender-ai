@@ -122,6 +122,10 @@
   body {
     @apply bg-background text-foreground;
   }
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
 }
 
 .header-dots-pattern {
