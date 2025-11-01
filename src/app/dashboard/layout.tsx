@@ -20,7 +20,9 @@ import {
   Menu,
   X,
   Brain,
-  Shield
+  Shield,
+  AlertCircle,
+  CheckCircle
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -34,6 +36,7 @@ export default function DashboardLayout({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
@@ -111,6 +114,38 @@ export default function DashboardLayout({
       window.location.href = '/';
     }
   };
+
+  // Check onboarding status
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      if (!user) return;
+      
+      try {
+        const { data: prof, error } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error checking onboarding:', error);
+          setOnboardingCompleted(null);
+        } else if (prof) {
+          const isCompleted = prof.onboarding_completed === true || 
+                             prof.onboarding_completed === 'true' || 
+                             prof.onboarding_completed === 1;
+          setOnboardingCompleted(isCompleted);
+        } else {
+          setOnboardingCompleted(false);
+        }
+      } catch (error) {
+        console.error('Exception checking onboarding:', error);
+        setOnboardingCompleted(null);
+      }
+    };
+    
+    checkOnboarding();
+  }, [user, supabase]);
 
   // Track dashboard section views
   useEffect(() => {
@@ -281,6 +316,17 @@ export default function DashboardLayout({
               
               {/* User Info */}
               <div className="ml-auto flex items-center space-x-3">
+                {/* Onboarding Prompt - Next to Profile */}
+                {onboardingCompleted === false && (
+                  <Link
+                    href="/onboarding?step=2"
+                    className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-[#1B4332] to-[#84cc16] text-white rounded-full text-xs font-medium hover:from-[#1B4332]/90 hover:to-[#84cc16]/90 transition-all shadow-sm"
+                  >
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>Complete Onboarding</span>
+                  </Link>
+                )}
+                
                 <div className="hidden md:block text-right">
                   <p className="text-sm font-medium text-gray-900">
                     {user.user_metadata?.full_name || user.email?.split('@')[0]}
@@ -300,10 +346,46 @@ export default function DashboardLayout({
                     {user.email?.charAt(0).toUpperCase()}
                   </div>
                 )}
+                
+                {/* Mobile Onboarding Badge */}
+                {onboardingCompleted === false && (
+                  <Link
+                    href="/onboarding?step=2"
+                    className="sm:hidden relative"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-[#84cc16] absolute -top-0.5 -right-0.5 ring-2 ring-white"></div>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#1B4332] to-[#84cc16] flex items-center justify-center">
+                      <AlertCircle className="w-4 h-4 text-white" />
+                    </div>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
         </header>
+
+        {/* Onboarding Banner */}
+        {onboardingCompleted === false && (
+          <div className="bg-gradient-to-r from-[#1B4332] to-[#84cc16] text-white px-6 py-3 border-b border-[#1B4332]/20 shadow-sm">
+            <div className="flex items-center justify-between max-w-7xl mx-auto">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">Complete Your Onboarding</p>
+                  <p className="text-xs text-white/90">Finish setting up your profile to unlock all features</p>
+                </div>
+              </div>
+              <Link
+                href="/onboarding?step=2"
+                className="px-4 py-1.5 text-sm font-medium bg-white text-[#1B4332] rounded-md hover:bg-white/90 transition-colors whitespace-nowrap"
+              >
+                Complete Now
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Page Content */}
         {children}
