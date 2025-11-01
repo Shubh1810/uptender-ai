@@ -74,13 +74,16 @@ export async function GET(request: Request) {
 
       // Always check onboarding status first - ignore next query param
       // This ensures users always go through proper flow
-      const { data: { user } } = await (await createClient()).auth.getUser();
+      // IMPORTANT: Use the SAME client instance that exchanged the code for session
+      // This ensures the session cookies are available for RLS policy evaluation
+      const { data: { user } } = await supabase.auth.getUser();
       let redirectPath = '/onboarding?step=2'; // Default to onboarding (safer)
       
       if (user) {
         try {
-          const supa = await createClient();
-          const { data: prof, error: profError } = await supa
+          // Use the SAME client instance - don't create a new one!
+          // The session cookies are in this client instance
+          const { data: prof, error: profError } = await supabase
             .from('profiles')
             .select('onboarding_completed')
             .eq('id', user.id)
