@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/dashboard';
 
   if (code) {
     const supabase = await createClient();
@@ -73,9 +72,10 @@ export async function GET(request: Request) {
         }
       })();
 
-      // Decide onboarding vs dashboard by checking profiles.onboarding_completed
+      // Always check onboarding status first - ignore next query param
+      // This ensures users always go through proper flow
       const { data: { user } } = await (await createClient()).auth.getUser();
-      let redirectPath = next; // default from query (?next=...)
+      let redirectPath = '/dashboard'; // Default fallback
       
       if (user) {
         try {
@@ -105,6 +105,9 @@ export async function GET(request: Request) {
           // On error, assume onboarding needed
           redirectPath = '/onboarding?step=2';
         }
+      } else {
+        // No user session, redirect to onboarding
+        redirectPath = '/onboarding?step=2';
       }
 
       // Create response with redirect (to onboarding or dashboard)
