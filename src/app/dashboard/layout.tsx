@@ -49,72 +49,14 @@ export default function DashboardLayout({
         
         if (session?.user && mounted) {
           setUser(session.user);
+          setLoading(false);
           
-          // Check onboarding status before allowing access
-          const checkOnboarding = async () => {
-            try {
-              const { data: prof, error: profError } = await supabase
-                .from('profiles')
-                .select('onboarding_completed')
-                .eq('id', session.user.id)
-                .maybeSingle();
-              
-              if (profError) {
-                console.error('[DASHBOARD] Error checking onboarding status:', profError);
-                // On error, redirect to onboarding
-                if (mounted) {
-                  router.push('/onboarding?step=2');
-                }
-                return;
-              }
-              
-              if (!prof) {
-                // No profile exists, redirect to onboarding
-                console.log('[DASHBOARD] No profile found, redirecting to onboarding');
-                if (mounted) {
-                  router.push('/onboarding?step=2');
-                }
-                return;
-              }
-              
-              // Check if onboarding is completed
-              const onboardingCompleted = prof.onboarding_completed;
-              const isCompleted = onboardingCompleted === true || 
-                                 onboardingCompleted === 'true' || 
-                                 onboardingCompleted === 1 ||
-                                 onboardingCompleted === '1';
-              
-              if (!isCompleted) {
-                // Not onboarded, redirect to onboarding
-                console.log('[DASHBOARD] User not onboarded, redirecting to onboarding');
-                if (mounted) {
-                  router.push('/onboarding?step=2');
-                }
-                return;
-              }
-              
-              // Onboarding completed, allow access
-              console.log('[DASHBOARD] User onboarded, allowing dashboard access');
-              if (mounted) {
-                setLoading(false);
-                
-                // Identify user in PostHog
-                identifyUser({
-                  userId: session.user.id,
-                  email: session.user.email,
-                  name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
-                });
-              }
-            } catch (e) {
-              console.error('[DASHBOARD] Exception checking onboarding:', e);
-              // On error, redirect to onboarding
-              if (mounted) {
-                router.push('/onboarding?step=2');
-              }
-            }
-          };
-          
-          await checkOnboarding();
+          // Identify user in PostHog
+          identifyUser({
+            userId: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+          });
         } else if (retryCount < maxRetries) {
           retryCount++;
           setTimeout(getUser, retryCount * 500);
@@ -133,33 +75,9 @@ export default function DashboardLayout({
 
     getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user && mounted) {
         setUser(session.user);
-        
-        // Check onboarding on auth state change too
-        const { data: prof } = await supabase
-          .from('profiles')
-          .select('onboarding_completed')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        
-        if (!prof) {
-          router.push('/onboarding?step=2');
-          return;
-        }
-        
-        const onboardingCompleted = prof.onboarding_completed;
-        const isCompleted = onboardingCompleted === true || 
-                           onboardingCompleted === 'true' || 
-                           onboardingCompleted === 1 ||
-                           onboardingCompleted === '1';
-        
-        if (!isCompleted) {
-          router.push('/onboarding?step=2');
-          return;
-        }
-        
         setLoading(false);
       } else if (_event === 'SIGNED_OUT' && mounted) {
         router.push('/');
@@ -170,7 +88,7 @@ export default function DashboardLayout({
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [router, supabase.auth, supabase]);
+  }, [router, supabase.auth]);
 
   const handleSignOut = async () => {
     trackUserSignedOut();
