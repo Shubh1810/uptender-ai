@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (!error && data.session) {
+      const user = data.session.user; // User is already in the session!
       const forwardedHost = request.headers.get('x-forwarded-host');
 
       const isLocalEnv = process.env.NODE_ENV === 'development';
@@ -72,77 +73,66 @@ export async function GET(request: Request) {
         }
       })();
 
-      // Always check onboarding status first - ignore next query param
-      // This ensures users always go through proper flow
-      // IMPORTANT: Use the SAME client instance that exchanged the code for session
-      // This ensures the session cookies are available for RLS policy evaluation
-      const { data: { user } } = await supabase.auth.getUser();
-      let redirectPath = '/onboarding?step=2'; // Default to onboarding (safer)
+      // Simple flow: Check if user exists and if they're onboarded
+      let redirectPath = '/onboarding?step=2'; // Default to onboarding
       
-      if (user) {
+      if (!user) {
+        console.log('[AUTH CALLBACK] No user in session, redirecting to onboarding');
+        redirectPath = '/onboarding?step=2';
+      } else {
         try {
-          // Use the SAME client instance - don't create a new one!
-          // The session cookies are in this client instance
+          // Query profile to check onboarding status
           const { data: prof, error: profError } = await supabase
             .from('profiles')
             .select('onboarding_completed')
             .eq('id', user.id)
             .maybeSingle();
           
-          // Add detailed logging for production debugging
-          console.log('[AUTH CALLBACK] Profile check:', {
+          // Log everything for debugging
+          console.log('[AUTH CALLBACK]', {
             userId: user.id,
-            profileExists: !!prof,
-            error: profError?.message || null,
+            hasProfile: !!prof,
+            error: profError ? {
+              message: profError.message,
+              code: profError.code,
+              details: profError.details,
+              hint: profError.hint
+            } : null,
             onboardingCompleted: prof?.onboarding_completed,
-            onboardingCompletedType: typeof prof?.onboarding_completed,
-            onboardingCompletedValue: JSON.stringify(prof?.onboarding_completed)
+            onboardingType: typeof prof?.onboarding_completed,
+            onboardingRaw: JSON.stringify(prof?.onboarding_completed)
           });
           
           if (profError) {
-            console.error('[AUTH CALLBACK] Error checking onboarding status:', profError);
-            // If we can't check, assume onboarding needed
+            console.error('[AUTH CALLBACK] Database error:', profError);
             redirectPath = '/onboarding?step=2';
           } else if (!prof) {
-            // No profile exists, need onboarding
-            console.log('[AUTH CALLBACK] No profile found, redirecting to onboarding');
+            console.log('[AUTH CALLBACK] Profile not found');
             redirectPath = '/onboarding?step=2';
           } else {
-            // Profile exists - explicitly check onboarding status
-            const onboardingCompleted = prof.onboarding_completed;
+            // Check onboarding status - be very explicit
+            const onboardingValue = prof.onboarding_completed;
+            const isCompleted = onboardingValue === true || 
+                               onboardingValue === 'true' || 
+                               onboardingValue === 1 ||
+                               onboardingValue === '1';
             
-            // Check for all possible "completed" values
-            const isCompleted = onboardingCompleted === true || 
-                               onboardingCompleted === 'true' || 
-                               onboardingCompleted === 1 ||
-                               onboardingCompleted === '1';
-            
-            console.log('[AUTH CALLBACK] Onboarding check result:', {
-              rawValue: onboardingCompleted,
+            console.log('[AUTH CALLBACK] Decision:', {
+              value: onboardingValue,
+              type: typeof onboardingValue,
               isCompleted,
-              willRedirectTo: isCompleted ? '/dashboard' : '/onboarding?step=2'
+              redirectTo: isCompleted ? '/dashboard' : '/onboarding?step=2'
             });
             
-            if (isCompleted) {
-              // Onboarding completed, go to dashboard
-              redirectPath = '/dashboard';
-            } else {
-              // Not completed (could be false, null, undefined, 'false', etc.)
-              redirectPath = '/onboarding?step=2';
-            }
+            redirectPath = isCompleted ? '/dashboard' : '/onboarding?step=2';
           }
         } catch (e) {
-          console.error('[AUTH CALLBACK] Exception checking onboarding status:', e);
-          // On error, assume onboarding needed
+          console.error('[AUTH CALLBACK] Exception:', e);
           redirectPath = '/onboarding?step=2';
         }
-      } else {
-        // No user session
-        console.log('[AUTH CALLBACK] No user found, redirecting to onboarding');
-        redirectPath = '/onboarding?step=2';
       }
 
-      console.log('[AUTH CALLBACK] Final redirect decision:', redirectPath);
+      console.log('[AUTH CALLBACK] Final redirect:', redirectPath);
 
       // Create response with redirect (to onboarding or dashboard)
       const response = NextResponse.redirect(baseRedirect(redirectPath));
