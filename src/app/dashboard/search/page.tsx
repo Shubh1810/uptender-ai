@@ -134,9 +134,15 @@ export default function SearchPage() {
     }, 1200); // Every 1.2 seconds = 50 intervals to reach 95% in ~60 seconds
     
     try {
+      // Some API deployments accept different pagination param names.
+      // To ensure compatibility across environments, we include common ones.
       const params = new URLSearchParams({
         page: page.toString(),
+        // Primary param used by local API
         limit: `${API_PAGE_LIMIT}`,
+        // Fallbacks for production API variants that may ignore `limit`
+        page_size: `${API_PAGE_LIMIT}`,
+        per_page: `${API_PAGE_LIMIT}`,
         ...(query && { query }),
       });
 

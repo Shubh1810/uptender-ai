@@ -305,8 +305,8 @@ export default function DashboardLayout({
       <div className="lg:pl-56">
         {/* Top Bar with Search */}
         <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-          <div className="px-6 py-3">
-            <div className="flex items-center justify-between">
+          <div className="px-6 py-3 h-[69px] flex items-center">
+            <div className="flex items-center justify-between w-full">
               <button
                 onClick={() => setSidebarOpen(true)}
                 className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100"
