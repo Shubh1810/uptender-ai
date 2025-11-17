@@ -25,6 +25,7 @@ import {
   isStoredDataFresh,
   type StoredTenderData
 } from '@/lib/tender-storage';
+// Note: We no longer use /api/tenders-cache - Supabase latest_snapshot IS the cache!
 
 interface Tender {
   title: string;
@@ -73,10 +74,23 @@ export default function SearchPage() {
   // Auth check and load saved tenders
   useEffect(() => {
     const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        router.push('/');
-      } else {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // Handle auth errors (like invalid refresh token)
+        if (error) {
+          console.error('Auth error:', error.message);
+          // Clear invalid session and redirect
+          await supabase.auth.signOut();
+          router.push('/');
+          return;
+        }
+        
+        if (!session?.user) {
+          router.push('/');
+          return;
+        }
+        
         setUser(session.user);
         
         // Load saved tenders from localStorage
@@ -94,26 +108,12 @@ export default function SearchPage() {
           console.log(
             `📦 Loaded ${savedData.tenders.length} tenders from localStorage (${isFresh ? 'fresh' : 'stale - consider refreshing'})`
           );
-        } else {
-          // Nothing in local storage: try the global cache warmed by auth prefetch/CRON
-          try {
-            const res = await fetch('/api/tenders-cache', { cache: 'no-store' });
-            if (res.ok) {
-              const json = await res.json();
-              const cache = json?.data;
-              if (cache && Array.isArray(cache.tenders) && cache.tenders.length > 0) {
-                setTenders(cache.tenders);
-                setTotalCount(cache.totalCount || cache.tenders.length);
-                setCurrentPage(1);
-                setLastFetchTime(new Date(cache.lastFetched).toLocaleTimeString());
-                setLoadedFromCache(true);
-                console.log(`⚡ Loaded ${cache.tenders.length} tenders from global cache`);
-              }
-            }
-          } catch (e) {
-            console.warn('Failed to load global tender cache:', e);
-          }
         }
+        // Note: If no localStorage data, user clicks "Search" to fetch from Supabase snapshot
+      } catch (error) {
+        console.error('Error in getUser:', error);
+        // On any error, redirect to home
+        router.push('/');
       }
     };
     getUser();
@@ -121,17 +121,20 @@ export default function SearchPage() {
 
   // Fetch tenders from API
   const fetchTenders = async (page = 1, query = '') => {
+    const startTime = performance.now();
+    console.log('⏱️ Starting tender fetch...');
+    
     setLoading(true);
     setLoadingProgress(0);
     setError(null);
     
-    // Simulate progress bar for better UX (fills over 60 seconds)
+    // Fast progress animation - completes when data arrives
     const progressInterval = setInterval(() => {
       setLoadingProgress(prev => {
-        if (prev >= 95) return prev; // Stop at 95% until real data arrives
-        return prev + 2; // Increment by 2% every interval
+        if (prev >= 90) return prev; // Stop at 90% until real data arrives
+        return prev + 10; // Fast increments
       });
-    }, 1200); // Every 1.2 seconds = 50 intervals to reach 95% in ~60 seconds
+    }, 200); // Every 200ms for smoother animation
     
     try {
       // Some API deployments accept different pagination param names.
@@ -146,23 +149,25 @@ export default function SearchPage() {
         ...(query && { query }),
       });
 
-      // Use localhost in development, Render API in production
-      const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
-      const apiBaseUrl = isDevelopment 
-        ? 'http://localhost:8080'  // Local API
-        : 'https://tenderpost-api.onrender.com';  // Production API
-      
-      console.log(`🌐 Using API: ${apiBaseUrl} (${isDevelopment ? 'Development' : 'Production'})`);
+      // Use internal Next.js API (fetches from Supabase - instant!)
+      console.log('🌐 Using internal API (Supabase snapshot)');
 
+      const fetchStartTime = performance.now();
       const response = await fetch(
-        `${apiBaseUrl}/api/tenders?${params}`
+        `/api/tenders?${params}`,
+        { cache: 'no-store' }
       );
+      const fetchEndTime = performance.now();
+      console.log(`⏱️ API fetch took: ${((fetchEndTime - fetchStartTime) / 1000).toFixed(2)}s`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch tenders');
       }
 
+      const parseStartTime = performance.now();
       const data: TenderResponse = await response.json();
+      const parseEndTime = performance.now();
+      console.log(`⏱️ JSON parse took: ${((parseEndTime - parseStartTime) / 1000).toFixed(2)}s`);
       
       // Check if API returned an error in debug_steps
       const hasError = data.debug_steps?.some(step => step.status === 'error');
@@ -171,25 +176,33 @@ export default function SearchPage() {
         throw new Error(errorStep?.details?.message || 'API processing error');
       }
       
-      // Complete progress bar
+      // Complete progress bar IMMEDIATELY
       clearInterval(progressInterval);
       setLoadingProgress(100);
 
       const fetchedTenders = data.items || [];
       const fetchedCount = data.count || 0;
-      const liveTendersCount = data.live_tenders || 0;  // Get global live tenders count
+      const liveTendersCount = data.live_tenders || 0;
 
+      // Update UI STATE FIRST - this triggers immediate render
       setTenders(fetchedTenders);
       setTotalCount(fetchedCount);
       setCurrentPage(page);
       setLoadedFromCache(false);
+      setLastFetchTime(new Date().toLocaleTimeString());
+      setLoading(false); // End loading IMMEDIATELY after data arrives
       
-      // Save GLOBAL live tenders count for display across all pages (header, hero section)
-      // This is the total number of live tenders available, not just the current page
-      console.log(`📊 Total Live Tenders: ${liveTendersCount}, Current Page Count: ${fetchedCount}`);
+      const renderTime = performance.now();
+      console.log(`⏱️ Total time to render: ${((renderTime - startTime) / 1000).toFixed(2)}s`);
+      console.log(`📊 Loaded ${fetchedCount} tenders (${liveTendersCount} total live tenders)`);
+      
+      // ALL post-processing happens AFTER UI updates (non-blocking)
+      // These run asynchronously and don't delay the render
+      
+      // Save stats (non-blocking - no await)
       saveLiveTendersCount(liveTendersCount);
       
-      // Save to user's localStorage for persistence across sessions
+      // Save to localStorage for fast reload on next visit (user-specific)
       if (user) {
         const storageData: StoredTenderData = {
           tenders: fetchedTenders,
@@ -200,39 +213,10 @@ export default function SearchPage() {
           page: page,
         };
         saveTendersToLocalStorage(user.id, storageData);
+        console.log('💾 Saved to localStorage for quick access');
       }
       
-      // Save to GLOBAL cache (server-side, shared across all users)
-      // This allows CRON to maintain fresh data, but users still need to click Search
-      try {
-        const globalCacheResponse = await fetch('/api/tenders-cache', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            tenders: fetchedTenders,
-            totalCount: fetchedCount,
-            liveTendersCount: liveTendersCount,
-            source: 'manual-search',
-          }),
-        });
-        
-        if (globalCacheResponse.ok) {
-          console.log('💾 Tenders saved to global cache (for CRON reference only)');
-        }
-      } catch (err) {
-        console.error('Failed to save to global cache:', err);
-      }
-      
-      // Set last fetch time for display
-      setLastFetchTime(new Date().toLocaleTimeString());
-      console.log('✅ Tenders fetched successfully');
-      
-      // Log processing time for debugging
-      if (data.total_processing_time) {
-        console.log(`✅ Tenders loaded in ${data.total_processing_time}s`);
-      }
-      
-      // Track tender search event
+      // Track analytics (non-blocking)
       trackTenderSearch({
         query: query || undefined,
         resultsCount: fetchedCount,
@@ -243,10 +227,10 @@ export default function SearchPage() {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load tenders';
       setError(errorMessage);
       console.error('❌ Error fetching tenders:', err);
-    } finally {
       setLoading(false);
       setLoadingProgress(0);
     }
+    // No finally block needed - loading is set to false in success path
   };
 
   // Search handler
@@ -366,7 +350,7 @@ export default function SearchPage() {
           </div>
           
           <p className="text-gray-600 font-medium mb-2">Loading tenders...</p>
-          <p className="text-sm text-gray-500">This may take 30-60 seconds on first load</p>
+          <p className="text-sm text-gray-500">Fetching from database snapshot...</p>
         </div>
       )}
 

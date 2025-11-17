@@ -27,8 +27,20 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // refreshing the auth token
-  await supabase.auth.getUser();
+  // Refresh the auth token and handle errors gracefully
+  const { data: { user }, error } = await supabase.auth.getUser();
+  
+  // If there's an auth error (like invalid refresh token), clear cookies and redirect
+  if (error) {
+    console.warn('Auth middleware error:', error.message);
+    
+    // Only redirect if on a protected route (dashboard)
+    if (request.nextUrl.pathname.startsWith('/dashboard')) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/';
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
 
   return supabaseResponse;
 }
