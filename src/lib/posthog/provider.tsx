@@ -30,28 +30,13 @@ if (typeof window !== 'undefined') {
       },
       // Fix for "signal is aborted" errors
       request_batching: true, // Batch requests to reduce network calls
-      batch_flush_interval_ms: 5000, // Flush every 5 seconds
       persistence: 'localStorage+cookie', // More reliable persistence
-      property_blacklist: ['$feature_flag_payloads'], // Reduce payload size
-      sanitize_properties: (properties) => {
-        // Prevent circular references and large payloads
-        try {
-          return JSON.parse(JSON.stringify(properties));
-        } catch {
-          return {};
-        }
-      },
       debug: process.env.NODE_ENV === 'development',
       loaded: (posthog) => {
         if (process.env.NODE_ENV === 'development') {
           console.log('✅ PostHog loaded successfully');
           console.log('📊 Autocapture enabled - All clicks and pageviews will be tracked');
         }
-      },
-      // Suppress abort errors in console
-      _onCapture: (event, properties) => {
-        // Silently handle failed requests
-        return true;
       },
     });
     
