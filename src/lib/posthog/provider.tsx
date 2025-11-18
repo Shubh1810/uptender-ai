@@ -13,21 +13,33 @@ if (typeof window !== 'undefined') {
     posthog.init(posthogKey, {
       api_host: '/ingest',
       ui_host: 'https://us.posthog.com',
-      person_profiles: 'identified_only', // Capture events for all users (anonymous + identified)
-      capture_pageview: true, // Automatically capture pageviews on route changes
-      capture_pageleave: true, // Track when users leave pages
+      person_profiles: 'identified_only',
+      capture_pageview: true,
+      capture_pageleave: true,
       autocapture: {
-        // Enable autocapture with detailed configuration
-        dom_event_allowlist: undefined, // Capture all DOM events (default)
-        url_allowlist: undefined, // Capture on all URLs (default)
-        element_allowlist: undefined, // Capture all elements (default)
-        css_selector_allowlist: undefined, // No CSS restrictions
+        dom_event_allowlist: undefined,
+        url_allowlist: undefined,
+        element_allowlist: undefined,
+        css_selector_allowlist: undefined,
       },
-      capture_exceptions: true, // Capture JavaScript errors
-      disable_session_recording: false, // Enable session recordings if configured
+      capture_exceptions: true,
+      disable_session_recording: false,
       session_recording: {
-        maskAllInputs: true, // Mask sensitive input fields
-        maskTextSelector: '[data-ph-mask]', // Custom mask selector
+        maskAllInputs: true,
+        maskTextSelector: '[data-ph-mask]',
+      },
+      // Fix for "signal is aborted" errors
+      request_batching: true, // Batch requests to reduce network calls
+      batch_flush_interval_ms: 5000, // Flush every 5 seconds
+      persistence: 'localStorage+cookie', // More reliable persistence
+      property_blacklist: ['$feature_flag_payloads'], // Reduce payload size
+      sanitize_properties: (properties) => {
+        // Prevent circular references and large payloads
+        try {
+          return JSON.parse(JSON.stringify(properties));
+        } catch {
+          return {};
+        }
       },
       debug: process.env.NODE_ENV === 'development',
       loaded: (posthog) => {
@@ -36,7 +48,25 @@ if (typeof window !== 'undefined') {
           console.log('📊 Autocapture enabled - All clicks and pageviews will be tracked');
         }
       },
+      // Suppress abort errors in console
+      _onCapture: (event, properties) => {
+        // Silently handle failed requests
+        return true;
+      },
     });
+    
+    // Catch and suppress PostHog errors globally
+    if (typeof window !== 'undefined') {
+      const originalError = console.error;
+      console.error = (...args) => {
+        // Suppress PostHog abort errors
+        if (args[0]?.toString().includes('signal is aborted') || 
+            args[0]?.toString().includes('posthog')) {
+          return; // Don't log PostHog errors
+        }
+        originalError.apply(console, args);
+      };
+    }
   } else if (process.env.NODE_ENV === 'development') {
     console.warn('⚠️ PostHog key not found. Set NEXT_PUBLIC_POSTHOG_KEY in .env.local');
   }

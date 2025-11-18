@@ -18,14 +18,14 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { trackTenderSearch, trackTenderExternalClick } from '@/lib/posthog/events';
-import { saveLiveTendersCount } from '@/lib/tender-stats';
 import {
   saveTendersToLocalStorage,
   loadTendersFromLocalStorage,
   isStoredDataFresh,
   type StoredTenderData
 } from '@/lib/tender-storage';
-// Note: We no longer use /api/tenders-cache - Supabase latest_snapshot IS the cache!
+// Note: We no longer use /api/tenders-cache or saveLiveTendersCount
+// Stats are read directly from Supabase latest_snapshot!
 
 interface Tender {
   title: string;
@@ -197,10 +197,6 @@ export default function SearchPage() {
       console.log(`📊 Loaded ${fetchedCount} tenders (${liveTendersCount} total live tenders)`);
       
       // ALL post-processing happens AFTER UI updates (non-blocking)
-      // These run asynchronously and don't delay the render
-      
-      // Save stats (non-blocking - no await)
-      saveLiveTendersCount(liveTendersCount);
       
       // Save to localStorage for fast reload on next visit (user-specific)
       if (user) {

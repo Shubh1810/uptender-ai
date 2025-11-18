@@ -1,80 +1,51 @@
-// Tender Statistics Management
-// Stores and retrieves live tenders count globally across all users via API
-// Count persists forever until next search (no expiration)
+/**
+ * Tender Statistics Management - Simplified Architecture
+ * 
+ * Reads live tender count directly from Supabase latest_snapshot table.
+ * No more in-memory storage, no more POST updates, no more events!
+ * 
+ * CRON job updates Supabase → API reads from Supabase → Display shows data
+ * Simple, reliable, always accurate!
+ */
 
 export interface TenderStats {
   liveTendersCount: number;
   lastUpdated: string;
-  isConnected: boolean;  // Always true if data exists
+  isConnected: boolean;
 }
 
 /**
- * Save live tenders count to server (global for all users)
- */
-export async function saveLiveTendersCount(count: number): Promise<void> {
-  try {
-    const response = await fetch('/api/tender-stats', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        liveTendersCount: count,
-        updatedBy: 'search-user',
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to save tender stats to server');
-    }
-
-    const data = await response.json();
-    console.log(`📊 Saved global live tenders count: ${count}`, data);
-    
-    // Dispatch event to notify all components on this client
-    window.dispatchEvent(new CustomEvent('live-tenders-updated', { 
-      detail: { count, timestamp: Date.now() } 
-    }));
-  } catch (err) {
-    console.error('Failed to save live tenders count:', err);
-  }
-}
-
-/**
- * Get live tenders count from server (global for all users)
- * Count persists forever - always shows as "Connected" if data exists
+ * Get live tenders count from Supabase (via API route)
+ * 
+ * This always reflects the latest CRON scrape data.
+ * Works for first-time visitors, logged-out users, and survives deploys!
  */
 export async function getLiveTendersCount(): Promise<TenderStats> {
   try {
     const response = await fetch('/api/tender-stats', {
       method: 'GET',
-      cache: 'no-store', // Always get fresh data
+      cache: 'no-store', // Always get fresh data from Supabase
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch tender stats from server');
+      throw new Error('Failed to fetch tender stats');
     }
 
     const result = await response.json();
     const data = result.data;
     
-    if (data && data.liveTendersCount > 0) {
-      // Always show as connected if we have data (no expiration)
-      return {
-        liveTendersCount: data.liveTendersCount,
-        lastUpdated: new Date(data.lastUpdated).toLocaleTimeString(),
-        isConnected: true,  // Always connected if data exists
-      };
-    }
+    return {
+      liveTendersCount: data.liveTendersCount || 0,
+      lastUpdated: data.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : '',
+      isConnected: data.isConnected || false,
+    };
   } catch (err) {
     console.error('Failed to get live tenders count:', err);
+    return {
+      liveTendersCount: 0,
+      lastUpdated: '',
+      isConnected: false,
+    };
   }
-  
-  // Only return disconnected if no data exists
-  return {
-    liveTendersCount: 0,
-    lastUpdated: '',
-    isConnected: false,
-  };
 }
 

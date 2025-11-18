@@ -43,37 +43,28 @@ export default function Home() {
     isConnected: false,
   });
   
-  // Load live tenders count on mount and listen for updates
+  // Load live tenders count on mount - simple and reliable!
   React.useEffect(() => {
     const loadStats = async () => {
       try {
         const stats = await getLiveTendersCount();
         setTenderStats(stats);
-        console.log('🏠 Hero Section: Live tenders updated:', stats.liveTendersCount, stats.isConnected ? '✅ Connected' : '⚠️ Not Connected');
+        console.log('🏠 Hero Section: Live tenders loaded:', stats.liveTendersCount, stats.isConnected ? '✅ Connected' : '⚠️ Not Connected');
       } catch (error) {
         console.error('❌ Hero Section: Failed to load tender stats:', error);
       }
     };
     
-    // Initial load
+    // Initial load - data comes from Supabase, always accurate!
     loadStats();
     
-    // Refresh stats every 30 seconds to sync with other users
+    // Optional: Refresh every 60 seconds to show updated counts from CRON
     const refreshInterval = setInterval(() => {
-      console.log('🔄 Hero Section: Auto-refreshing tender stats...');
+      console.log('🔄 Hero Section: Refreshing tender stats from Supabase...');
       loadStats();
-    }, 30000);
+    }, 60000); // Every 60 seconds (can increase to 5 minutes if preferred)
     
-    // Listen for immediate updates from search page on this client
-    const handleUpdate = (event: CustomEvent) => {
-      console.log('📡 Hero Section: Received live-tenders-updated event:', event.detail);
-      // Force immediate reload to get fresh data from server
-      setTimeout(loadStats, 100); // Small delay to ensure server has saved
-    };
-    
-    window.addEventListener('live-tenders-updated', handleUpdate as EventListener);
     return () => {
-      window.removeEventListener('live-tenders-updated', handleUpdate as EventListener);
       clearInterval(refreshInterval);
     };
   }, []);

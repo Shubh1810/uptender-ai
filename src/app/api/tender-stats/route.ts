@@ -1,63 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-// In-memory storage for live tenders count (shared across all users)
-// NOTE: This resets on server restart. For production, use Redis or database.
-let globalTenderStats = {
-  liveTendersCount: 0,
-  lastUpdated: new Date().toISOString(),
-  updatedBy: 'system',
-};
-
-// GET: Retrieve current live tenders count
+/**
+ * GET: Retrieve live tenders count directly from Supabase
+ * 
+ * This endpoint reads from the latest_snapshot table which is updated by CRON.
+ * No need for in-memory storage - Supabase IS the source of truth!
+ * 
+ * Benefits:
+ * - Always accurate, never shows 0 on deploy
+ * - Works for first-time visitors immediately
+ * - Survives server restarts
+ * - Single source of truth
+ */
 export async function GET(request: NextRequest) {
   try {
-    return NextResponse.json({
-      success: true,
-      data: globalTenderStats,
-    });
-  } catch (error) {
-    console.error('❌ Error fetching tender stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch tender stats' },
-      { status: 500 }
+    // Create Supabase client without cookies (public data only)
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-  }
-}
+    
+    // Direct read from Supabase - always fresh, always accurate
+    const { data: snapshot, error } = await supabase
+      .from('latest_snapshot')
+      .select('live_tenders, scraped_at, count')
+      .eq('id', 1)
+      .single();
 
-// POST: Update live tenders count (called by search page)
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { liveTendersCount, updatedBy = 'user' } = body;
-
-    // Validate count
-    if (typeof liveTendersCount !== 'number' || liveTendersCount < 0) {
-      return NextResponse.json(
-        { error: 'Invalid liveTendersCount. Must be a positive number.' },
-        { status: 400 }
-      );
+    if (error) {
+      console.error('❌ Supabase error fetching tender stats:', error);
+      return NextResponse.json({
+        success: false,
+        data: {
+          liveTendersCount: 0,
+          lastUpdated: '',
+          isConnected: false,
+        }
+      }, { status: 500 });
     }
 
-    // Update global stats
-    globalTenderStats = {
-      liveTendersCount,
-      lastUpdated: new Date().toISOString(),
-      updatedBy,
-    };
+    if (!snapshot) {
+      console.warn('⚠️ No snapshot data found in database');
+      return NextResponse.json({
+        success: true,
+        data: {
+          liveTendersCount: 0,
+          lastUpdated: '',
+          isConnected: false,
+        }
+      });
+    }
 
-    console.log(`📊 Global tender stats updated: ${liveTendersCount} live tenders (by ${updatedBy})`);
+    const liveTendersCount = snapshot.live_tenders || snapshot.count || 0;
+    const isConnected = liveTendersCount > 0;
+
+    console.log(`📊 Fetched live tender stats: ${liveTendersCount} tenders (scraped at: ${snapshot.scraped_at})`);
 
     return NextResponse.json({
       success: true,
-      data: globalTenderStats,
-      message: 'Tender stats updated successfully',
+      data: {
+        liveTendersCount,
+        lastUpdated: snapshot.scraped_at,
+        isConnected,
+      }
     });
+
   } catch (error) {
-    console.error('❌ Error updating tender stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to update tender stats' },
-      { status: 500 }
-    );
+    console.error('❌ Error fetching tender stats:', error);
+    return NextResponse.json({
+      success: false,
+      data: {
+        liveTendersCount: 0,
+        lastUpdated: '',
+        isConnected: false,
+      }
+    }, { status: 500 });
   }
 }
 

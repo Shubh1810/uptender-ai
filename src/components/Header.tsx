@@ -63,22 +63,13 @@ export function Header({
     // Initial load
     loadStats();
     
-    // Refresh stats every 30 seconds to sync with other users
+    // Optional: Refresh every 60 seconds to show updated counts from CRON
     const refreshInterval = setInterval(() => {
-      console.log('🔄 Header: Auto-refreshing tender stats...');
+      console.log('🔄 Header: Refreshing tender stats from Supabase...');
       loadStats();
-    }, 30000);
+    }, 60000); // Every 60 seconds
     
-    // Listen for immediate updates from search page on this client
-    const handleUpdate = (event: CustomEvent) => {
-      console.log('📡 Header: Received live-tenders-updated event:', event.detail);
-      // Force immediate reload to get fresh data from server
-      setTimeout(loadStats, 100); // Small delay to ensure server has saved
-    };
-    
-    window.addEventListener('live-tenders-updated', handleUpdate as EventListener);
     return () => {
-      window.removeEventListener('live-tenders-updated', handleUpdate as EventListener);
       clearInterval(refreshInterval);
     };
   }, []);
