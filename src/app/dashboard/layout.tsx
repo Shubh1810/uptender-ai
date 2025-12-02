@@ -22,7 +22,8 @@ import {
   Brain,
   Shield,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  LineChart
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -188,6 +189,7 @@ export default function DashboardLayout({
         { name: 'Tender analytics', icon: BarChart3, href: '/dashboard/analytics' },
         { name: 'Bid analytics', icon: TrendingUp, href: '/dashboard/bid-analytics' },
         { name: 'Market insights', icon: Target, href: '/dashboard/insights' },
+        { name: 'IntelliGraph™', icon: LineChart, href: '/dashboard/intelligraph' },
       ]
     },
     {

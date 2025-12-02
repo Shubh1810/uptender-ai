@@ -39,8 +39,9 @@ interface Tender {
 
 interface TenderResponse {
   source: string;
-  count: number;
+  count: number;  // Count of items on current page
   live_tenders: number;  // Total live tenders globally
+  total_items?: number;  // Total count of matching tenders (after filtering)
   items: Tender[];
   debug_steps?: Array<{
     step: string;
@@ -182,11 +183,12 @@ export default function SearchPage() {
 
       const fetchedTenders = data.items || [];
       const fetchedCount = data.count || 0;
+      const totalItemsCount = data.total_items || fetchedCount; // Use total_items if available, fallback to count
       const liveTendersCount = data.live_tenders || 0;
 
       // Update UI STATE FIRST - this triggers immediate render
       setTenders(fetchedTenders);
-      setTotalCount(fetchedCount);
+      setTotalCount(totalItemsCount); // Use total_items for accurate count display
       setCurrentPage(page);
       setLoadedFromCache(false);
       setLastFetchTime(new Date().toLocaleTimeString());
@@ -194,7 +196,7 @@ export default function SearchPage() {
       
       const renderTime = performance.now();
       console.log(`⏱️ Total time to render: ${((renderTime - startTime) / 1000).toFixed(2)}s`);
-      console.log(`📊 Loaded ${fetchedCount} tenders (${liveTendersCount} total live tenders)`);
+      console.log(`📊 Loaded ${fetchedTenders.length} tenders on page ${page} (${totalItemsCount} total matching tenders, ${liveTendersCount} total live tenders)`);
       
       // ALL post-processing happens AFTER UI updates (non-blocking)
       
@@ -202,7 +204,7 @@ export default function SearchPage() {
       if (user) {
         const storageData: StoredTenderData = {
           tenders: fetchedTenders,
-          totalCount: fetchedCount,
+          totalCount: totalItemsCount, // Use total_items for accurate count
           liveTendersCount: liveTendersCount,
           lastFetched: new Date().toISOString(),
           searchQuery: query,
@@ -215,7 +217,7 @@ export default function SearchPage() {
       // Track analytics (non-blocking)
       trackTenderSearch({
         query: query || undefined,
-        resultsCount: fetchedCount,
+        resultsCount: totalItemsCount, // Use total_items for accurate analytics
         page: page,
       });
     } catch (err) {

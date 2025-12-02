@@ -665,6 +665,71 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Tender Categories Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+              Tender Categories
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Explore tenders across all major industries
+            </p>
+          </div>
+
+          {/* Industry Logos Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-items-center">
+            {/* Healthcare */}
+            <div className="flex flex-col items-center justify-center group">
+              <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors">
+                <Heart className="h-10 w-10 text-blue-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 text-center">Healthcare</span>
+            </div>
+
+            {/* Construction */}
+            <div className="flex flex-col items-center justify-center group">
+              <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mb-3 group-hover:bg-orange-100 transition-colors">
+                <Building className="h-10 w-10 text-orange-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 text-center">Construction</span>
+            </div>
+
+            {/* IT & Software */}
+            <div className="flex flex-col items-center justify-center group">
+              <div className="w-20 h-20 rounded-full bg-purple-50 flex items-center justify-center mb-3 group-hover:bg-purple-100 transition-colors">
+                <Zap className="h-10 w-10 text-purple-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 text-center">IT & Software</span>
+            </div>
+
+            {/* Government */}
+            <div className="flex flex-col items-center justify-center group">
+              <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mb-3 group-hover:bg-green-100 transition-colors">
+                <Shield className="h-10 w-10 text-green-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 text-center">Government</span>
+            </div>
+
+            {/* Defense */}
+            <div className="flex flex-col items-center justify-center group">
+              <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-3 group-hover:bg-red-100 transition-colors">
+                <Trophy className="h-10 w-10 text-red-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 text-center">Defense</span>
+            </div>
+
+            {/* Education */}
+            <div className="flex flex-col items-center justify-center group">
+              <div className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-3 group-hover:bg-indigo-100 transition-colors">
+                <FileText className="h-10 w-10 text-indigo-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 text-center">Education</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Enhanced Footer with tender-focused links */}
       <Footer />
 
