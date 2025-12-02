@@ -216,7 +216,7 @@ function MainNavigation() {
         </Link>
       ) : (
         // Not logged in - show Get started button
-        <GoogleSignInButton hideIcon startOnboarding className="get-started-cta text-sm md:text-base">
+        <GoogleSignInButton hideIcon startOnboarding className="get-started-cta">
           <span className="hidden md:inline">Get started</span>
           <span className="md:hidden">Get started</span>
         </GoogleSignInButton>

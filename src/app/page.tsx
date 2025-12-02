@@ -21,7 +21,13 @@ import {
   Heart,
   Building,
   PlusCircle,
-  MinusCircle
+  MinusCircle,
+  Clock,
+  Sparkles,
+  Link2,
+  CircleDollarSign,
+  Layout,
+  LineChart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
@@ -112,34 +118,34 @@ export default function Home() {
 
   const features = [
     {
-      icon: Brain,
-      title: 'AI-Powered Tender Analysis',
-      description: 'Advanced AI algorithms analyze government tenders, healthcare tenders, and construction tenders to provide intelligent insights for better bidding decisions and higher win rates.'
+      icon: Bell,
+      title: 'Instant Opportunity Alerts',
+      description: 'Get only the tenders you can win — instant, relevant alerts delivered to email & WhatsApp. Speed and relevance that customers want.'
     },
     {
-      icon: Bell,
-      title: 'Real-Time Tender Notifications',
-      description: 'Get instant alerts for relevant government tenders, healthcare tenders, pharmaceutical tenders, and construction opportunities matching your business profile across India.'
+      icon: Sparkles,
+      title: 'Auto-Bid Generator',
+      description: 'A fully formed draft bid (technical + commercial) created instantly from your past documents, profile, and tender requirements. This flips "I don\'t have the team to bid" into "I can bid 5x more tenders".'
     },
     {
       icon: Target,
-      title: 'Smart Tender Filtering',
-      description: 'Intelligent filtering system for government procurement, GeM tenders, state tenders, and central government tenders based on your business category and location preferences.'
+      title: 'AI Tender Matchmaking Engine',
+      description: 'Not generic alerts. A model that understands what you can fulfill, what you have won/lost before, your pricing, and your business capabilities. Matches you to tenders you actually can win. That\'s the money feature.'
     },
     {
-      icon: BarChart3,
-      title: 'Tender Analytics Dashboard',
-      description: 'Comprehensive analytics for tender tracking, bid success rates, competitor analysis, and market trends in Indian government procurement and private sector tenders.'
+      icon: CircleDollarSign,
+      title: 'Competitor & Pricing Intel',
+      description: 'AI extracts who usually bids, at what price range, who wins, seasonality patterns, and predicts the competitiveness of a tender. This answers the hardest procurement question: "Should I even compete here?"'
     },
     {
-      icon: FileText,
-      title: 'Automated Bid Documentation',
-      description: 'AI-assisted preparation of tender documents, technical specifications, and compliance documentation for government tenders and healthcare procurement processes.'
+      icon: Layout,
+      title: 'Zero-Friction Tender Workspace',
+      description: 'A UX layer with one-click save tender, auto extract important fields, generate checklists, track docs, and assign tasks. This reduces chaos for SMBs that have no procurement team.'
     },
     {
-      icon: TrendingUp,
-      title: 'Tender Market Intelligence',
-      description: 'Deep insights into tender market trends, pricing analysis, competitor strategies, and success patterns across various sectors including healthcare, construction, and IT.'
+      icon: LineChart,
+      title: 'Bid Intelligence Graph™',
+      description: 'A continuously-learning graph of all tenders, bidders, and outcomes.'
     }
   ];
 
@@ -442,9 +448,7 @@ export default function Home() {
                 className="bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg group"
               >
                 <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                    <feature.icon className="h-6 w-6 text-blue-600" />
-                  </div>
+                  <feature.icon className="h-8 w-8 text-blue-600" />
                   <h3 className="text-xl font-bold text-gray-900 ml-4">{feature.title}</h3>
                 </div>
                 <p className="text-gray-600 leading-relaxed">{feature.description}</p>

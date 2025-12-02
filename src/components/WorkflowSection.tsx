@@ -62,16 +62,46 @@ const WavyLines = () => (
   </div>
 );
 
+// Slot machine animation variants
+const slotMachineVariants = {
+  enter: (direction: 'down' | 'up') => ({
+    opacity: 0,
+    y: direction === 'down' ? 100 : -100,
+    rotateX: direction === 'down' ? -20 : 20,
+    scale: 0.9,
+  }),
+  center: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    scale: 1,
+  },
+  exit: (direction: 'down' | 'up') => ({
+    opacity: 0,
+    y: direction === 'down' ? -100 : 100,
+    rotateX: direction === 'down' ? 20 : -20,
+    scale: 0.9,
+  }),
+};
+
+const slotMachineTransition = {
+  duration: 0.1,
+  ease: [0.22, 1, 0.36, 1] as const,
+};
+
 // Inner content for each step (this is what animates)
 function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win'; direction: 'down' | 'up' }) {
   if (stepKey === 'save') {
     return (
       <motion.div 
         key="save-content"
-        initial={{ opacity: 0, y: direction === 'up' ? -30 : 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: direction === 'up' ? 30 : -30 }}
-        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+        custom={direction}
+        variants={slotMachineVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={slotMachineTransition}
+        style={{ transformPerspective: 1200 }}
         className="relative space-y-3 w-full"
       >
         <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
@@ -103,10 +133,13 @@ function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win
     return (
       <motion.div 
         key="notify-content"
-        initial={{ opacity: 0, y: direction === 'up' ? -30 : 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: direction === 'up' ? 30 : -30 }}
-        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+        custom={direction}
+        variants={slotMachineVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={slotMachineTransition}
+        style={{ transformPerspective: 1200 }}
         className="relative grid gap-3 w-full"
       >
         <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
@@ -148,10 +181,13 @@ function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win
   return (
     <motion.div 
       key="win-content"
-      initial={{ opacity: 0, y: direction === 'up' ? -30 : 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: direction === 'up' ? 30 : -30 }}
-      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+      custom={direction}
+      variants={slotMachineVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={slotMachineTransition}
+      style={{ transformPerspective: 1200 }}
       className="relative space-y-3 w-full"
     >
       <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
@@ -231,19 +267,19 @@ export function WorkflowSection() {
       >
         <div className="max-w-5xl mx-auto w-full">
           {/* Main content area with two columns */}
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-stretch">
             {/* Left column - Tabs + Content + Progress */}
             <div className="flex flex-col justify-between order-2 lg:order-1">
               {/* Tabs */}
-              <div className="w-full max-w-xl mx-auto lg:mx-0 flex items-center gap-6 text-base md:text-lg font-medium text-gray-600 mb-6 justify-center lg:justify-start">
+              <div className="w-full max-w-xl mx-auto lg:mx-0 flex items-center gap-4 text-base md:text-lg font-medium text-gray-600 mb-6 justify-center lg:justify-start">
                 {steps.map((s, idx) => (
                   <button
                     key={s.key}
                     type="button"
                     className={`transition-all duration-300 ${
                       activeIndex === idx 
-                        ? 'text-gray-900 font-semibold scale-105' 
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'text-gray-900 font-bold' 
+                        : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     {s.label}
@@ -252,17 +288,33 @@ export function WorkflowSection() {
               </div>
 
               {/* Text content */}
-              <div className="flex-1 flex items-center">
+              <div className="flex-1 flex items-center overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`content-${activeIndex}`}
-                    initial={{ opacity: 0, x: direction === 'up' ? -50 : 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: direction === 'up' ? 50 : -50 }}
-                    transition={{
-                      duration: 0.5,
-                      ease: [0.32, 0.72, 0, 1],
+                    initial={{ 
+                      opacity: 0, 
+                      y: direction === 'down' ? 80 : -80,
+                      rotateX: direction === 'down' ? -15 : 15,
+                      scale: 0.95
                     }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0,
+                      rotateX: 0,
+                      scale: 1
+                    }}
+                    exit={{ 
+                      opacity: 0, 
+                      y: direction === 'down' ? -80 : 80,
+                      rotateX: direction === 'down' ? 15 : -15,
+                      scale: 0.95
+                    }}
+                    transition={{
+                      duration: 0.2,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    style={{ transformPerspective: 1000 }}
                     className="w-full max-w-xl text-center lg:text-left"
                   >
                     <h2 className="text-3xl lg:text-4xl font-semibold mb-4 text-gray-900 font-lexend">
@@ -272,7 +324,7 @@ export function WorkflowSection() {
                       {steps[activeIndex].description}
                     </p>
                     <Link href={steps[activeIndex].cta.href}>
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-6">
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-6 rounded-full text-lg">
                         {steps[activeIndex].cta.text}
                       </Button>
                     </Link>
@@ -289,16 +341,23 @@ export function WorkflowSection() {
                     0,
                     Math.min(100, ((progress - segmentStart) / (segmentEnd - segmentStart)) * 100)
                   );
+                  const isActive = segmentProgress > 0 && segmentProgress < 100;
 
                   return (
                     <div
                       key={idx}
-                      className="h-1.5 rounded-full bg-gray-300 overflow-hidden relative"
+                      className="h-1.5 rounded-full bg-gray-200 overflow-hidden relative"
                       style={{ width: 48 }}
                     >
                       <motion.div
-                        className="h-full bg-blue-600 rounded-full absolute left-0 top-0"
-                        style={{ width: `${segmentProgress}%` }}
+                        className="h-full rounded-full absolute left-0 top-0"
+                        style={{ 
+                          width: `${segmentProgress}%`,
+                          background: isActive 
+                            ? 'linear-gradient(90deg, #6b7280 0%, #6b7280 70%, #60a5fa 95%, #38bdf8 100%)'
+                            : '#6b7280',
+                          boxShadow: isActive ? '0 0 12px rgba(56, 189, 248, 0.8), 2px 0 8px rgba(96, 165, 250, 0.6)' : 'none'
+                        }}
                         transition={{ duration: 0.05, ease: 'linear' }}
                       />
                     </div>
@@ -308,12 +367,12 @@ export function WorkflowSection() {
             </div>
 
             {/* Right column - Full height container */}
-            <div className="w-full max-w-md mx-auto lg:mx-0 order-1 lg:order-2">
+            <div className="w-full max-w-md mx-auto lg:ml-auto lg:mr-0 order-1 lg:order-2">
               {/* Static warm-toned container spanning full height */}
               <div 
-                className="relative rounded-3xl p-6 border border-amber-200/50 shadow-xl h-full min-h-[450px] flex items-center overflow-hidden"
+                className="relative rounded-3xl p-6 shadow-xl h-full min-h-[450px] flex items-center overflow-hidden"
                 style={{ 
-                  backgroundImage: 'linear-gradient(145deg, #fdf6e9 0%, #f5e6d3 35%, #efe0d1 60%, #fefcf3 100%)'
+                  backgroundImage: 'linear-gradient(5deg, #e8d9c8 0%, #f0e1d0 50%, #f8f0e5 100%)'
                 }}
               >
                 {/* Static wavy lines background */}
@@ -340,16 +399,23 @@ export function WorkflowSection() {
                 0,
                 Math.min(100, ((progress - segmentStart) / (segmentEnd - segmentStart)) * 100)
               );
+              const isActive = segmentProgress > 0 && segmentProgress < 100;
 
               return (
                 <div
                   key={idx}
-                  className="h-1.5 rounded-full bg-gray-300 overflow-hidden relative"
+                  className="h-1.5 rounded-full bg-gray-200 overflow-hidden relative"
                   style={{ width: 48 }}
                 >
                   <motion.div
-                    className="h-full bg-blue-600 rounded-full absolute left-0 top-0"
-                    style={{ width: `${segmentProgress}%` }}
+                    className="h-full rounded-full absolute left-0 top-0"
+                    style={{ 
+                      width: `${segmentProgress}%`,
+                      background: isActive 
+                        ? 'linear-gradient(90deg, #6b7280 0%, #6b7280 70%, #60a5fa 95%, #38bdf8 100%)'
+                        : '#6b7280',
+                      boxShadow: isActive ? '0 0 12px rgba(56, 189, 248, 0.8), 2px 0 8px rgba(96, 165, 250, 0.6)' : 'none'
+                    }}
                     transition={{ duration: 0.05, ease: 'linear' }}
                   />
                 </div>
