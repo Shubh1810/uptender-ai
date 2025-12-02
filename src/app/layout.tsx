@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Kings, Playfair_Display, Roboto, Ubuntu } from "next/font/google";
+import { Geist, Geist_Mono, Kings, Playfair_Display, Roboto, Ubuntu, Zain, Lexend } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { CookieBanner } from "@/components/ui/cookie-banner";
@@ -40,7 +40,17 @@ const ubuntu = Ubuntu({
   weight: ["300", "400", "500", "700"],
 });
 
+const zain = Zain({
+  variable: "--font-zain",
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "700", "800", "900"],
+});
 
+const lexend = Lexend({
+  variable: "--font-lexend",
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
 
 export const metadata: Metadata = {
   title: "TenderPost - AI Tender Notifier & Automation Platform for India | Government Tenders, Healthcare Tenders",
@@ -380,7 +390,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${playfairDisplay.variable} ${roboto.variable} ${ubuntu.variable} antialiased overflow-x-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${playfairDisplay.variable} ${roboto.variable} ${ubuntu.variable} ${zain.variable} ${lexend.variable} antialiased overflow-x-hidden`}
       >
         <PostHogProvider>
           <Suspense fallback={null}>
