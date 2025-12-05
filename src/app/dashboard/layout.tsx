@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -23,7 +23,8 @@ import {
   Shield,
   AlertCircle,
   CheckCircle,
-  LineChart
+  LineChart,
+  ChevronDown
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -38,6 +39,9 @@ export default function DashboardLayout({
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [onboardingProgress, setOnboardingProgress] = useState<number>(0);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
@@ -116,7 +120,7 @@ export default function DashboardLayout({
     }
   };
 
-  // Check onboarding status
+  // Check onboarding status and progress
   useEffect(() => {
     const checkOnboarding = async () => {
       if (!user) return;
@@ -124,24 +128,38 @@ export default function DashboardLayout({
       try {
         const { data: prof, error } = await supabase
           .from('profiles')
-          .select('onboarding_completed')
+          .select('onboarding_completed, full_name, company, primary_industry')
           .eq('id', user.id)
           .maybeSingle();
         
         if (error) {
           console.error('Error checking onboarding:', error);
           setOnboardingCompleted(null);
+          setOnboardingProgress(0);
         } else if (prof) {
           const isCompleted = prof.onboarding_completed === true || 
                              prof.onboarding_completed === 'true' || 
                              prof.onboarding_completed === 1;
           setOnboardingCompleted(isCompleted);
+          
+          // Calculate progress based on filled fields (3 steps total)
+          if (isCompleted) {
+            setOnboardingProgress(100);
+          } else {
+            let progress = 0;
+            if (prof.full_name) progress += 33; // Step 1
+            if (prof.company) progress += 33; // Step 2
+            if (prof.primary_industry) progress += 34; // Step 3
+            setOnboardingProgress(Math.min(100, progress));
+          }
         } else {
           setOnboardingCompleted(false);
+          setOnboardingProgress(0);
         }
       } catch (error) {
         console.error('Exception checking onboarding:', error);
         setOnboardingCompleted(null);
+        setOnboardingProgress(0);
       }
     };
     
@@ -155,6 +173,23 @@ export default function DashboardLayout({
       trackDashboardViewed({ section });
     }
   }, [pathname, user]);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userMenuOpen]);
 
   if (loading) {
     return (
@@ -286,19 +321,65 @@ export default function DashboardLayout({
             ))}
           </nav>
 
-          {/* User Profile & Sign Out */}
-          <div className="p-3 border-t border-gray-200 space-y-2">
-            <button className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
-              <Settings className="h-4 w-4" />
-              <span>Settings</span>
-            </button>
+          {/* User Profile & Menu */}
+          <div className="p-3 border-t border-gray-200 relative" ref={userMenuRef}>
+            {/* User Profile Section - Clickable */}
             <button
-              onClick={handleSignOut}
-              className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
             >
-              <LogOut className="h-4 w-4" />
-              <span>Sign out</span>
+              {user.user_metadata?.avatar_url ? (
+                <Image
+                  src={user.user_metadata.avatar_url}
+                  alt={user.user_metadata?.full_name || 'User'}
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-sky-400 flex items-center justify-center text-white text-sm font-semibold">
+                  {user.email?.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                </p>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              </div>
+              <ChevronDown 
+                className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+                  userMenuOpen ? 'rotate-180' : ''
+                }`} 
+              />
             </button>
+            
+            {/* Dropdown Menu */}
+            {userMenuOpen && (
+              <div className="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 transform transition-all duration-200 ease-out opacity-100 translate-y-0">
+                <button 
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    // Add settings navigation here if needed
+                  }}
+                  className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors first:rounded-t-lg"
+                >
+                  <Settings className="h-4 w-4" />
+                  <span>Settings</span>
+                </button>
+                <div className="h-px bg-gray-100 my-1"></div>
+                <button
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    handleSignOut();
+                  }}
+                  className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors last:rounded-b-lg"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </aside>
@@ -316,78 +397,33 @@ export default function DashboardLayout({
                 <Menu className="h-5 w-5" />
               </button>
               
-              {/* User Info */}
+              {/* Onboarding Prompt */}
               <div className="ml-auto flex items-center space-x-3">
-                {/* Onboarding Prompt - Next to Profile */}
                 {onboardingCompleted === false && (
-                  <Link
-                    href="/onboarding?step=2"
-                    className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-[#1B4332] to-[#84cc16] text-white rounded-full text-xs font-medium hover:from-[#1B4332]/90 hover:to-[#84cc16]/90 transition-all shadow-sm"
-                  >
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    <span>Complete Onboarding</span>
-                  </Link>
-                )}
-                
-                <div className="hidden md:block text-right">
-                  <p className="text-sm font-medium text-gray-900">
-                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
-                  </p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
-                </div>
-                {user.user_metadata?.avatar_url ? (
-                  <Image
-                    src={user.user_metadata.avatar_url}
-                    alt={user.user_metadata?.full_name || 'User'}
-                    width={32}
-                    height={32}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-sky-400 flex items-center justify-center text-white text-sm font-semibold">
-                    {user.email?.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                
-                {/* Mobile Onboarding Badge */}
-                {onboardingCompleted === false && (
-                  <Link
-                    href="/onboarding?step=2"
-                    className="sm:hidden relative"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-[#84cc16] absolute -top-0.5 -right-0.5 ring-2 ring-white"></div>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#1B4332] to-[#84cc16] flex items-center justify-center">
-                      <AlertCircle className="w-4 h-4 text-white" />
+                  <>
+                    {/* Circular Progress Pill */}
+                    <div className="flex items-center justify-center w-10 h-10 bg-red-600 rounded-full text-white text-xs font-bold">
+                      {onboardingProgress}%
                     </div>
-                  </Link>
+                    
+                    {/* Main Pill Container */}
+                    <div className="flex items-center space-x-2 px-4 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm shadow-[0_0_15px_rgba(34,197,94,0.25),0_0_30px_rgba(132,204,22,0.15)]">
+                      <span className="hidden sm:inline text-sm text-gray-900 font-bold">
+                        Unlock AI tender recommendations
+                      </span>
+                      <Link
+                        href="/onboarding?step=2"
+                        className="flex items-center px-4 py-1.5 bg-red-50 border border-red-600 text-red-600 rounded-full text-sm font-medium transition-all"
+                      >
+                        <span>Set up</span>
+                      </Link>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
           </div>
         </header>
-
-        {/* Onboarding Banner */}
-        {onboardingCompleted === false && (
-          <div className="bg-gradient-to-r from-[#1B4332] to-[#84cc16] text-white px-6 py-3 border-b border-[#1B4332]/20 shadow-sm">
-            <div className="flex items-center justify-between max-w-7xl mx-auto">
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
-                  <AlertCircle className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">Complete Your Onboarding</p>
-                  <p className="text-xs text-white/90">Finish setting up your profile to unlock all features</p>
-                </div>
-              </div>
-              <Link
-                href="/onboarding?step=2"
-                className="px-4 py-1.5 text-sm font-medium bg-white text-[#1B4332] rounded-md hover:bg-white/90 transition-colors whitespace-nowrap"
-              >
-                Complete Now
-              </Link>
-            </div>
-          </div>
-        )}
 
         {/* Page Content */}
         {children}
