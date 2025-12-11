@@ -8,12 +8,27 @@ const nextConfig = {
   
   // Image optimization for tender-related images
   images: {
-    domains: [
-      'tenderpost.org',
-      'www.tenderpost.org',
-      'images.unsplash.com',
-      'via.placeholder.com',
-      'lh3.googleusercontent.com' // Google profile pictures
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'tenderpost.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.tenderpost.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 31536000, // 1 year
@@ -25,6 +40,9 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
   },
+  
+  // Turbopack configuration (Next.js 16+)
+  turbopack: {},
   
   // Headers for SEO and security
   async headers() {
@@ -185,12 +203,6 @@ const nextConfig = {
   onDemandEntries: {
     maxInactiveAge: 25 * 1000,
     pagesBufferLength: 2,
-  },
-  
-  // ESLint configuration for build
-  eslint: {
-    // Allow production builds to successfully complete even if ESLint errors are present
-    ignoreDuringBuilds: true,
   },
   
   // TypeScript configuration
