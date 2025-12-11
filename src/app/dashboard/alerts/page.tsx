@@ -52,7 +52,7 @@ export default function AlertSettingsPage() {
     <div className="w-full">
 
       {/* ---------- BUSINESS PROFILE ---------- */}
-      <div className="w-full bg-white">
+      <div className="w-full">
         <Section>
           <SectionHeader
             icon={Filter}
@@ -78,7 +78,7 @@ export default function AlertSettingsPage() {
       </div>
 
       {/* ---------- KEYWORDS ---------- */}
-      <div className="w-full bg-neutral-50">
+      <div className="w-full bg-black/[0.02]">
         <Section>
           <SectionHeader
             icon={Brain}
@@ -99,7 +99,7 @@ export default function AlertSettingsPage() {
       </div>
 
       {/* ---------- DELIVERY SETTINGS ---------- */}
-      <div className="w-full bg-white">
+      <div className="w-full">
         <Section>
           <SectionHeader
             icon={MailCheck}
@@ -125,7 +125,7 @@ export default function AlertSettingsPage() {
       </div>
 
       {/* ---------- ADVANCED AI FILTERS ---------- */}
-      <div className="w-full bg-neutral-50">
+      <div className="w-full bg-black/[0.02]">
         <Section>
           <SectionHeader
             icon={SlidersHorizontal}

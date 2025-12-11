@@ -277,3 +277,401 @@ optgroup option {
   color: #1f2937;
   padding-left: 1rem;
 }
+
+/* ================================
+   macOS-Style Glass Dashboard
+   ================================ */
+
+/* Outer container background - subtle cream orange gradient */
+.dashboard-outer-bg {
+  background: linear-gradient(145deg, #fef9f5 0%, #fffcf8 50%, #fef9f5 100%);
+  min-height: 100vh;
+}
+
+/* Frosted glass sidebar - super light cream orange in light mode */
+.glass-sidebar {
+  background: rgba(255, 252, 248, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Floating main content panel with fluid gas glow */
+.floating-content-panel {
+  position: relative;
+  background: rgba(255, 254, 252, 0.95);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border-radius: 12px;
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 8px 24px rgba(0, 0, 0, 0.04);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Ensure content stays above the glow */
+.floating-content-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Fluid gas wave effect - bottom layer */
+.floating-content-panel::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  right: -10%;
+  height: 30%;
+  background: 
+    radial-gradient(ellipse 80% 50% at 20% 100%, rgba(255, 120, 40, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 80, 20, 0.2) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(255, 100, 30, 0.15) 0%, transparent 70%);
+  filter: blur(20px);
+  animation: fluid-wave-1 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Fluid gas wave effect - top layer */
+.floating-content-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -5%;
+  right: -5%;
+  height: 25%;
+  background: 
+    radial-gradient(ellipse 70% 45% at 30% 100%, rgba(255, 140, 50, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 35% at 70% 100%, rgba(255, 90, 20, 0.25) 0%, transparent 45%),
+    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(255, 110, 35, 0.2) 0%, transparent 60%);
+  filter: blur(15px);
+  animation: fluid-wave-2 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes fluid-wave-1 {
+  0%, 100% {
+    transform: translateX(0) scaleY(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translateX(3%) scaleY(1.1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-2%) scaleY(0.95);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translateX(-4%) scaleY(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes fluid-wave-2 {
+  0%, 100% {
+    transform: translateX(0) scaleY(1);
+    opacity: 0.9;
+  }
+  33% {
+    transform: translateX(-4%) scaleY(1.08);
+    opacity: 1;
+  }
+  66% {
+    transform: translateX(3%) scaleY(0.92);
+    opacity: 0.85;
+  }
+}
+
+/* Sidebar active item */
+.glass-sidebar-item-active {
+  background: rgba(255, 248, 240, 0.7);
+  border-radius: 6px;
+}
+
+/* Sidebar hover item */
+.glass-sidebar-item:hover {
+  background: rgba(255, 250, 245, 0.5);
+  border-radius: 6px;
+}
+
+/* Section headers in sidebar */
+.glass-section-header {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Floating header bar */
+.floating-header {
+  background: transparent;
+}
+
+/* User profile card in sidebar */
+.glass-user-card {
+  background: rgba(255, 250, 245, 0.5);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 240, 230, 0.6);
+}
+
+.glass-user-card:hover {
+  background: rgba(255, 248, 240, 0.7);
+}
+
+/* Dropdown menu glass effect */
+.glass-dropdown {
+  background: rgba(255, 252, 248, 0.98);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.05),
+    0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Subtle inner glow for panels */
+.inner-glow {
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+}
+
+/* Scrollbar styling for glass panels */
+.glass-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  display: none;
+}
+
+.glass-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.glass-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.glass-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+
+/* Hide scrollbar for Firefox */
+.glass-scrollbar {
+  scrollbar-width: none;
+}
+
+/* AI Button with Gradient Outline */
+.ai-button-gradient {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  background: white;
+  font-weight: 700;
+  font-size: 13px;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.ai-button-gradient::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #a855f7, #6366f1, #ec4899, #f59e0b);
+  z-index: -1;
+  transition: all 0.2s ease;
+}
+
+.ai-button-gradient:hover {
+  transform: scale(1.05);
+}
+
+.ai-button-gradient:hover::before {
+  background: linear-gradient(135deg, #9333ea, #4f46e5, #db2777, #ea580c);
+  box-shadow: 0 8px 20px rgba(147, 51, 234, 0.3);
+}
+
+.ai-button-gradient:active {
+  transform: scale(0.98);
+}
+
+.ai-button-gradient span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Dark mode AI button */
+.dark .ai-button-gradient {
+  background: #0f172a;
+  color: white;
+}
+
+.dark .ai-button-gradient::before {
+  background: linear-gradient(135deg, #c084fc, #818cf8, #f472b6, #fb923c);
+}
+
+.dark .ai-button-gradient:hover::before {
+  background: linear-gradient(135deg, #a855f7, #6366f1, #ec4899, #f59e0b);
+  box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+}
+
+/* ================================
+   Dark Mode Dashboard Styles
+   ================================ */
+
+/* Outer container - true black in dark mode */
+.dark .dashboard-outer-bg {
+  background: #000000;
+}
+
+/* Sidebar - TRUE JET BLACK in dark mode */
+.dark .glass-sidebar {
+  background: #000000;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Floating main content panel - LIGHT GREY in dark mode */
+.dark .floating-content-panel {
+  background: #1f1f23;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Enhanced fluid gas glow in dark mode */
+.dark .floating-content-panel::before {
+  background: 
+    radial-gradient(ellipse 80% 50% at 20% 100%, rgba(255, 120, 40, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 80, 20, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(255, 100, 30, 0.25) 0%, transparent 70%);
+  filter: blur(25px);
+}
+
+.dark .floating-content-panel::after {
+  background: 
+    radial-gradient(ellipse 70% 45% at 30% 100%, rgba(255, 140, 50, 0.45) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 35% at 70% 100%, rgba(255, 90, 20, 0.4) 0%, transparent 45%),
+    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(255, 110, 35, 0.3) 0%, transparent 60%);
+  filter: blur(20px);
+}
+
+/* Sidebar active item - dark mode */
+.dark .glass-sidebar-item-active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Sidebar hover item - dark mode */
+.dark .glass-sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Section headers in sidebar - dark mode */
+.dark .glass-section-header {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* User profile card - dark mode */
+.dark .glass-user-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dark .glass-user-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Dropdown menu - dark mode */
+.dark .glass-dropdown {
+  background: rgba(28, 28, 32, 0.98);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Text colors for dark mode sidebar */
+.dark .glass-sidebar .text-gray-800,
+.dark .glass-sidebar .text-gray-900 {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.dark .glass-sidebar .text-gray-600 {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark .glass-sidebar .text-gray-500 {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.dark .glass-sidebar .text-gray-400 {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* Logo text in dark mode */
+.dark .glass-sidebar span.text-gray-800 {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Dropdown hover states - dark mode */
+.dark .glass-dropdown button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dark .glass-dropdown .text-gray-700 {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .glass-dropdown .hover\:bg-black\/5:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Divider in dropdown - dark mode */
+.dark .glass-dropdown .bg-black\/5 {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Mobile backdrop - dark mode */
+.dark .bg-gray-900\/30 {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Header bar items - dark mode */
+.dark .floating-content-panel .text-gray-600 {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark .floating-content-panel .text-gray-800 {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark .floating-content-panel .hover\:bg-black\/5:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Onboarding prompt pill - dark mode */
+.dark .bg-white\/80 {
+  background: rgba(45, 45, 50, 0.9);
+}
+
+.dark .border-gray-200\/60 {
+  border-color: rgba(255, 255, 255, 0.1);
+}

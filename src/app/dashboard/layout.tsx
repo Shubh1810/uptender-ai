@@ -18,13 +18,22 @@ import {
   Users,
   LogOut,
   Menu,
-  X,
   Brain,
   Shield,
-  AlertCircle,
-  CheckCircle,
   LineChart,
-  ChevronDown
+  ChevronDown,
+  ChevronRight,
+  Moon,
+  Sun,
+  Clock,
+  Eye,
+  Bookmark,
+  Sparkles,
+  CheckCircle,
+  TrendingDown,
+  Crosshair,
+  AlertCircle,
+  UserCircle
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -41,10 +50,42 @@ export default function DashboardLayout({
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [onboardingProgress, setOnboardingProgress] = useState<number>(0);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [themeMounted, setThemeMounted] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    tenders: true,
+    analytics: false,
+    aiWorkspace: false,
+    notifications: false,
+  });
   const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
+
+  // Theme initialization and toggle - defaults to dark mode
+  useEffect(() => {
+    setThemeMounted(true);
+    const stored = localStorage.getItem('dashboard-theme') as 'light' | 'dark' | null;
+    if (stored) {
+      setTheme(stored);
+      document.documentElement.classList.toggle('dark', stored === 'dark');
+    } else {
+      // Default to dark mode for new users
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('dashboard-theme', 'dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('dashboard-theme', next);
+      document.documentElement.classList.toggle('dark', next === 'dark');
+      return next;
+    });
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -193,10 +234,10 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-zinc-900">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
     );
@@ -206,143 +247,234 @@ export default function DashboardLayout({
     return null;
   }
 
+  // Toggle section expansion
+  const toggleSection = (sectionKey: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  };
+
+  // Navigation structure with collapsible sections
   const navigationSections = [
     {
-      title: 'Tender Management',
+      key: 'tenders',
+      title: 'Tenders',
+      icon: FileText,
       items: [
         { name: 'Search Tenders', icon: Search, href: '/dashboard/search' },
         { name: 'My Tenders', icon: FileText, href: '/dashboard/tenders' },
         { name: 'Active Bids', icon: Activity, href: '/dashboard/active-bids' },
-        { name: 'Tender History', icon: BarChart3, href: '/dashboard/history' },
-        { name: 'Watchlist', icon: Bell, href: '/dashboard/watchlist' },
+        { name: 'Tender History', icon: Clock, href: '/dashboard/history' },
+        { name: 'Watchlist', icon: Bookmark, href: '/dashboard/watchlist' },
       ]
     },
     {
+      key: 'analytics',
       title: 'Analytics',
+      icon: BarChart3,
       items: [
-        { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-        { name: 'Tender analytics', icon: BarChart3, href: '/dashboard/analytics' },
-        { name: 'Bid analytics', icon: TrendingUp, href: '/dashboard/bid-analytics' },
-        { name: 'Market insights', icon: Target, href: '/dashboard/insights' },
+        { name: 'Tender Analytics', icon: TrendingUp, href: '/dashboard/tender-analytics' },
+        { name: 'Bid Analytics', icon: Target, href: '/dashboard/bid-analytics' },
         { name: 'IntelliGraph™', icon: LineChart, href: '/dashboard/intelligraph' },
       ]
     },
     {
-      title: 'Notifications',
-      items: [
-        { name: 'Notifier Manager', icon: Bell, href: '/dashboard/notifier' },
-        { name: 'Alert Settings', icon: Settings, href: '/dashboard/alerts' },
-        { name: 'Email Preferences', icon: Users, href: '/dashboard/email-prefs' },
-      ]
-    },
-    {
-      title: 'AI Tools',
+      key: 'aiWorkspace',
+      title: 'AI Workspace',
+      icon: Sparkles,
       items: [
         { name: 'AI Bid Draft', icon: Zap, href: '/dashboard/ai-draft' },
         { name: 'AI Review', icon: Brain, href: '/dashboard/ai-review' },
-        { name: 'Smart Search', icon: Search, href: '/dashboard/search' },
+        { name: 'Smart Search', icon: Search, href: '/dashboard/smart-search' },
         { name: 'Document Generator', icon: FileText, href: '/dashboard/doc-generator' },
-        { name: 'Compliance Checker', icon: Shield, href: '/dashboard/compliance' },
+        { name: 'Compliance Checker', icon: CheckCircle, href: '/dashboard/compliance' },
+        { name: 'Bid Optimizer', icon: TrendingUp, href: '/dashboard/bid-optimizer' },
+        { name: 'Opportunity Finder', icon: Crosshair, href: '/dashboard/opportunity-finder' },
+        { name: 'Competitor Intelligence', icon: Eye, href: '/dashboard/competitor-intel' },
+        { name: 'Risk & Compliance Agent', icon: Shield, href: '/dashboard/risk-compliance' },
+      ]
+    },
+    {
+      key: 'notifications',
+      title: 'Notifications',
+      icon: Bell,
+      items: [
+        { name: 'Notification Manager', icon: Bell, href: '/dashboard/notifications' },
+        { name: 'Alert Settings', icon: AlertCircle, href: '/dashboard/alerts' },
+        { name: 'Email Preferences', icon: Users, href: '/dashboard/email-prefs' },
       ]
     }
   ];
 
   return (
-    <div className="min-h-screen bg-[#f9fafb]">
+    <div className="min-h-screen dashboard-outer-bg">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-gray-900/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Minimal Sidebar */}
+      {/* macOS-Style Glass Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen w-56 bg-white border-r border-gray-200 transition-transform lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 h-screen w-60 glass-sidebar transition-transform lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* TenderPost Logo */}
-          <div className="p-3 border-b border-gray-200">
-            <Link href="/" className="flex items-center space-x-1 px-3 py-2">
+          {/* TenderPost Logo & Theme Toggle */}
+          <div className="p-4 flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-1 px-2 py-1.5">
               <Image
-                src="/tplogo.png"
+                src={themeMounted && theme === 'dark' ? "/tpllogo-wite.PNG" : "/tplogo.png"}
                 alt="TenderPost"
-                width={24}
-                height={24}
+                width={26}
+                height={26}
                 className="rounded-lg"
               />
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                 <span className="font-inter">Tender</span><span className="font-kings -ml-0.5">Post</span>
               </span>
             </Link>
+            
+            {/* Minimal Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              disabled={!themeMounted}
+              className="p-1.5 rounded-lg hover:bg-white/40 dark:hover:bg-white/10 transition-all duration-200 focus:outline-none"
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {themeMounted && theme === 'dark' ? (
+                <Moon className="w-4 h-4 text-blue-400" />
+              ) : (
+                <Sun className="w-4 h-4 text-amber-500" />
+              )}
+            </button>
           </div>
 
           {/* Dashboard Link */}
-          <div className="p-3 border-b border-gray-200">
+          <div className="px-3 pt-4 pb-2">
             <Link
               href="/dashboard"
-              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+              className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
+                pathname === '/dashboard' 
+                  ? 'glass-sidebar-item-active text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 glass-sidebar-item'
+              }`}
             >
               <LayoutDashboard className="h-4 w-4" />
               <span>Dashboard</span>
             </Link>
           </div>
 
-          {/* Navigation Sections */}
-          <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
-            {navigationSections.map((section) => (
-              <div key={section.title}>
-                <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  {section.title}
-                </h3>
-                <div className="space-y-1">
-                  {section.items.map((item) => {
-                    const isActive = pathname === item.href;
-                    return (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
-                          isActive
-                            ? 'bg-gray-100 text-gray-900 font-medium'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        }`}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.name}</span>
-                      </Link>
-                    );
-                  })}
+          {/* Navigation Sections - Collapsible */}
+          <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto glass-scrollbar">
+            {navigationSections.map((section) => {
+              const isExpanded = expandedSections[section.key];
+              const hasActiveItem = section.items.some(item => pathname === item.href);
+              
+              return (
+                <div key={section.key}>
+                  {/* Section Header - Clickable Dropdown Button */}
+                  <button
+                    onClick={() => toggleSection(section.key)}
+                    className={`w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
+                      hasActiveItem
+                        ? 'glass-sidebar-item-active text-gray-900'
+                        : 'text-gray-600 hover:text-gray-900 glass-sidebar-item'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      <section.icon className="h-4 w-4" />
+                      <span>{section.title}</span>
+                    </div>
+                    <ChevronRight 
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                        isExpanded ? 'rotate-90' : ''
+                      }`}
+                    />
+                  </button>
+                  
+                  {/* Dropdown Items */}
+                  {isExpanded && (
+                    <div className="mt-1 ml-4 pl-3 border-l-2 border-gray-200/50 dark:border-gray-700/50 space-y-0.5">
+                      {section.items.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            className={`flex items-center space-x-2.5 px-3 py-1.5 text-sm rounded-lg transition-all duration-150 ${
+                              isActive
+                                ? 'bg-blue-50/80 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50/50 dark:hover:bg-white/5'
+                            }`}
+                          >
+                            <item.icon className="h-3.5 w-3.5" />
+                            <span>{item.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
+
+            {/* Separator */}
+            <div className="h-px bg-gray-200/50 dark:bg-gray-700/50 my-3"></div>
+
+            {/* Settings Link */}
+            <Link
+              href="/dashboard/settings"
+              className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
+                pathname === '/dashboard/settings'
+                  ? 'glass-sidebar-item-active text-gray-900'
+                  : 'text-gray-600 hover:text-gray-900 glass-sidebar-item'
+              }`}
+            >
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </Link>
+
+            {/* Profile Link */}
+            <Link
+              href="/dashboard/profile"
+              className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
+                pathname === '/dashboard/profile'
+                  ? 'glass-sidebar-item-active text-gray-900'
+                  : 'text-gray-600 hover:text-gray-900 glass-sidebar-item'
+              }`}
+            >
+              <UserCircle className="h-4 w-4" />
+              <span>Profile</span>
+            </Link>
           </nav>
 
           {/* User Profile & Menu */}
-          <div className="p-3 border-t border-gray-200 relative" ref={userMenuRef}>
+          <div className="p-3 relative" ref={userMenuRef}>
             {/* User Profile Section - Clickable */}
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
+              className="w-full flex items-center space-x-3 px-3 py-2.5 glass-user-card transition-all duration-150"
             >
               {user.user_metadata?.avatar_url ? (
                 <Image
                   src={user.user_metadata.avatar_url}
                   alt={user.user_metadata?.full_name || 'User'}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10 rounded-full object-cover"
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-white/80"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-sky-400 flex items-center justify-center text-white text-sm font-semibold">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold ring-2 ring-white/80">
                   {user.email?.charAt(0).toUpperCase()}
                 </div>
               )}
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-gray-800 truncate">
                   {user.user_metadata?.full_name || user.email?.split('@')[0]}
                 </p>
                 <p className="text-xs text-gray-500 truncate">{user.email}</p>
@@ -356,18 +488,17 @@ export default function DashboardLayout({
             
             {/* Dropdown Menu */}
             {userMenuOpen && (
-              <div className="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 transform transition-all duration-200 ease-out opacity-100 translate-y-0">
+              <div className="absolute bottom-full left-3 right-3 mb-2 glass-dropdown py-1 z-50">
                 <button 
                   onClick={() => {
                     setUserMenuOpen(false);
-                    // Add settings navigation here if needed
                   }}
-                  className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors first:rounded-t-lg"
+                  className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-black/5 transition-colors first:rounded-t-lg"
                 >
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
                 </button>
-                <div className="h-px bg-gray-100 my-1"></div>
+                <div className="h-px bg-black/5 my-1 mx-2"></div>
                 <button
                   onClick={() => {
                     setUserMenuOpen(false);
@@ -384,49 +515,53 @@ export default function DashboardLayout({
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="lg:pl-56">
-        {/* Top Bar with Search */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-          <div className="px-6 py-3 h-[69px] flex items-center">
-            <div className="flex items-center justify-between w-full">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              
-              {/* Onboarding Prompt */}
-              <div className="ml-auto flex items-center space-x-3">
-                {onboardingCompleted === false && (
-                  <>
-                    {/* Circular Progress Pill */}
-                    <div className="flex items-center justify-center w-10 h-10 bg-red-600 rounded-full text-white text-xs font-bold">
-                      {onboardingProgress}%
-                    </div>
-                    
-                    {/* Main Pill Container */}
-                    <div className="flex items-center space-x-2 px-4 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm shadow-[0_0_15px_rgba(34,197,94,0.25),0_0_30px_rgba(132,204,22,0.15)]">
-                      <span className="hidden sm:inline text-sm text-gray-900 font-bold">
-                        Unlock AI tender recommendations
-                      </span>
-                      <Link
-                        href="/onboarding?step=2"
-                        className="flex items-center px-4 py-1.5 bg-red-50 border border-red-600 text-red-600 rounded-full text-sm font-medium transition-all"
-                      >
-                        <span>Set up</span>
-                      </Link>
-                    </div>
-                  </>
-                )}
+      {/* Main Content Area with Floating Panel */}
+      <div className="lg:pl-60 h-screen p-3 lg:p-4 overflow-hidden">
+        <div className="floating-content-panel h-full flex flex-col overflow-hidden">
+          {/* Top Bar with Search */}
+          <header className="flex-shrink-0">
+            <div className="px-6 py-4 flex items-center">
+              <div className="flex items-center justify-between w-full">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-black/5 transition-colors"
+                >
+                  <Menu className="h-5 w-5 text-gray-600" />
+                </button>
+                
+                {/* Onboarding Prompt */}
+                <div className="ml-auto flex items-center space-x-3">
+                  {onboardingCompleted === false && (
+                    <>
+                      {/* Circular Progress Pill */}
+                      <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-full text-white text-xs font-bold shadow-lg shadow-red-200">
+                        {onboardingProgress}%
+                      </div>
+                      
+                      {/* Main Pill Container */}
+                      <div className="flex items-center space-x-2 px-4 py-1.5 bg-white/80 backdrop-blur-sm border border-gray-200/60 rounded-full shadow-sm">
+                        <span className="hidden sm:inline text-sm text-gray-800 font-semibold">
+                          Unlock AI tender recommendations
+                        </span>
+                        <Link
+                          href="/onboarding?step=2"
+                          className="flex items-center px-4 py-1.5 bg-red-50 border border-red-500/50 text-red-600 rounded-full text-sm font-medium hover:bg-red-100 transition-all"
+                        >
+                          <span>Set up</span>
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Page Content */}
-        {children}
+          {/* Page Content */}
+          <div className="flex-1 overflow-y-auto glass-scrollbar">
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );
