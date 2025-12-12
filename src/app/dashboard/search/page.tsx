@@ -243,21 +243,21 @@ export default function SearchPage() {
     <div className="flex-1 p-6 lg:p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Search Tenders</h1>
-        <p className="text-gray-600">Find tenders from across India</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Search Tenders</h1>
+        <p className="text-gray-600 dark:text-gray-400">Find tenders from across India</p>
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <form onSubmit={handleSearch} className="flex gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by title, organization, or reference number..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <Button
@@ -283,11 +283,11 @@ export default function SearchPage() {
       {/* Results Count & Cache Info */}
       {!loading && !error && tenders.length > 0 && (
         <div className="mb-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Found <span className="font-semibold text-gray-900">{totalCount}</span> tenders
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Found <span className="font-semibold text-gray-900 dark:text-white">{totalCount}</span> tenders
           </div>
           {lastFetchTime && (
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 dark:text-gray-500">
               💾 Last updated: {lastFetchTime}
             </div>
           )}
@@ -296,14 +296,14 @@ export default function SearchPage() {
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-red-900 mb-1">Error loading tenders</p>
-            <p className="text-sm text-red-700">{error}</p>
+            <p className="text-sm font-medium text-red-900 dark:text-red-200 mb-1">Error loading tenders</p>
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             <Button
               onClick={() => fetchTenders(currentPage, searchQuery)}
-              className="mt-3 text-xs px-4 py-2 bg-red-600 hover:bg-red-700 text-white"
+              className="mt-3 text-xs px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white"
             >
               Try Again
             </Button>
@@ -325,7 +325,7 @@ export default function SearchPage() {
                 stroke="currentColor"
                 strokeWidth="8"
                 fill="transparent"
-                className="text-gray-200"
+                className="text-gray-200 dark:text-gray-700"
               />
               {/* Progress circle */}
               <circle
@@ -337,27 +337,27 @@ export default function SearchPage() {
                 fill="transparent"
                 strokeDasharray={2 * Math.PI * 56}
                 strokeDashoffset={2 * Math.PI * 56 * (1 - loadingProgress / 100)}
-                className="text-blue-600 transition-all duration-300 ease-out"
+                className="text-blue-600 dark:text-blue-500 transition-all duration-300 ease-out"
                 strokeLinecap="round"
               />
             </svg>
             {/* Percentage text */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-blue-600">{Math.round(loadingProgress)}%</span>
+              <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{Math.round(loadingProgress)}%</span>
             </div>
           </div>
           
-          <p className="text-gray-600 font-medium mb-2">Loading tenders...</p>
-          <p className="text-sm text-gray-500">Fetching from database snapshot...</p>
+          <p className="text-gray-600 dark:text-gray-400 font-medium mb-2">Loading tenders...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500">Fetching from database snapshot...</p>
         </div>
       )}
 
       {/* Tenders List */}
       {!loading && !error && tenders.length === 0 && (
         <div className="text-center py-20">
-          <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-2">No tenders found</p>
-          <p className="text-sm text-gray-400">Try adjusting your search terms</p>
+          <FileText className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400 mb-2">No tenders found</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500">Try adjusting your search terms</p>
         </div>
       )}
 
@@ -366,15 +366,15 @@ export default function SearchPage() {
           {tenders.map((tender, index) => (
             <div
               key={`${tender.ref_no}-${index}`}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-black/30 transition-shadow"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 leading-tight">
                     {tender.title}
                   </h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Building className="h-4 w-4" />
                     <span>{tender.organisation}</span>
                   </div>
@@ -402,38 +402,38 @@ export default function SearchPage() {
               {/* Details Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div className="flex items-start gap-2">
-                  <FileText className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <FileText className="h-4 w-4 text-gray-400 dark:text-gray-500 mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Reference No.</p>
-                    <p className="text-sm font-medium text-gray-900">{tender.ref_no}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Reference No.</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{tender.ref_no}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2">
-                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <Calendar className="h-4 w-4 text-gray-400 dark:text-gray-500 mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Published</p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Published</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {new Date(tender.published_date).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2">
-                  <Calendar className="h-4 w-4 text-orange-400 mt-0.5" />
+                  <Calendar className="h-4 w-4 text-orange-400 dark:text-orange-500 mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Opening Date</p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Opening Date</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {new Date(tender.opening_date).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2">
-                  <Calendar className="h-4 w-4 text-red-400 mt-0.5" />
+                  <Calendar className="h-4 w-4 text-red-400 dark:text-red-500 mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Closing Date</p>
-                    <p className="text-sm font-medium text-red-600">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Closing Date</p>
+                    <p className="text-sm font-medium text-red-600 dark:text-red-400">
                       {new Date(tender.closing_date).toLocaleDateString()}
                     </p>
                   </div>
@@ -441,18 +441,18 @@ export default function SearchPage() {
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                 <div className="flex gap-2">
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
+                  <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
                     Active
                   </span>
-                  <span className="px-2 py-1 bg-gray-50 text-gray-700 text-xs rounded">
+                  <span className="px-2 py-1 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded">
                     Government
                   </span>
                 </div>
                 <Button
                   variant="outline"
-                  className="text-xs px-3 py-1.5 border-gray-300"
+                  className="text-xs px-3 py-1.5 border-gray-300 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   Save for Later
                 </Button>
@@ -469,18 +469,18 @@ export default function SearchPage() {
             onClick={() => fetchTenders(currentPage - 1, searchQuery)}
             disabled={currentPage === 1}
             variant="outline"
-            className="px-4 py-2"
+            className="px-4 py-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           >
             Previous
           </Button>
-          <span className="px-4 py-2 text-sm text-gray-600">
+          <span className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
             Page {currentPage}
           </span>
           <Button
             onClick={() => fetchTenders(currentPage + 1, searchQuery)}
             disabled={tenders.length < API_PAGE_LIMIT}
             variant="outline"
-            className="px-4 py-2"
+            className="px-4 py-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           >
             Next
           </Button>

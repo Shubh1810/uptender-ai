@@ -282,30 +282,26 @@ optgroup option {
    macOS-Style Glass Dashboard
    ================================ */
 
-/* Outer container background - subtle cream orange gradient */
+/* Outer container background - warmer cream tone */
 .dashboard-outer-bg {
-  background: linear-gradient(145deg, #fef9f5 0%, #fffcf8 50%, #fef9f5 100%);
+  background: #fef5eb;
   min-height: 100vh;
 }
 
-/* Frosted glass sidebar - super light cream orange in light mode */
+/* Frosted glass sidebar - warmer cream tone */
 .glass-sidebar {
-  background: rgba(255, 252, 248, 0.95);
+  background: rgba(254, 245, 235, 0.95);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-/* Floating main content panel with fluid gas glow */
+/* Floating main content panel - pure white */
 .floating-content-panel {
   position: relative;
-  background: rgba(255, 254, 252, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
   border-radius: 12px;
-  box-shadow: 
-    0 0 0 1px rgba(0, 0, 0, 0.04),
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 8px 24px rgba(0, 0, 0, 0.04);
   isolation: isolate;
   overflow: hidden;
 }
@@ -316,7 +312,7 @@ optgroup option {
   z-index: 1;
 }
 
-/* Fluid gas wave effect - bottom layer */
+/* Fluid gas wave effect - bottom layer - Deep Blue/Black for Light Mode */
 .floating-content-panel::before {
   content: '';
   position: absolute;
@@ -325,16 +321,16 @@ optgroup option {
   right: -10%;
   height: 30%;
   background: 
-    radial-gradient(ellipse 80% 50% at 20% 100%, rgba(255, 120, 40, 0.25) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 80, 20, 0.2) 0%, transparent 55%),
-    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(255, 100, 30, 0.15) 0%, transparent 70%);
+    radial-gradient(ellipse 80% 50% at 20% 100%, rgba(15, 23, 42, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(30, 58, 138, 0.2) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(15, 23, 42, 0.15) 0%, transparent 70%);
   filter: blur(20px);
   animation: fluid-wave-1 6s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Fluid gas wave effect - top layer */
+/* Fluid gas wave effect - top layer - Deep Blue/Black for Light Mode */
 .floating-content-panel::after {
   content: '';
   position: absolute;
@@ -343,9 +339,9 @@ optgroup option {
   right: -5%;
   height: 25%;
   background: 
-    radial-gradient(ellipse 70% 45% at 30% 100%, rgba(255, 140, 50, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 35% at 70% 100%, rgba(255, 90, 20, 0.25) 0%, transparent 45%),
-    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(255, 110, 35, 0.2) 0%, transparent 60%);
+    radial-gradient(ellipse 70% 45% at 30% 100%, rgba(15, 23, 42, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 35% at 70% 100%, rgba(29, 78, 216, 0.25) 0%, transparent 45%),
+    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(30, 58, 138, 0.2) 0%, transparent 60%);
   filter: blur(15px);
   animation: fluid-wave-2 8s ease-in-out infinite;
   pointer-events: none;
@@ -388,13 +384,13 @@ optgroup option {
 
 /* Sidebar active item */
 .glass-sidebar-item-active {
-  background: rgba(255, 248, 240, 0.7);
+  background: rgba(254, 240, 220, 0.7);
   border-radius: 6px;
 }
 
 /* Sidebar hover item */
 .glass-sidebar-item:hover {
-  background: rgba(255, 250, 245, 0.5);
+  background: rgba(254, 245, 230, 0.5);
   border-radius: 6px;
 }
 
@@ -549,10 +545,6 @@ optgroup option {
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    0 2px 4px rgba(0, 0, 0, 0.4),
-    0 8px 24px rgba(0, 0, 0, 0.6);
 }
 
 /* Enhanced fluid gas glow in dark mode */

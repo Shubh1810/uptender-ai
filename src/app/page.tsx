@@ -194,10 +194,11 @@ export default function Home() {
 
   const tenderCategories = [
     {
-      icon: Heart,
+      icon: '/healthcare-icon.svg',
       title: 'Healthcare & Medical Tenders',
       description: 'Medical equipment, pharmaceutical supplies, hospital tenders, diagnostic equipment, and healthcare infrastructure projects across India.',
-      keywords: 'Healthcare tenders, medical equipment tenders, pharmaceutical tenders, hospital supplies'
+      keywords: 'Healthcare tenders, medical equipment tenders, pharmaceutical tenders, hospital supplies',
+      isImage: true
     },
     {
       icon: Building,
@@ -300,7 +301,14 @@ export default function Home() {
               <div className="mb-8 flex justify-center lg:justify-start">
                 <SearchBar 
                   placeholder="Search tenders by keyword..."
-                  onSearch={(query) => console.log('Searching for:', query)}
+                  onFocus={() => {
+                    // Redirect to onboarding/sign-in page when user clicks/focuses on search
+                    window.location.href = '/onboarding';
+                  }}
+                  onSearch={(query) => {
+                    // Redirect to onboarding/sign-in page when user searches
+                    window.location.href = '/onboarding';
+                  }}
                   className="max-w-lg w-full"
                 />
               </div>
@@ -682,7 +690,13 @@ export default function Home() {
             {/* Healthcare */}
             <div className="flex flex-col items-center justify-center group">
               <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors">
-                <Heart className="h-10 w-10 text-blue-600" />
+                <Image 
+                  src="/healthcare-icon.svg" 
+                  alt="Healthcare" 
+                  width={40} 
+                  height={40} 
+                  className="h-10 w-10"
+                />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">Healthcare</span>
             </div>

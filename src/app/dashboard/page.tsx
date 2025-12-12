@@ -7,7 +7,6 @@ import {
   FileText,
   BarChart3,
   Bell,
-  Settings,
   Target,
   Zap,
   Activity,
@@ -22,8 +21,7 @@ import {
   Users,
   AlertCircle,
   Eye,
-  Crosshair,
-  UserCircle
+  Crosshair
 } from 'lucide-react';
 
 export default function DashboardHome() {
@@ -69,11 +67,6 @@ export default function DashboardHome() {
     { icon: Users, label: 'Email Preferences', href: '/dashboard/email-prefs' },
   ];
 
-  const quickActionsItems = [
-    { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
-    { icon: UserCircle, label: 'Profile', href: '/dashboard/profile' },
-  ];
-
   const getSectionData = () => {
     if (activeTab === 'tenders') return [{ title: 'Tenders', items: tendersItems }];
     if (activeTab === 'analytics') return [{ title: 'Analytics', items: analyticsItems }];
@@ -85,7 +78,6 @@ export default function DashboardHome() {
       { title: 'Analytics', items: analyticsItems },
       { title: 'AI Workspace', items: aiWorkspaceItems },
       { title: 'Notifications', items: notificationsItems },
-      { title: 'Quick Actions', items: quickActionsItems },
     ];
   };
 
@@ -95,11 +87,11 @@ export default function DashboardHome() {
       <div className="px-6 py-5">
         <div className="flex items-center space-x-4">
           <div className="flex-1 relative">
-            <SearchIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <SearchIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search tenders, documents, analytics..."
-              className="w-full pl-11 pr-4 py-2.5 text-sm bg-black/[0.03] border-0 rounded-lg placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all"
+              className="w-full pl-11 pr-4 py-2.5 text-sm text-gray-900 dark:text-white bg-black/[0.03] dark:bg-white/[0.05] border-0 rounded-lg placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white dark:focus:bg-white/[0.08] transition-all"
             />
           </div>
           <button className="ai-button-gradient">
@@ -115,8 +107,8 @@ export default function DashboardHome() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                 activeTab === tab.id
-                  ? 'bg-black/[0.06] text-gray-900'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-black/[0.03]'
+                  ? 'bg-black/[0.06] dark:bg-white/[0.1] text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.05]'
               }`}
             >
               {tab.label}
@@ -130,15 +122,15 @@ export default function DashboardHome() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {getSectionData().map((section) => (
             <div key={section.title}>
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">{section.title}</h2>
+              <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">{section.title}</h2>
               <div className="space-y-1">
                 {section.items.map((item) => (
                   <Link
                     key={item.label}
                     href={item.href}
-                    className="flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 hover:bg-black/[0.04] hover:text-gray-900 rounded-lg transition-all duration-150 group"
+                    className="flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white rounded-lg transition-all duration-150 group"
                   >
-                    <item.icon className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                    <item.icon className="h-4 w-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
                     <span>{item.label}</span>
                   </Link>
                 ))}

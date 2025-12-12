@@ -360,8 +360,8 @@ export default function DashboardLayout({
               href="/dashboard"
               className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                 pathname === '/dashboard' 
-                  ? 'glass-sidebar-item-active text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 glass-sidebar-item'
+                  ? 'glass-sidebar-item-active text-gray-900 dark:text-white' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-sidebar-item'
               }`}
             >
               <LayoutDashboard className="h-4 w-4" />
@@ -382,8 +382,8 @@ export default function DashboardLayout({
                     onClick={() => toggleSection(section.key)}
                     className={`w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                       hasActiveItem
-                        ? 'glass-sidebar-item-active text-gray-900'
-                        : 'text-gray-600 hover:text-gray-900 glass-sidebar-item'
+                        ? 'glass-sidebar-item-active text-gray-900 dark:text-white'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-sidebar-item'
                     }`}
                   >
                     <div className="flex items-center space-x-2.5">
@@ -431,8 +431,8 @@ export default function DashboardLayout({
               href="/dashboard/settings"
               className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                 pathname === '/dashboard/settings'
-                  ? 'glass-sidebar-item-active text-gray-900'
-                  : 'text-gray-600 hover:text-gray-900 glass-sidebar-item'
+                  ? 'glass-sidebar-item-active text-gray-900 dark:text-white'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-sidebar-item'
               }`}
             >
               <Settings className="h-4 w-4" />
@@ -444,8 +444,8 @@ export default function DashboardLayout({
               href="/dashboard/profile"
               className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                 pathname === '/dashboard/profile'
-                  ? 'glass-sidebar-item-active text-gray-900'
-                  : 'text-gray-600 hover:text-gray-900 glass-sidebar-item'
+                  ? 'glass-sidebar-item-active text-gray-900 dark:text-white'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-sidebar-item'
               }`}
             >
               <UserCircle className="h-4 w-4" />
@@ -474,13 +474,13 @@ export default function DashboardLayout({
                 </div>
               )}
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-medium text-gray-800 truncate">
+                <p className="text-sm font-medium text-gray-800 dark:text-white truncate">
                   {user.user_metadata?.full_name || user.email?.split('@')[0]}
                 </p>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
               </div>
               <ChevronDown 
-                className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+                className={`h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${
                   userMenuOpen ? 'rotate-180' : ''
                 }`} 
               />
@@ -524,33 +524,25 @@ export default function DashboardLayout({
               <div className="flex items-center justify-between w-full">
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-black/5 transition-colors"
+                  className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                 >
-                  <Menu className="h-5 w-5 text-gray-600" />
+                  <Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 </button>
                 
                 {/* Onboarding Prompt */}
                 <div className="ml-auto flex items-center space-x-3">
                   {onboardingCompleted === false && (
-                    <>
-                      {/* Circular Progress Pill */}
-                      <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-full text-white text-xs font-bold shadow-lg shadow-red-200">
-                        {onboardingProgress}%
-                      </div>
-                      
-                      {/* Main Pill Container */}
-                      <div className="flex items-center space-x-2 px-4 py-1.5 bg-white/80 backdrop-blur-sm border border-gray-200/60 rounded-full shadow-sm">
-                        <span className="hidden sm:inline text-sm text-gray-800 font-semibold">
-                          Unlock AI tender recommendations
-                        </span>
-                        <Link
-                          href="/onboarding?step=2"
-                          className="flex items-center px-4 py-1.5 bg-red-50 border border-red-500/50 text-red-600 rounded-full text-sm font-medium hover:bg-red-100 transition-all"
-                        >
-                          <span>Set up</span>
-                        </Link>
-                      </div>
-                    </>
+                    <div className="flex items-center space-x-2 px-4 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60 rounded-full shadow-sm">
+                      <span className="hidden sm:inline text-sm text-gray-800 dark:text-white font-semibold">
+                        Unlock AI tender recommendations
+                      </span>
+                      <Link
+                        href="/onboarding?step=2"
+                        className="flex items-center px-4 py-1.5 bg-red-50 border border-red-500/50 text-red-600 rounded-full text-sm font-medium hover:bg-red-100 transition-all"
+                      >
+                        <span>Set up</span>
+                      </Link>
+                    </div>
                   )}
                 </div>
               </div>

@@ -6,12 +6,14 @@ import { Search, Sparkles } from 'lucide-react';
 interface SearchBarProps {
   placeholder?: string;
   onSearch?: (query: string) => void;
+  onFocus?: () => void;
   className?: string;
 }
 
 export function SearchBar({ 
   placeholder = "Search tenders by keyword...", 
   onSearch,
+  onFocus,
   className = "" 
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
@@ -43,6 +45,7 @@ export function SearchBar({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onFocus={onFocus}
               placeholder={placeholder}
               className="font-ubuntu w-full pl-12 pr-14 py-3.5 bg-transparent rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 font-medium text-sm"
             />
