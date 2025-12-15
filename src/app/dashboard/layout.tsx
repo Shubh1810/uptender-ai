@@ -44,6 +44,7 @@ interface Tab {
   id: string;
   title: string;
   path: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 export default function DashboardLayout({
@@ -88,6 +89,36 @@ export default function DashboardLayout({
       .join(' ');
   };
 
+  // Get icon for page
+  const getPageIcon = (path: string = pathname): React.ComponentType<{ className?: string }> => {
+    if (path === '/dashboard') return LayoutDashboard;
+    if (path === '/dashboard/search') return Search;
+    if (path === '/dashboard/intelligraph') return LineChart;
+    if (path === '/dashboard/alerts') return AlertCircle;
+    if (path === '/dashboard/tenders') return FileText;
+    if (path === '/dashboard/active-bids') return Activity;
+    if (path === '/dashboard/history') return Clock;
+    if (path === '/dashboard/watchlist') return Bookmark;
+    if (path === '/dashboard/tender-analytics') return TrendingUp;
+    if (path === '/dashboard/bid-analytics') return Target;
+    if (path === '/dashboard/ai-draft') return Zap;
+    if (path === '/dashboard/ai-review') return Brain;
+    if (path === '/dashboard/smart-search') return Search;
+    if (path === '/dashboard/doc-generator') return FileText;
+    if (path === '/dashboard/compliance') return CheckCircle;
+    if (path === '/dashboard/bid-optimizer') return TrendingUp;
+    if (path === '/dashboard/opportunity-finder') return Crosshair;
+    if (path === '/dashboard/competitor-intel') return Eye;
+    if (path === '/dashboard/risk-compliance') return Shield;
+    if (path === '/dashboard/notifications') return Bell;
+    if (path === '/dashboard/email-prefs') return Users;
+    if (path === '/dashboard/settings') return Settings;
+    if (path === '/dashboard/profile') return UserCircle;
+    
+    // Default icon
+    return LayoutDashboard;
+  };
+
   // Initialize tabs from current pathname
   useEffect(() => {
     if (pathname && tabs.length === 0) {
@@ -95,6 +126,7 @@ export default function DashboardLayout({
         id: `tab-${Date.now()}`,
         title: getPageName(pathname),
         path: pathname,
+        icon: getPageIcon(pathname),
       };
       setTabs([initialTab]);
       setActiveTabId(initialTab.id);
@@ -114,6 +146,7 @@ export default function DashboardLayout({
           id: `tab-${Date.now()}`,
           title: getPageName(pathname),
           path: pathname,
+          icon: getPageIcon(pathname),
         };
         setTabs(prev => [...prev, newTab]);
         setActiveTabId(newTab.id);
@@ -127,6 +160,7 @@ export default function DashboardLayout({
       id: `tab-${Date.now()}`,
       title: 'Dashboard',
       path: '/dashboard',
+      icon: LayoutDashboard,
     };
     setTabs(prev => [...prev, newTab]);
     setActiveTabId(newTab.id);
@@ -630,25 +664,28 @@ export default function DashboardLayout({
         <div className="floating-content-panel h-full flex flex-col overflow-hidden">
           {/* Chrome-style Tab Bump */}
           <div className="tab-bump-container">
-            {tabs.map((tab) => (
-              <div 
-                key={tab.id}
-                className={`tab-bump ${tab.id === activeTabId ? 'tab-active' : 'tab-inactive'}`}
-                onClick={() => switchTab(tab)}
-              >
-                <div className="tab-content">
-                  <div className="tab-bump-indicator"></div>
-                  <span className="tab-bump-label">{tab.title}</span>
-                </div>
-                <button 
-                  className="tab-close-btn"
-                  onClick={(e) => closeTab(tab.id, e)}
-                  aria-label="Close tab"
+            {tabs.map((tab) => {
+              const TabIcon = tab.icon;
+              return (
+                <div 
+                  key={tab.id}
+                  className={`tab-bump ${tab.id === activeTabId ? 'tab-active' : 'tab-inactive'}`}
+                  onClick={() => switchTab(tab)}
                 >
-                  ×
-                </button>
-              </div>
-            ))}
+                  <div className="tab-content">
+                    <TabIcon className="tab-bump-icon" />
+                    <span className="tab-bump-label">{tab.title}</span>
+                  </div>
+                  <button 
+                    className="tab-close-btn"
+                    onClick={(e) => closeTab(tab.id, e)}
+                    aria-label="Close tab"
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
             <button 
               className="tab-add-btn"
               onClick={addNewTab}

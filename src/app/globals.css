@@ -282,26 +282,26 @@ optgroup option {
    macOS-Style Glass Dashboard
    ================================ */
 
-/* Outer container background - warmer cream tone */
+/* Outer container background - cool blue-grey tone */
 .dashboard-outer-bg {
-  background: #fef5eb;
+  background: #d0dde0;
   min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
-/* Frosted glass sidebar - warmer cream tone */
+/* Frosted glass sidebar - cool blue-grey tone */
 .glass-sidebar {
-  background: rgba(254, 245, 235, 0.95);
+  background: rgba(221, 231, 233, 0.95);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   z-index: 40;
 }
 
-/* Floating main content panel - pure white */
+/* Floating main content panel - light monochromatic blue-grey */
 .floating-content-panel {
   position: relative;
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(240, 245, 246, 0.98);
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
   border-radius: 0 12px 12px 12px; /* Sharp top-left, rounded others */
@@ -326,10 +326,10 @@ optgroup option {
 .tab-bump {
   position: relative;
   height: 40px;
-  padding: 8px 8px 0 12px;
+  padding: 8px 4px 0 12px;
   margin-left: -1px;
   min-width: 180px;
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(240, 245, 246, 0.98);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 8px 8px 0 0;
@@ -380,11 +380,11 @@ optgroup option {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   background: transparent;
   color: rgba(0, 0, 0, 0.4);
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   transition: color 0.15s ease;
   flex-shrink: 0;
@@ -392,6 +392,7 @@ optgroup option {
   border: none;
   padding: 0;
   margin-left: auto;
+  margin-top: -2px;
 }
 
 .tab-close-btn:hover {
@@ -403,27 +404,25 @@ optgroup option {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.5);
-  color: rgba(0, 0, 0, 0.5);
-  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 20px;
   font-weight: 400;
   line-height: 1;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease;
   cursor: pointer;
   border: none;
   padding: 0;
-  margin-left: 8px;
-  margin-bottom: 4px;
+  margin-left: 2px;
+  margin-bottom: 9px;
   flex-shrink: 0;
   pointer-events: auto;
 }
 
 .tab-add-btn:hover {
-  background: rgba(255, 255, 255, 0.8);
-  color: rgba(0, 0, 0, 0.7);
+  color: rgba(0, 0, 0, 0.8);
 }
 
 /* Curved connection edges - LEFT AND RIGHT */
@@ -436,7 +435,7 @@ optgroup option {
   height: 10px;
   background: transparent;
   border-bottom-right-radius: 10px;
-  box-shadow: 5px 1px 0 0 rgba(255, 255, 255, 0.98);
+  box-shadow: 5px 1px 0 0 rgba(240, 245, 246, 0.98);
   display: none; /* Hidden by default */
 }
 
@@ -449,7 +448,7 @@ optgroup option {
   height: 10px;
   background: transparent;
   border-bottom-left-radius: 10px;
-  box-shadow: -5px 1px 0 0 rgba(255, 255, 255, 0.98);
+  box-shadow: -5px 1px 0 0 rgba(240, 245, 246, 0.98);
 }
 
 /* Show left curve for all tabs except the first */
@@ -457,13 +456,12 @@ optgroup option {
   display: block;
 }
 
-.tab-bump-indicator {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+.tab-bump-icon {
+  width: 14px;
+  height: 14px;
+  color: rgba(59, 130, 246, 0.8);
   flex-shrink: 0;
+  stroke-width: 2;
 }
 
 .tab-bump-label {
@@ -476,91 +474,21 @@ optgroup option {
   text-overflow: ellipsis;
 }
 
-/* Ensure content stays above the glow */
+/* Ensure content stays above */
 .floating-content-panel > * {
   position: relative;
   z-index: 1;
 }
 
-/* Fluid gas wave effect - bottom layer - Deep Blue/Black for Light Mode */
-.floating-content-panel::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: -10%;
-  right: -10%;
-  height: 30%;
-  background: 
-    radial-gradient(ellipse 80% 50% at 20% 100%, rgba(15, 23, 42, 0.25) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(30, 58, 138, 0.2) 0%, transparent 55%),
-    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(15, 23, 42, 0.15) 0%, transparent 70%);
-  filter: blur(20px);
-  animation: fluid-wave-1 6s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Fluid gas wave effect - top layer - Deep Blue/Black for Light Mode */
-.floating-content-panel::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: -5%;
-  right: -5%;
-  height: 25%;
-  background: 
-    radial-gradient(ellipse 70% 45% at 30% 100%, rgba(15, 23, 42, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 35% at 70% 100%, rgba(29, 78, 216, 0.25) 0%, transparent 45%),
-    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(30, 58, 138, 0.2) 0%, transparent 60%);
-  filter: blur(15px);
-  animation: fluid-wave-2 8s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes fluid-wave-1 {
-  0%, 100% {
-    transform: translateX(0) scaleY(1);
-    opacity: 0.8;
-  }
-  25% {
-    transform: translateX(3%) scaleY(1.1);
-    opacity: 1;
-  }
-  50% {
-    transform: translateX(-2%) scaleY(0.95);
-    opacity: 0.9;
-  }
-  75% {
-    transform: translateX(-4%) scaleY(1.05);
-    opacity: 1;
-  }
-}
-
-@keyframes fluid-wave-2 {
-  0%, 100% {
-    transform: translateX(0) scaleY(1);
-    opacity: 0.9;
-  }
-  33% {
-    transform: translateX(-4%) scaleY(1.08);
-    opacity: 1;
-  }
-  66% {
-    transform: translateX(3%) scaleY(0.92);
-    opacity: 0.85;
-  }
-}
-
 /* Sidebar active item */
 .glass-sidebar-item-active {
-  background: rgba(254, 240, 220, 0.7);
+  background: rgba(200, 220, 225, 0.7);
   border-radius: 6px;
 }
 
 /* Sidebar hover item */
 .glass-sidebar-item:hover {
-  background: rgba(254, 245, 230, 0.5);
+  background: rgba(210, 225, 230, 0.5);
   border-radius: 6px;
 }
 
@@ -580,18 +508,18 @@ optgroup option {
 
 /* User profile card in sidebar */
 .glass-user-card {
-  background: rgba(255, 250, 245, 0.5);
+  background: rgba(230, 238, 240, 0.5);
   border-radius: 10px;
-  border: 1px solid rgba(255, 240, 230, 0.6);
+  border: 1px solid rgba(210, 225, 230, 0.6);
 }
 
 .glass-user-card:hover {
-  background: rgba(255, 248, 240, 0.7);
+  background: rgba(220, 233, 236, 0.7);
 }
 
 /* Dropdown menu glass effect */
 .glass-dropdown {
-  background: rgba(255, 252, 248, 0.98);
+  background: rgba(240, 245, 246, 0.98);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -742,40 +670,21 @@ optgroup option {
 }
 
 .dark .tab-add-btn {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .dark .tab-add-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.dark .tab-bump-indicator {
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
-  box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+.dark .tab-bump-icon {
+  color: rgba(96, 165, 250, 0.9);
 }
 
 .dark .tab-bump-label {
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* Enhanced fluid gas glow in dark mode */
-.dark .floating-content-panel::before {
-  background: 
-    radial-gradient(ellipse 80% 50% at 20% 100%, rgba(255, 120, 40, 0.4) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 80, 20, 0.35) 0%, transparent 55%),
-    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(255, 100, 30, 0.25) 0%, transparent 70%);
-  filter: blur(25px);
-}
-
-.dark .floating-content-panel::after {
-  background: 
-    radial-gradient(ellipse 70% 45% at 30% 100%, rgba(255, 140, 50, 0.45) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 35% at 70% 100%, rgba(255, 90, 20, 0.4) 0%, transparent 45%),
-    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(255, 110, 35, 0.3) 0%, transparent 60%);
-  filter: blur(20px);
-}
 
 /* Sidebar active item - dark mode */
 .dark .glass-sidebar-item-active {
