@@ -284,7 +284,7 @@ optgroup option {
 
 /* Outer container background - cool blue-grey tone */
 .dashboard-outer-bg {
-  background: #d0dde0;
+  background: rgba(221, 231, 233, 1);
   min-height: 100vh;
   position: relative;
   z-index: 1;
@@ -308,6 +308,12 @@ optgroup option {
   isolation: isolate;
   overflow: visible;
   z-index: 10;
+  transition: border-radius 0.2s ease;
+}
+
+/* Round top-left corner when non-first tab is active */
+.floating-content-panel.rounded-top-left {
+  border-radius: 12px 12px 12px 12px;
 }
 
 /* Chrome-style tab bump container */
@@ -359,20 +365,42 @@ optgroup option {
 
 /* Inactive tab state */
 .tab-inactive {
-  opacity: 0.6;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   z-index: 1;
 }
 
-.tab-inactive:hover {
-  opacity: 0.8;
-}
-
-.dark .tab-inactive {
+.tab-inactive .tab-bump-icon {
   opacity: 0.5;
 }
 
-.dark .tab-inactive:hover {
-  opacity: 0.75;
+.tab-inactive .tab-bump-label {
+  opacity: 0.6;
+}
+
+.tab-inactive:hover .tab-bump-icon {
+  opacity: 0.7;
+}
+
+.tab-inactive:hover .tab-bump-label {
+  opacity: 0.8;
+}
+
+.dark .tab-inactive .tab-bump-icon {
+  opacity: 0.4;
+}
+
+.dark .tab-inactive .tab-bump-label {
+  opacity: 0.5;
+}
+
+.dark .tab-inactive:hover .tab-bump-icon {
+  opacity: 0.6;
+}
+
+.dark .tab-inactive:hover .tab-bump-label {
+  opacity: 0.7;
 }
 
 /* Tab close button */
@@ -454,6 +482,12 @@ optgroup option {
 /* Show left curve for all tabs except the first */
 .tab-bump:not(:first-child)::before {
   display: block;
+}
+
+/* Hide curves for inactive tabs */
+.tab-inactive::before,
+.tab-inactive::after {
+  display: none !important;
 }
 
 .tab-bump-icon {
@@ -643,6 +677,11 @@ optgroup option {
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Round top-left corner when non-first tab is active - dark mode */
+.dark .floating-content-panel.rounded-top-left {
+  border-radius: 12px 12px 12px 12px;
 }
 
 /* Tab bump - dark mode - SEAMLESS DESIGN */

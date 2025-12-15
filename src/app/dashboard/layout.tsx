@@ -543,7 +543,7 @@ export default function DashboardLayout({
                   
                   {/* Dropdown Items */}
                   {isExpanded && (
-                    <div className="mt-1 ml-4 pl-3 border-l-2 border-gray-200/50 dark:border-gray-700/50 space-y-0.5">
+                    <div className="mt-1 ml-4 pl-3 border-l-2 border-orange-400/50 dark:border-orange-500/60 space-y-0.5">
                       {section.items.map((item) => {
                         const isActive = pathname === item.href;
                         return (
@@ -552,7 +552,7 @@ export default function DashboardLayout({
                             href={item.href}
                             className={`flex items-center space-x-2.5 px-3 py-1.5 text-sm rounded-lg transition-all duration-150 ${
                               isActive
-                                ? 'bg-blue-50/80 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                                ? 'bg-orange-50/80 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-medium'
                                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50/50 dark:hover:bg-white/5'
                             }`}
                           >
@@ -661,7 +661,9 @@ export default function DashboardLayout({
 
       {/* Main Content Area with Floating Panel */}
       <div className="lg:pl-60 h-screen p-3 lg:p-4 pt-10 lg:pt-12 overflow-hidden">
-        <div className="floating-content-panel h-full flex flex-col overflow-hidden">
+        <div className={`floating-content-panel h-full flex flex-col overflow-hidden ${
+          tabs.length > 0 && activeTabId !== tabs[0]?.id ? 'rounded-top-left' : ''
+        }`}>
           {/* Chrome-style Tab Bump */}
           <div className="tab-bump-container">
             {tabs.map((tab) => {
@@ -697,7 +699,7 @@ export default function DashboardLayout({
 
           {/* Top Bar with Search */}
           <header className="flex-shrink-0">
-            <div className="px-6 py-4 flex items-center">
+            <div className="px-4 py-1 flex items-center">
               <div className="flex items-center justify-between w-full">
                 <button
                   onClick={() => setSidebarOpen(true)}
@@ -727,7 +729,7 @@ export default function DashboardLayout({
           </header>
 
           {/* Page Content */}
-          <div className="flex-1 overflow-y-auto glass-scrollbar">
+          <div className="flex-1 overflow-y-auto glass-scrollbar pt-0">
             {children}
           </div>
         </div>

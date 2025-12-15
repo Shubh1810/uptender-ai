@@ -7,7 +7,7 @@ export default function IntelliGraphPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="px-6 py-6">
+      <div className="px-4 py-2">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center space-x-3 mb-2">
             <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-lime-500 shadow-lg shadow-emerald-200">
@@ -22,7 +22,7 @@ export default function IntelliGraphPage() {
       </div>
 
       {/* Canvas Area */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto px-4 py-3">
         <div className="max-w-7xl mx-auto">
           <div
             className="
