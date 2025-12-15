@@ -286,6 +286,8 @@ optgroup option {
 .dashboard-outer-bg {
   background: #fef5eb;
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
 
 /* Frosted glass sidebar - warmer cream tone */
@@ -293,6 +295,7 @@ optgroup option {
   background: rgba(254, 245, 235, 0.95);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
+  z-index: 40;
 }
 
 /* Floating main content panel - pure white */
@@ -301,9 +304,176 @@ optgroup option {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
-  border-radius: 12px;
+  border-radius: 0 12px 12px 12px; /* Sharp top-left, rounded others */
   isolation: isolate;
+  overflow: visible;
+  z-index: 10;
+}
+
+/* Chrome-style tab bump container */
+.tab-bump-container {
+  position: absolute;
+  top: -40px;
+  left: 0px;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+/* Individual tab bump - SEAMLESS DESIGN */
+.tab-bump {
+  position: relative;
+  height: 40px;
+  padding: 8px 8px 0 12px;
+  margin-left: -1px;
+  min-width: 180px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border: none;
+  pointer-events: auto;
+  cursor: pointer;
+  overflow: visible;
+}
+
+/* Tab content wrapper */
+.tab-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Active tab state */
+.tab-active {
+  z-index: 2;
+}
+
+/* Inactive tab state */
+.tab-inactive {
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.tab-inactive:hover {
+  opacity: 0.8;
+}
+
+.dark .tab-inactive {
+  opacity: 0.5;
+}
+
+.dark .tab-inactive:hover {
+  opacity: 0.75;
+}
+
+/* Tab close button */
+.tab-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 20px;
+  line-height: 1;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin-left: auto;
+}
+
+.tab-close-btn:hover {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* Add tab button */
+.tab-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin-left: 8px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.tab-add-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* Curved connection edges - LEFT AND RIGHT */
+.tab-bump::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: -10px;
+  width: 10px;
+  height: 10px;
+  background: transparent;
+  border-bottom-right-radius: 10px;
+  box-shadow: 5px 1px 0 0 rgba(255, 255, 255, 0.98);
+  display: none; /* Hidden by default */
+}
+
+.tab-bump::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -10px;
+  width: 10px;
+  height: 10px;
+  background: transparent;
+  border-bottom-left-radius: 10px;
+  box-shadow: -5px 1px 0 0 rgba(255, 255, 255, 0.98);
+}
+
+/* Show left curve for all tabs except the first */
+.tab-bump:not(:first-child)::before {
+  display: block;
+}
+
+.tab-bump-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  flex-shrink: 0;
+}
+
+.tab-bump-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.75);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Ensure content stays above the glow */
@@ -545,6 +715,49 @@ optgroup option {
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Tab bump - dark mode - SEAMLESS DESIGN */
+.dark .tab-bump {
+  background: #1f1f23;
+  /* Match container border on top half only */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+}
+
+.dark .tab-bump::before {
+  box-shadow: 5px 1px 0 0 #1f1f23;
+}
+
+.dark .tab-bump::after {
+  box-shadow: -5px 1px 0 0 #1f1f23;
+}
+
+.dark .tab-close-btn {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark .tab-close-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark .tab-add-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dark .tab-add-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .tab-bump-indicator {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+}
+
+.dark .tab-bump-label {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* Enhanced fluid gas glow in dark mode */

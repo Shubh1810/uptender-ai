@@ -39,6 +39,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { identifyUser, trackUserSignedOut, trackDashboardViewed } from '@/lib/posthog/events';
 
+// Tab interface
+interface Tab {
+  id: string;
+  title: string;
+  path: string;
+}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -58,10 +65,113 @@ export default function DashboardLayout({
     aiWorkspace: false,
     notifications: false,
   });
+  const [tabs, setTabs] = useState<Tab[]>([]);
+  const [activeTabId, setActiveTabId] = useState<string>('');
   const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
+
+  // Get current page name for tab bump
+  const getPageName = (path: string = pathname) => {
+    if (path === '/dashboard') return 'Dashboard';
+    if (path === '/dashboard/search') return 'Search Tenders';
+    if (path === '/dashboard/intelligraph') return 'IntelliGraph™';
+    if (path === '/dashboard/alerts') return 'Alert Settings';
+    
+    // Extract and format page name from pathname
+    const segments = path.split('/');
+    const lastSegment = segments[segments.length - 1];
+    return lastSegment
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  // Initialize tabs from current pathname
+  useEffect(() => {
+    if (pathname && tabs.length === 0) {
+      const initialTab: Tab = {
+        id: `tab-${Date.now()}`,
+        title: getPageName(pathname),
+        path: pathname,
+      };
+      setTabs([initialTab]);
+      setActiveTabId(initialTab.id);
+    }
+  }, [pathname, tabs.length]);
+
+  // Update active tab when pathname changes
+  useEffect(() => {
+    if (pathname && tabs.length > 0) {
+      // Check if tab already exists for this path
+      const existingTab = tabs.find(tab => tab.path === pathname);
+      if (existingTab) {
+        setActiveTabId(existingTab.id);
+      } else {
+        // Create new tab for new path
+        const newTab: Tab = {
+          id: `tab-${Date.now()}`,
+          title: getPageName(pathname),
+          path: pathname,
+        };
+        setTabs(prev => [...prev, newTab]);
+        setActiveTabId(newTab.id);
+      }
+    }
+  }, [pathname]);
+
+  // Add new tab
+  const addNewTab = () => {
+    const newTab: Tab = {
+      id: `tab-${Date.now()}`,
+      title: 'Dashboard',
+      path: '/dashboard',
+    };
+    setTabs(prev => [...prev, newTab]);
+    setActiveTabId(newTab.id);
+    // Don't navigate, just switch tabs
+    if (pathname !== '/dashboard') {
+      router.push('/dashboard');
+    }
+  };
+
+  // Close tab
+  const closeTab = (tabId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const tabIndex = tabs.findIndex(tab => tab.id === tabId);
+    const newTabs = tabs.filter(tab => tab.id !== tabId);
+    
+    // If closing active tab, switch to another tab
+    if (tabId === activeTabId && newTabs.length > 0) {
+      // Switch to the previous tab, or the next one if it's the first tab
+      const newActiveTab = newTabs[Math.max(0, tabIndex - 1)];
+      setActiveTabId(newActiveTab.id);
+      // Only navigate if the path is different
+      if (pathname !== newActiveTab.path) {
+        router.push(newActiveTab.path);
+      }
+    }
+    
+    setTabs(newTabs);
+    
+    // If no tabs left, create a new one
+    if (newTabs.length === 0) {
+      addNewTab();
+    }
+  };
+
+  // Switch to tab
+  const switchTab = (tab: Tab) => {
+    if (tab.id === activeTabId) return; // Already active
+    
+    setActiveTabId(tab.id);
+    // Only navigate if the path is different from current
+    if (pathname !== tab.path) {
+      router.push(tab.path);
+    }
+  };
 
   // Theme initialization and toggle - defaults to dark mode
   useEffect(() => {
@@ -516,8 +626,38 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content Area with Floating Panel */}
-      <div className="lg:pl-60 h-screen p-3 lg:p-4 overflow-hidden">
+      <div className="lg:pl-60 h-screen p-3 lg:p-4 pt-10 lg:pt-12 overflow-hidden">
         <div className="floating-content-panel h-full flex flex-col overflow-hidden">
+          {/* Chrome-style Tab Bump */}
+          <div className="tab-bump-container">
+            {tabs.map((tab) => (
+              <div 
+                key={tab.id}
+                className={`tab-bump ${tab.id === activeTabId ? 'tab-active' : 'tab-inactive'}`}
+                onClick={() => switchTab(tab)}
+              >
+                <div className="tab-content">
+                  <div className="tab-bump-indicator"></div>
+                  <span className="tab-bump-label">{tab.title}</span>
+                </div>
+                <button 
+                  className="tab-close-btn"
+                  onClick={(e) => closeTab(tab.id, e)}
+                  aria-label="Close tab"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            <button 
+              className="tab-add-btn"
+              onClick={addNewTab}
+              aria-label="Add tab"
+            >
+              +
+            </button>
+          </div>
+
           {/* Top Bar with Search */}
           <header className="flex-shrink-0">
             <div className="px-6 py-4 flex items-center">
