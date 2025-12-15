@@ -597,6 +597,26 @@ export default function DashboardLayout({
             </Link>
           </nav>
 
+          {/* Onboarding Prompt */}
+          {onboardingCompleted === false && (
+            <div className="px-3 pb-3">
+              <div className="bg-black border-2 border-dashed border-red-500/70 rounded-lg p-3 space-y-2">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-gray-300 leading-relaxed">
+                    Unlock AI tender recommendations
+                  </p>
+                </div>
+                <Link
+                  href="/onboarding?step=2"
+                  className="flex items-center justify-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium transition-all w-full"
+                >
+                  <span>Set up</span>
+                </Link>
+              </div>
+            </div>
+          )}
+
           {/* User Profile & Menu */}
           <div className="p-3 relative" ref={userMenuRef}>
             {/* User Profile Section - Clickable */}
@@ -707,23 +727,6 @@ export default function DashboardLayout({
                 >
                   <Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 </button>
-                
-                {/* Onboarding Prompt */}
-                <div className="ml-auto flex items-center space-x-3">
-                  {onboardingCompleted === false && (
-                    <div className="flex items-center space-x-2 px-4 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60 rounded-full shadow-sm">
-                      <span className="hidden sm:inline text-sm text-gray-800 dark:text-white font-semibold">
-                        Unlock AI tender recommendations
-                      </span>
-                      <Link
-                        href="/onboarding?step=2"
-                        className="flex items-center px-4 py-1.5 bg-red-50 border border-red-500/50 text-red-600 rounded-full text-sm font-medium hover:bg-red-100 transition-all"
-                      >
-                        <span>Set up</span>
-                      </Link>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </header>
