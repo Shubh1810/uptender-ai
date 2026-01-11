@@ -210,6 +210,9 @@ export default function RootLayout({
         {/* Google Fonts - Chiron Sung HK */}
         <link href="https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@200..900&display=swap" rel="stylesheet" />
         
+        {/* Google Fonts - Funnel Display, Lexend, Zain */}
+        <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Lexend:wght@100..900&family=Zain:ital,wght@0,200;0,300;0,400;0,700;0,800;0,900;1,300;1,400&display=swap" rel="stylesheet" />
+        
         {/* Comprehensive Favicon and Icon Links */}
         <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="16x16" />
         <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="32x32" />

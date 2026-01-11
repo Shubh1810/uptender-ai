@@ -152,6 +152,8 @@ export default function DashboardLayout({
         setActiveTabId(newTab.id);
       }
     }
+    // Close sidebar on mobile when navigating
+    setSidebarOpen(false);
   }, [pathname]);
 
   // Add new tab
@@ -679,13 +681,41 @@ export default function DashboardLayout({
         </div>
       </aside>
 
+      {/* Mobile Menu Bar - Only visible on mobile */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 glass-sidebar border-b border-white/10 dark:border-white/5">
+        <div className="flex items-center justify-between px-4 py-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+          </button>
+          
+          <Link href="/dashboard" className="flex items-center space-x-1.5">
+            <Image
+              src={themeMounted && theme === 'dark' ? "/tpllogo-wite.PNG" : "/tpllogo.png"}
+              alt="TenderPost"
+              width={24}
+              height={24}
+              className="rounded-lg"
+            />
+            <span className="text-base font-bold text-gray-800 dark:text-gray-100">
+              <span className="font-inter">Tender</span><span className="font-kings -ml-0.5">Post</span>
+            </span>
+          </Link>
+
+          <div className="w-9"></div> {/* Spacer for centering */}
+        </div>
+      </div>
+
       {/* Main Content Area with Floating Panel */}
-      <div className="lg:pl-60 h-screen p-3 lg:p-4 pt-10 lg:pt-12 overflow-hidden">
+      <div className="lg:pl-60 h-screen p-3 lg:p-4 pt-14 lg:pt-12 overflow-hidden">
         <div className={`floating-content-panel h-full flex flex-col overflow-hidden ${
           tabs.length > 0 && activeTabId !== tabs[0]?.id ? 'rounded-top-left' : ''
         }`}>
-          {/* Chrome-style Tab Bump */}
-          <div className="tab-bump-container">
+          {/* Chrome-style Tab Bump - Hidden on mobile */}
+          <div className="tab-bump-container hidden lg:block">
             {tabs.map((tab) => {
               const TabIcon = tab.icon;
               return (
@@ -717,16 +747,10 @@ export default function DashboardLayout({
             </button>
           </div>
 
-          {/* Top Bar with Search */}
-          <header className="flex-shrink-0">
+          {/* Top Bar with Search - Only on desktop */}
+          <header className="flex-shrink-0 hidden lg:block">
             <div className="px-4 py-1 flex items-center">
               <div className="flex items-center justify-between w-full">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                >
-                  <Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                </button>
               </div>
             </div>
           </header>

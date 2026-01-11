@@ -266,12 +266,29 @@ export function WorkflowSection() {
         className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 flex items-center"
       >
         <div className="max-w-5xl mx-auto w-full">
+          {/* Tabs - Mobile only, shown above images */}
+          <div className="flex items-center justify-center gap-4 text-sm font-medium text-gray-600 mb-6 lg:hidden">
+            {steps.map((s, idx) => (
+              <button
+                key={s.key}
+                type="button"
+                className={`transition-all duration-300 ${
+                  activeIndex === idx 
+                    ? 'text-gray-900 font-bold' 
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
           {/* Main content area with two columns */}
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-stretch">
-            {/* Left column - Tabs + Content + Progress */}
-            <div className="flex flex-col justify-between order-2 lg:order-1">
-              {/* Tabs */}
-              <div className="w-full max-w-xl mx-auto lg:mx-0 flex items-center gap-4 text-base md:text-lg font-medium text-gray-600 mb-6 justify-center lg:justify-start">
+            {/* Left column - Tabs (desktop) + Content + Progress */}
+            <div className="flex flex-col justify-between order-3 lg:order-1">
+              {/* Tabs - Desktop only */}
+              <div className="hidden lg:flex w-full max-w-xl mx-auto lg:mx-0 items-center gap-4 text-base md:text-lg font-medium text-gray-600 mb-6 justify-center lg:justify-start">
                 {steps.map((s, idx) => (
                   <button
                     key={s.key}
@@ -315,16 +332,16 @@ export function WorkflowSection() {
                       ease: [0.22, 1, 0.36, 1],
                     }}
                     style={{ transformPerspective: 1000 }}
-                    className="w-full max-w-xl text-center lg:text-left"
+                    className="w-full max-w-xl mx-auto text-center lg:text-left"
                   >
-                    <h2 className="text-3xl lg:text-4xl font-semibold mb-4 text-gray-900 font-lexend">
+                    <h2 className="text-2xl lg:text-4xl font-semibold mb-3 lg:mb-4 text-gray-900 font-lexend">
                       {steps[activeIndex].title}
                     </h2>
-                    <p className="text-lg text-gray-600 mb-6 font-lexend font-light">
+                    <p className="text-base lg:text-lg text-gray-600 mb-4 lg:mb-6 font-lexend font-light">
                       {steps[activeIndex].description}
                     </p>
                     <Link href={steps[activeIndex].cta.href}>
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-6 rounded-full text-lg">
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-6 rounded-full text-base lg:text-lg">
                         {steps[activeIndex].cta.text}
                       </Button>
                     </Link>
@@ -332,8 +349,8 @@ export function WorkflowSection() {
                 </AnimatePresence>
               </div>
 
-              {/* Progress indicator */}
-              <div className="flex justify-center lg:justify-start gap-3 items-center mt-6">
+              {/* Progress indicator - Desktop only */}
+              <div className="hidden lg:flex justify-center lg:justify-start gap-3 items-center mt-6">
                 {steps.map((_, idx) => {
                   const segmentStart = (idx / steps.length) * 100;
                   const segmentEnd = ((idx + 1) / steps.length) * 100;
@@ -367,7 +384,7 @@ export function WorkflowSection() {
             </div>
 
             {/* Right column - Full height container */}
-            <div className="w-full max-w-md mx-auto lg:ml-auto lg:mr-0 order-1 lg:order-2">
+            <div className="w-full max-w-md mx-auto lg:ml-auto lg:mr-0 order-2 lg:order-2">
               {/* Static warm-toned container spanning full height */}
               <div 
                 className="relative rounded-3xl p-6 shadow-xl h-full min-h-[450px] flex items-center overflow-hidden"
@@ -388,39 +405,6 @@ export function WorkflowSection() {
                 </AnimatePresence>
               </div>
             </div>
-          </div>
-
-          {/* Duplicate progress indicator for mobile (hidden on lg) */}
-          <div className="flex justify-center gap-3 items-center mt-8 lg:hidden">
-            {steps.map((_, idx) => {
-              const segmentStart = (idx / steps.length) * 100;
-              const segmentEnd = ((idx + 1) / steps.length) * 100;
-              const segmentProgress = Math.max(
-                0,
-                Math.min(100, ((progress - segmentStart) / (segmentEnd - segmentStart)) * 100)
-              );
-              const isActive = segmentProgress > 0 && segmentProgress < 100;
-
-              return (
-                <div
-                  key={idx}
-                  className="h-1.5 rounded-full bg-gray-200 overflow-hidden relative"
-                  style={{ width: 48 }}
-                >
-                  <motion.div
-                    className="h-full rounded-full absolute left-0 top-0"
-                    style={{ 
-                      width: `${segmentProgress}%`,
-                      background: isActive 
-                        ? 'linear-gradient(90deg, #6b7280 0%, #6b7280 70%, #60a5fa 95%, #38bdf8 100%)'
-                        : '#6b7280',
-                      boxShadow: isActive ? '0 0 12px rgba(56, 189, 248, 0.8), 2px 0 8px rgba(96, 165, 250, 0.6)' : 'none'
-                    }}
-                    transition={{ duration: 0.05, ease: 'linear' }}
-                  />
-                </div>
-              );
-            })}
           </div>
 
           {/* Scroll hint */}

@@ -220,6 +220,15 @@ header {
 }
 
 /* Modern Progress Stepper Animations */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 @keyframes shimmer {
   0% {
     transform: translateX(-100%) translateY(-50%);
@@ -319,7 +328,7 @@ optgroup option {
 /* Chrome-style tab bump container */
 .tab-bump-container {
   position: absolute;
-  top: -40px;
+  top: -36px;
   left: 0px;
   display: flex;
   align-items: flex-end;
@@ -331,8 +340,8 @@ optgroup option {
 /* Individual tab bump - SEAMLESS DESIGN */
 .tab-bump {
   position: relative;
-  height: 40px;
-  padding: 8px 4px 0 12px;
+  height: 36px;
+  padding: 6px 4px 0 12px;
   margin-left: -1px;
   min-width: 180px;
   background: rgba(240, 245, 246, 0.98);
@@ -353,7 +362,7 @@ optgroup option {
 .tab-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
   min-width: 0;
 }
@@ -408,11 +417,11 @@ optgroup option {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: transparent;
   color: rgba(0, 0, 0, 0.4);
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
   transition: color 0.15s ease;
   flex-shrink: 0;
@@ -420,7 +429,7 @@ optgroup option {
   border: none;
   padding: 0;
   margin-left: auto;
-  margin-top: -2px;
+  margin-top: -1px;
 }
 
 .tab-close-btn:hover {
@@ -432,11 +441,11 @@ optgroup option {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   background: transparent;
   color: rgba(0, 0, 0, 0.4);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 1;
   transition: color 0.15s ease;
@@ -444,7 +453,7 @@ optgroup option {
   border: none;
   padding: 0;
   margin-left: 2px;
-  margin-bottom: 9px;
+  margin-bottom: 7px;
   flex-shrink: 0;
   pointer-events: auto;
 }
@@ -827,4 +836,56 @@ optgroup option {
 
 .dark .border-gray-200\/60 {
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Marquee for Tender Titles - Single line on all screens */
+.tender-title-marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+.tender-title-marquee-wrapper {
+  display: inline-flex;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tender-title-marquee-content {
+  display: inline-block;
+  padding-right: 2rem;
+  flex-shrink: 0;
+}
+
+/* Mobile: Constant scrolling */
+@media (max-width: 1023px) {
+  .tender-title-marquee-wrapper {
+    animation: marquee-scroll 20s linear infinite;
+  }
+
+  .tender-title-marquee:hover .tender-title-marquee-wrapper {
+    animation-play-state: paused;
+  }
+}
+
+/* Desktop: Only scroll on hover */
+@media (min-width: 1024px) {
+  .tender-title-marquee-wrapper {
+    transition: transform 0.3s ease-out;
+  }
+
+  .tender-title-marquee:hover .tender-title-marquee-wrapper {
+    animation: marquee-scroll 20s linear infinite;
+  }
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
