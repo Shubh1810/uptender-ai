@@ -60,6 +60,7 @@ export default function DashboardLayout({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [themeMounted, setThemeMounted] = useState(false);
+  const [isDirector, setIsDirector] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     tenders: true,
     analytics: false,
@@ -114,6 +115,7 @@ export default function DashboardLayout({
     if (path === '/dashboard/email-prefs') return Users;
     if (path === '/dashboard/settings') return Settings;
     if (path === '/dashboard/profile') return UserCircle;
+    if (path === '/dashboard/admin') return Shield;
     
     // Default icon
     return LayoutDashboard;
@@ -315,7 +317,7 @@ export default function DashboardLayout({
       try {
         const { data: prof, error } = await supabase
           .from('profiles')
-          .select('onboarding_completed, full_name, company, primary_industry')
+          .select('onboarding_completed, full_name, company, primary_industry, role')
           .eq('id', user.id)
           .maybeSingle();
         
@@ -328,6 +330,9 @@ export default function DashboardLayout({
                              prof.onboarding_completed === 'true' || 
                              prof.onboarding_completed === 1;
           setOnboardingCompleted(isCompleted);
+          
+          // Check if user is director
+          setIsDirector(prof.role === 'director');
           
           // Calculate progress based on filled fields (3 steps total)
           if (isCompleted) {
@@ -571,6 +576,21 @@ export default function DashboardLayout({
 
             {/* Separator */}
             <div className="h-px bg-gray-200/50 dark:bg-gray-700/50 my-3"></div>
+
+            {/* Director Admin Panel - Only visible to directors */}
+            {isDirector && (
+              <Link
+                href="/dashboard/admin"
+                className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
+                  pathname === '/dashboard/admin'
+                    ? 'glass-sidebar-item-active text-purple-600 dark:text-purple-400'
+                    : 'text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 glass-sidebar-item'
+                }`}
+              >
+                <Shield className="h-4 w-4" />
+                <span>Admin Panel</span>
+              </Link>
+            )}
 
             {/* Settings Link */}
             <Link

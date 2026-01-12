@@ -31,6 +31,7 @@ export default function OnboardingClient() {
   }, []);
 
   // Auth state for step 1
+  const [isSignUp, setIsSignUp] = React.useState(true); // Toggle between sign up and sign in
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [authError, setAuthError] = React.useState('');
@@ -274,6 +275,7 @@ export default function OnboardingClient() {
   const [showCategoryDropdown, setShowCategoryDropdown] = React.useState(false);
   const categoryInputRef = React.useRef<HTMLInputElement>(null);
 
+
   const roleOptions = ['Contractor', 'Consultant', 'Vendor', 'Supplier', 'New bidder'];
   const goalOptions = [
     { value: 'relevant_tenders', label: 'I want more relevant tenders' },
@@ -513,51 +515,152 @@ export default function OnboardingClient() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main
-        className="flex-1 relative"
-        style={{
-          backgroundColor: '#fefcf3',
-          backgroundImage: `radial-gradient(circle, #d1d5db 1px, transparent 1px)`,
-          backgroundSize: '16px 16px',
-          backgroundPosition: '0 0, 8px 8px',
-        }}
-      >
-        {/* Back Arrow - Only visible on step 1 */}
-        {step === 1 && (
-          <div className="absolute top-6 left-6 z-10">
-            <Link 
-              href="/"
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm hover:bg-white hover:shadow-md transition-all duration-200"
-              aria-label="Back to home"
-            >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-5 w-5 text-gray-700" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18" 
-                />
-              </svg>
-            </Link>
-          </div>
-        )}
+    <div className="min-h-screen flex">
+      {/* Left Side - Hero Section */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-white p-4">
+        {/* Background Image Container */}
+        <div className="relative flex-1 rounded-2xl overflow-hidden">
+          {/* Static Background Image */}
+          <Image
+            src="/onboard5.jpeg"
+            alt="TenderPost Onboarding"
+            fill
+            className="object-cover"
+            quality={100}
+            priority
+            sizes="50vw"
+          />
 
-        {/* Logo, Branding & Header - Centered Above Container */}
-        <div className="pt-12 pb-6 text-center">
-          <div className="flex flex-col items-center space-y-3">
-            {/* Logo and Brand Name - Smaller */}
+          {/* Back Arrow - Only visible on step 1 */}
+          {step === 1 && (
+            <div className="absolute top-6 left-6 z-20">
+              <Link 
+                href="/"
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 shadow-sm hover:bg-white hover:shadow-md transition-all duration-200"
+                aria-label="Back to home"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5 text-gray-700" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+                  />
+                </svg>
+              </Link>
+            </div>
+          )}
+
+          {/* Dark Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/60 z-[5]"></div>
+
+          {/* Content Overlay */}
+          <div className="absolute inset-0 z-10 flex flex-col p-12 pt-16">
+            {/* Logo - Centered */}
+            <div className="flex items-center justify-center space-x-3 mb-16">
+              <Image
+                src="/tpllogo-wite.png" 
+                alt="TenderPost" 
+                className="h-10 w-10 rounded-lg"
+                priority
+                width={40}
+                height={40}
+              />
+              <span className="text-2xl font-bold text-white tracking-tight">
+                <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
+              </span>
+            </div>
+
+            {/* Hero Content - Higher Up */}
+            <div className="space-y-4 mb-16 text-center">
+              <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight whitespace-nowrap">
+                Welcome to TenderPost
+              </h1>
+              <p className="text-xl text-white/90 leading-relaxed">
+                Your Gateway to Smarter Tender Discovery
+              </p>
+            </div>
+
+            {/* Feature Highlights - Dynamic based on step */}
+            <div className="space-y-6 max-w-lg mx-auto">
+              {step === 1 && (
+                <>
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-1">AI-Powered Matching</h3>
+                      <p className="text-white/80">Get tenders that actually match your business</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-1">Real-Time Alerts</h3>
+                      <p className="text-white/80">Never miss an opportunity again</p>
+                    </div>
+                  </div>
+                </>
+              )}
+              {step === 2 && (
+                <>
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-1">Company Profile</h3>
+                      <p className="text-white/80">Help us understand your business better</p>
+                    </div>
+                  </div>
+                </>
+              )}
+              {step === 3 && (
+                <>
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-1">AI Preferences</h3>
+                      <p className="text-white/80">Customize your tender discovery experience</p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Right Side - Form Section */}
+      <div className="flex-1 flex flex-col min-h-screen" style={{ backgroundColor: '#fefcf3' }}>
+        {/* Mobile Logo - Only on small screens */}
+        <div className="lg:hidden p-6 border-b border-gray-200" style={{ backgroundColor: '#fefcf3' }}>
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Image
                 src="/tplogo.png" 
-                alt="TenderPost - AI Tender Notifier Platform" 
-                className="h-8 w-8 rounded-lg object-contain"
+                alt="TenderPost" 
+                className="h-8 w-8 rounded-lg"
                 priority
                 width={32}
                 height={32}
@@ -566,192 +669,248 @@ export default function OnboardingClient() {
                 <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
               </span>
             </div>
-
-            {/* Welcome Header - Bigger */}
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-gray-900">Welcome to TenderPost</h1>
-              <p className="text-gray-600 text-lg">Smarter tender discovery powered by AI.</p>
-            </div>
+            {step === 1 && (
+              <Link 
+                href="/"
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
+                aria-label="Back to home"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5 text-gray-700" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+                  />
+                </svg>
+              </Link>
+            )}
           </div>
         </div>
 
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-xl p-6 sm:p-8 flex flex-col">
-            {/* Minimal Stepper with Line Through Dots */}
-            <div className="mb-6">
-              <div className="relative">
-                {/* Step Indicators */}
-                <div className="relative flex items-center justify-between pb-3">
-                  {/* Horizontal Line Running Through Center of Dots */}
-                  <div 
-                    ref={lineRef}
-                    className="absolute top-0 left-0 right-0 h-0.5 transform translate-y-2"
-                  >
-                    {/* Background Line */}
-                    <div className="absolute inset-0 bg-gray-200" />
-                    {/* Progress Line (Bottle Green to Lime Green Gradient) */}
-                    <div 
-                      className="absolute left-0 top-0 h-full transition-all duration-500 ease-out"
-                      style={{ 
-                        width: progressWidth,
-                        background: 'linear-gradient(to right, #1B4332 0%, #1B4332 66%, #84cc16 100%)'
-                      }}
-                    >
-                      {/* Glow effect on second half only */}
-                      <div 
-                        className="absolute right-0 top-0 h-full w-1/2"
-                        style={{
-                          background: 'linear-gradient(to right, transparent 0%, rgba(132, 204, 22, 0.3) 50%, rgba(132, 204, 22, 0.6) 100%)',
-                          boxShadow: '0 0 8px rgba(132, 204, 22, 0.6), 0 0 12px rgba(132, 204, 22, 0.4)'
-                        }}
-                      />
-                      {/* Glowing tip effect */}
-                      <div 
-                        className="absolute right-0 top-0 h-full w-[30%] bg-gradient-to-r from-transparent via-[#84cc16]/50 to-[#84cc16] blur-sm"
-                      />
-                    </div>
-                  </div>
+        {/* Form Container */}
+        <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
+          <div className="w-full max-w-md">
+            {/* Minimal Web3 Style Progress Indicator */}
+            <div className="mb-10">
+              <div className="relative flex items-center justify-center gap-3">
+                {/* Step Dots */}
+                {steps.map((s) => {
+                  const isCompleted = step > s.id;
+                  const isActive = step === s.id;
                   
-                  {steps.map((s) => {
-                    const isCompleted = step > s.id;
-                    const isActive = step === s.id;
-                    
-                    return (
-                      <div 
-                        key={s.id} 
-                        ref={(el) => { stepRefs.current[s.id - 1] = el; }}
-                        className="relative flex flex-col items-center z-10"
-                        style={{ flex: 1 }}
-                      >
-                        {/* Step Dot (on the line) */}
-                        <div 
-                          className={`
-                            relative w-4 h-4 rounded-full border-2 transition-all duration-300
-                            ${isCompleted 
-                              ? 'bg-[#1B4332] border-[#1B4332]'
-                              : isActive
-                              ? 'bg-[#84cc16] border-[#84cc16]'
-                              : 'bg-white border-gray-300'
-                            }
-                            ${isActive ? 'scale-110 ring-2 ring-[#84cc16]/30 shadow-[0_0_8px_rgba(132,204,22,0.5)]' : ''}
-                          `}
-                        >
-                          {/* Checkmark for Completed */}
-                          {isCompleted && (
-                            <svg 
-                              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 text-white pointer-events-none" 
-                              fill="none" 
-                              viewBox="0 0 12 12"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path 
-                                stroke="currentColor" 
-                                strokeWidth="2" 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                d="M2 6l2 2 4-4"
-                              />
-                            </svg>
-                          )}
-                          
-                          {/* Active Dot Indicator */}
-                          {isActive && (
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white" />
-                          )}
-                        </div>
-                        
-                        {/* Step Label */}
-                        <span 
-                          className={`
-                            mt-3 text-xs font-medium transition-colors duration-300 text-center whitespace-nowrap
-                            ${isActive 
-                              ? 'text-gray-900 font-semibold' 
-                              : isCompleted 
-                              ? 'text-gray-600' 
-                              : 'text-gray-400'
-                            }
-                          `}
-                        >
-                          {s.label}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+                  return (
+                    <div 
+                      key={s.id} 
+                      className={`
+                        w-2 h-2 rounded-full transition-all duration-300
+                        ${isCompleted 
+                          ? 'bg-[#3d2817]' 
+                          : isActive
+                          ? 'bg-[#3d2817] scale-150'
+                          : 'bg-gray-300'
+                        }
+                      `}
+                    />
+                  );
+                })}
               </div>
             </div>
 
-            <div className="flex-1">
-            {step === 1 && (
-              <div className="h-full flex flex-col items-center justify-center text-center py-4">
-                {/* Email/Password Form */}
-                <form onSubmit={handleEmailSignIn} className="w-full max-w-sm space-y-4">
+            {/* Form Card */}
+            <div className="rounded-2xl shadow-sm border border-gray-200 p-8" style={{ backgroundColor: '#fefcf3' }}>
+              {/* Step Title */}
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {step === 1 && 'Sign Up / Sign In'}
+                  {step === 2 && 'Company Details'}
+                  {step === 3 && 'AI Preferences'}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {step === 1 && 'Create your account to get started'}
+                  {step === 2 && 'Tell us about your business'}
+                  {step === 3 && 'Customize your AI assistant'}
+                </p>
+              </div>
+
+              {/* Form Content */}
+              <div>
+              {step === 1 && (
+                <div className="space-y-6">
+                  {/* Tab Switcher */}
+                  <div className="flex gap-2 p-1 rounded-lg" style={{ backgroundColor: '#e8e0d5' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSignUp(true);
+                        setAuthError('');
+                      }}
+                      className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                        isSignUp 
+                          ? 'bg-[#3d2817] text-white' 
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      Sign Up
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSignUp(false);
+                        setAuthError('');
+                      }}
+                      className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                        !isSignUp 
+                          ? 'bg-[#3d2817] text-white' 
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      Sign In
+                    </button>
+                  </div>
+
                   {authError && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-md text-sm">
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                       {authError}
                     </div>
                   )}
 
-                  <input
-                    type="email"
-                    placeholder="Email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  {/* Email/Password Form */}
+                  <form onSubmit={isSignUp ? async (e) => {
+                    e.preventDefault();
+                    setAuthError('');
+                    setLoading(true);
 
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                    try {
+                      const { data, error } = await supabase.auth.signUp({
+                        email,
+                        password,
+                      });
 
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center space-x-2 cursor-pointer">
+                      if (error) {
+                        setAuthError(error.message);
+                        setLoading(false);
+                        return;
+                      }
+
+                      if (data.user) {
+                        setStep(2);
+                      }
+                    } catch (err) {
+                      setAuthError('An unexpected error occurred');
+                      console.error('Sign up error:', err);
+                    } finally {
+                      setLoading(false);
+                    }
+                  } : handleEmailSignIn} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Id
+                      </label>
                       <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3d2817] focus:border-transparent transition-all"
                       />
-                      <span className="text-sm text-gray-600">Remember me</span>
-                    </label>
-                    <Link
-                      href="/auth/reset-password"
-                      className="text-sm text-blue-600 hover:text-blue-900 hover:underline transition-colors"
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Password
+                        </label>
+                        <Link
+                          href="/auth/reset-password"
+                          className="text-xs text-[#3d2817] hover:text-[#2d1f12] transition-colors"
+                        >
+                          Forgot Password?
+                        </Link>
+                      </div>
+                      <input
+                        type="password"
+                        placeholder="Enter Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3d2817] focus:border-transparent transition-all"
+                      />
+                      {isSignUp && (
+                        <>
+                          <p className="text-xs text-gray-500 mt-2">Password Strength : Weak</p>
+                          <ul className="text-xs text-gray-500 mt-1 space-y-0.5">
+                            <li>• Cannot contain your name or email address</li>
+                            <li>• At least 8 characters</li>
+                            <li>• Contains a number or symbol</li>
+                          </ul>
+                        </>
+                      )}
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3.5 rounded-lg font-medium transition-all shadow-sm hover:shadow"
                     >
-                      Forgot password?
-                    </Link>
+                      {loading 
+                        ? (isSignUp ? 'Creating Account...' : 'Signing in...') 
+                        : (isSignUp ? 'Create Account' : 'Sign In')
+                      }
+                    </Button>
+                  </form>
+
+                  {/* Divider */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-3 text-gray-500" style={{ backgroundColor: '#fefcf3' }}>Or</span>
+                    </div>
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-900 text-white py-2.5 rounded-lg font-medium transition-colors"
-                  >
-                    {loading ? 'Signing in...' : 'Sign in'}
-                  </Button>
-                </form>
-
-                {/* Divider */}
-                <div className="flex items-center w-full max-w-sm my-6">
-                  <div className="flex-1 border-t border-gray-300"></div>
-                  <span className="px-3 text-sm text-gray-500">or</span>
-                  <div className="flex-1 border-t border-gray-300"></div>
-                </div>
-
-                {/* Social Sign-in Buttons - Side by Side */}
-                <div className="w-full max-w-sm space-y-4">
-                  <div className="flex gap-3">
-                    <GoogleSignInButton 
-                      className="flex-1 relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 px-3 py-2.5 text-sm"
-                    />
+                  {/* Social Sign-in Buttons */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          const { error } = await supabase.auth.signInWithOAuth({
+                            provider: 'google',
+                            options: {
+                              redirectTo: `${window.location.origin}/auth/callback`,
+                            },
+                          });
+                          if (error) {
+                            setAuthError(error.message);
+                            setLoading(false);
+                          }
+                        } catch (err) {
+                          setAuthError('Failed to sign in with Google');
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                      className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ backgroundColor: '#fefcf3' }}
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
+                    </button>
                     
-                    {/* Apple Sign-in Button */}
                     <button
                       type="button"
                       onClick={async () => {
@@ -773,52 +932,84 @@ export default function OnboardingClient() {
                         }
                       }}
                       disabled={loading}
-                      className="flex-1 flex items-center justify-center gap-2 bg-black hover:bg-gray-900 text-white border border-gray-800 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ backgroundColor: '#fefcf3' }}
                     >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                       </svg>
-                      <span className="hidden sm:inline">Sign in with Apple</span>
-                      <span className="sm:hidden">Apple</span>
                     </button>
                   </div>
 
-                  {/* Sign Up Prompt */}
-                  <div className="text-center text-sm text-gray-600 pb-4">
-                    Don't have an account?{' '}
-                    <Link
-                      href="/auth/signup"
-                      className="text-blue-600 hover:text-blue-900 hover:underline font-medium transition-colors"
-                    >
-                      Sign up
+                  {/* Terms */}
+                  <p className="text-xs text-center text-gray-500">
+                    By signing up to create an account I accept Company's{' '}
+                    <Link href="/terms" className="text-[#3d2817] hover:underline">
+                      Terms of use
                     </Link>
-                  </div>
+                    {' & '}
+                    <Link href="/privacy" className="text-[#3d2817] hover:underline">
+                      Privacy Policy
+                    </Link>
+                    .
+                  </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {step === 2 && (
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Company Details</h2>
-                <div className="grid grid-cols-1 gap-4">
-                  <input 
-                    className={`border rounded-md px-3 py-2 ${isFullNameLocked ? 'bg-gray-100 cursor-not-allowed' : ''}`} 
-                    placeholder="Full name" 
-                    value={fullName} 
-                    onChange={e => setFullName(e.target.value)} 
-                    disabled={isFullNameLocked}
-                    readOnly={isFullNameLocked}
-                  />
-                  <input className="border rounded-md px-3 py-2" placeholder="Company name" value={company} onChange={e => setCompany(e.target.value)} />
-                  <select className="border rounded-md px-3 py-2 pr-10 appearance-none bg-white cursor-pointer" value={businessType} onChange={e => setBusinessType(e.target.value)}>
-                    {['Proprietorship','Private Limited','Limited Liability Partnership','Micro, Small & Medium Enterprises (MSME)','Startup','Consultant','Individual'].map(o => (
-                      <option key={o} value={o}>{o}</option>
-                    ))}
-                  </select>
-                  <input className="border rounded-md px-3 py-2" placeholder="GST number (optional)" value={gstNumber} onChange={e => setGstNumber(e.target.value)} />
+              {step === 2 && (
+                <div className="space-y-5">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">Years in operation</label>
-                    <select className="border rounded-md px-3 py-2 pr-10 appearance-none bg-white cursor-pointer w-full" value={years} onChange={e => setYears(parseInt(e.target.value))}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <input 
+                      className={`w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isFullNameLocked ? 'bg-gray-100 cursor-not-allowed' : ''}`} 
+                      placeholder="Enter your full name" 
+                      value={fullName} 
+                      onChange={e => setFullName(e.target.value)} 
+                      disabled={isFullNameLocked}
+                      readOnly={isFullNameLocked}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+                    <input 
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      placeholder="Enter company name" 
+                      value={company} 
+                      onChange={e => setCompany(e.target.value)} 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
+                    <select 
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      value={businessType} 
+                      onChange={e => setBusinessType(e.target.value)}
+                    >
+                      {['Proprietorship','Private Limited','Limited Liability Partnership','Micro, Small & Medium Enterprises (MSME)','Startup','Consultant','Individual'].map(o => (
+                        <option key={o} value={o}>{o}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">GST Number (Optional)</label>
+                    <input 
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      placeholder="Enter GST number" 
+                      value={gstNumber} 
+                      onChange={e => setGstNumber(e.target.value)} 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Years in Operation</label>
+                    <select 
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      value={years} 
+                      onChange={e => setYears(parseInt(e.target.value))}
+                    >
                       {Array.from({ length: 21 }, (_, i) => i).map(v => (
                         <option key={v} value={v}>{v === 20 ? '20+' : v}</option>
                       ))}
@@ -826,7 +1017,7 @@ export default function OnboardingClient() {
                   </div>
                   {/* Primary Industry Autocomplete */}
                   <div className="relative">
-                      <label className="text-sm font-medium text-gray-700 mb-1 block">Primary industry</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Primary Industry</label>
                     <div className="relative">
                       <input
                         ref={primaryInputRef}
@@ -839,7 +1030,7 @@ export default function OnboardingClient() {
                         }}
                         onFocus={() => setShowPrimaryDropdown(true)}
                         onBlur={() => setTimeout(() => setShowPrimaryDropdown(false), 200)}
-                        className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       />
                       {primaryIndustry && (
                         <button
@@ -889,8 +1080,8 @@ export default function OnboardingClient() {
 
                   {/* Secondary Industries Autocomplete */}
                   <div className="relative">
-                    <label className="text-sm font-medium text-gray-700 mb-1 block">
-                      Secondary industries (up to 3)
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Secondary Industries (up to 3)
                     </label>
                     <div className="relative">
                       <input
@@ -905,7 +1096,7 @@ export default function OnboardingClient() {
                         onFocus={() => setShowSecondaryDropdown(true)}
                         onBlur={() => setTimeout(() => setShowSecondaryDropdown(false), 200)}
                         disabled={secondaryIndustries.length >= 3}
-                        className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                       />
                     </div>
                     {secondaryIndustries.length > 0 && (
@@ -949,30 +1140,32 @@ export default function OnboardingClient() {
                     </div>
                     )}
                   </div>
-                </div>
 
-                <div className="mt-6 flex justify-end gap-3">
-                  <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-                  <Button onClick={() => setStep(3)}>Next</Button>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div>
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Shape Your AI Assistant</h2>
-                  <p className="text-sm text-gray-600">
-                    This is where you shape AI behavior without making it complicated.
-                  </p>
+                  <div className="flex gap-3 pt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setStep(1)}
+                      className="flex-1 border-2 border-gray-300 hover:bg-gray-50 py-3"
+                    >
+                      Back
+                    </Button>
+                    <Button 
+                      onClick={() => setStep(3)}
+                      className="flex-1 bg-[#3d2817] hover:bg-[#2d1f12] text-white py-3"
+                    >
+                      Next
+                    </Button>
                   </div>
+                </div>
+              )}
 
+              {step === 3 && (
                 <div className="space-y-6">
                   {/* Categories of Interest */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Categories of interest
-                      </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Categories of Interest
+                    </label>
                     <div className="relative">
                       <input
                         ref={categoryInputRef}
@@ -985,7 +1178,7 @@ export default function OnboardingClient() {
                         }}
                         onFocus={() => setShowCategoryDropdown(true)}
                         onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 200)}
-                        className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       />
                     </div>
                     {selectedCategories.length > 0 && (
@@ -1033,11 +1226,11 @@ export default function OnboardingClient() {
 
                   {/* Role Selection */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Pre-set roles
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Your Role
                     </label>
                     <p className="text-xs text-gray-500 mb-3">
-                      They don't need exact accuracy; your model only needs direction.
+                      Select roles that best describe your business
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {roleOptions.map((role) => (
@@ -1047,7 +1240,7 @@ export default function OnboardingClient() {
                           onClick={() => toggleRole(role)}
                           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                             selectedRoles.includes(role)
-                              ? 'bg-blue-600 text-white'
+                              ? 'bg-[#3d2817] text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
                         >
@@ -1059,10 +1252,10 @@ export default function OnboardingClient() {
 
                   {/* User Goal */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-3 block">
-                      What describes you best?
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      What Describes You Best?
                     </label>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {goalOptions.map((option) => (
                         <button
                           key={option.value}
@@ -1070,7 +1263,7 @@ export default function OnboardingClient() {
                           onClick={() => setUserGoal(option.value)}
                           className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
                             userGoal === option.value
-                              ? 'border-blue-600 bg-blue-50 text-blue-900 font-medium'
+                              ? 'border-[#3d2817] bg-[#f5f0e8] text-[#3d2817] font-medium'
                               : 'border-gray-200 hover:border-gray-300 text-gray-700'
                           }`}
                         >
@@ -1079,20 +1272,30 @@ export default function OnboardingClient() {
                       ))}
                     </div>
                   </div>
-                </div>
 
-                <div className="mt-8 flex justify-between">
-                  <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
-                  <Button disabled={loading} onClick={submitOnboarding}>
-                    {loading ? 'Saving...' : 'Finish Setup'}
-                  </Button>
+                  <div className="flex gap-3 pt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setStep(2)}
+                      className="flex-1 border-2 border-gray-300 hover:bg-gray-50 py-3"
+                    >
+                      Back
+                    </Button>
+                    <Button 
+                      disabled={loading} 
+                      onClick={submitOnboarding}
+                      className="flex-1 bg-[#3d2817] hover:bg-[#2d1f12] text-white py-3 disabled:opacity-50"
+                    >
+                      {loading ? 'Saving...' : 'Finish Setup'}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

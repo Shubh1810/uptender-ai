@@ -93,6 +93,42 @@ export async function POST(request: NextRequest) {
 
     const tenderData = validationResult.data;
 
+    // CHECK SUBSCRIPTION LIMIT BEFORE SAVING
+    // Get user's plan and current saved tender count
+    const { data: subscription } = await supabase
+      .from('user_subscriptions')
+      .select('plan_id, subscription_plans(limits)')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single();
+    
+    if (subscription) {
+      const plan = subscription.subscription_plans as any;
+      const savedTendersLimit = plan?.limits?.saved_tenders ?? 10; // Default to 10
+      
+      // If not unlimited (-1), check current count
+      if (savedTendersLimit !== -1) {
+        const { count } = await supabase
+          .from('saved_tenders')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        
+        if (count !== null && count >= savedTendersLimit) {
+          return NextResponse.json(
+            { 
+              error: 'Saved tender limit reached',
+              code: 'LIMIT_EXCEEDED',
+              current_count: count,
+              limit: savedTendersLimit,
+              upgrade_required: true,
+              message: `You've reached your saved tender limit (${savedTendersLimit}). Upgrade to save more tenders.`
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
+
     // Insert saved tender (unique constraint will prevent duplicates)
     const { data, error } = await supabase
       .from('saved_tenders')

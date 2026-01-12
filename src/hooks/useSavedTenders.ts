@@ -135,6 +135,18 @@ export function useSavedTenders() {
           return { success: true, message: 'Already saved' };
         }
 
+        // Handle limit exceeded error
+        if (data.code === 'LIMIT_EXCEEDED') {
+          return { 
+            success: false, 
+            error: data.message || data.error,
+            limitExceeded: true,
+            currentCount: data.current_count,
+            limit: data.limit,
+            upgradeRequired: true
+          };
+        }
+
         throw new Error(data.error || 'Failed to save tender');
       }
 
