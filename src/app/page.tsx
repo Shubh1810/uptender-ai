@@ -299,7 +299,7 @@ export default function Home() {
               
               <div className="mb-8 flex justify-center lg:justify-start">
                 <SearchBar 
-                  placeholder="Describe your business (e.g. “IT, Construction, Healthcare”)..."
+                  placeholder="Describe your business (e.g. “Construction, Healthcare”)..."
                   onFocus={() => {
                     // Redirect to onboarding/sign-in page when user clicks/focuses on search
                     window.location.href = '/onboarding';
