@@ -607,7 +607,7 @@ export default function Home() {
           <img 
             src="/mobile wallpaper.jpeg"
             alt=""
-            className="absolute"
+            className="absolute lg:block hidden"
             style={{
               top: '50%',
               left: '50%',
@@ -618,6 +618,21 @@ export default function Home() {
               minWidth: '100%',
               minHeight: '100%',
               objectFit: 'contain',
+            }}
+          />
+          {/* Mobile version - no rotation, fit to cover */}
+          <img 
+            src="/mobile wallpaper.jpeg"
+            alt=""
+            className="absolute lg:hidden block"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              transformOrigin: 'center center',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
             }}
           />
         </div>

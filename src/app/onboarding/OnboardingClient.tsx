@@ -275,6 +275,42 @@ export default function OnboardingClient() {
   const [showCategoryDropdown, setShowCategoryDropdown] = React.useState(false);
   const categoryInputRef = React.useRef<HTMLInputElement>(null);
 
+  // Feature carousel state (only for step 1)
+  const [activeFeatureIndex, setActiveFeatureIndex] = React.useState(0);
+  
+  const features = [
+    {
+      heading: "What takes teams days, we do in minutes.",
+      subheading: "Tender discovery, qualification, and risk checks—automated."
+    },
+    {
+      heading: "Know when not to bid.",
+      subheading: "TenderPost flags low-fit, risky tenders before you waste time or money."
+    },
+    {
+      heading: "Stop reading irrelevant tenders.",
+      subheading: "TenderPost filters thousands of government tenders down to the few you should actually bid on."
+    }
+  ];
+
+  // Reset carousel when step changes
+  React.useEffect(() => {
+    if (step === 1) {
+      setActiveFeatureIndex(0);
+    }
+  }, [step]);
+
+  // Auto-rotate carousel for step 1
+  React.useEffect(() => {
+    if (step !== 1) return;
+    
+    const interval = setInterval(() => {
+      setActiveFeatureIndex((prev) => (prev + 1) % features.length);
+    }, 4000); // Change every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [step, features.length]);
+
 
   const roleOptions = ['Contractor', 'Consultant', 'Vendor', 'Supplier', 'New bidder'];
   const goalOptions = [
@@ -515,7 +551,7 @@ export default function OnboardingClient() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="h-screen flex overflow-hidden">
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-white p-4">
         {/* Background Image Container */}
@@ -561,24 +597,9 @@ export default function OnboardingClient() {
           <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/60 z-[5]"></div>
 
           {/* Content Overlay */}
-          <div className="absolute inset-0 z-10 flex flex-col p-12 pt-12">
-            {/* Logo - Centered */}
-            <div className="flex items-center justify-center space-x-0 mb-8">
-              <Image
-                src="/tpllogo-wite.PNG" 
-                alt="TenderPost" 
-                className="h-10 w-10 rounded-lg"
-                priority
-                width={40}
-                height={40}
-              />
-              <span className="text-2xl font-bold text-white tracking-tight">
-                <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
-              </span>
-            </div>
-
+          <div className="absolute inset-0 z-10 flex flex-col p-12 pt-16">
             {/* Hero Content - Higher Up */}
-            <div className="space-y-2 mb-auto text-center px-4">
+            <div className="space-y-2 mb-auto text-center px-4 mt-8">
               <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
                 Welcome to <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
               </h1>
@@ -587,72 +608,100 @@ export default function OnboardingClient() {
               </p>
             </div>
 
-            {/* Feature Highlights - Bottom Aligned */}
-            <div className="space-y-6 max-w-lg mx-auto pb-8">
-              {step === 1 && (
-                <>
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">AI</span>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">AI-Powered Matching</h3>
-                      <p className="text-white/80">Get tenders that actually match your business</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">Real-Time Alerts</h3>
-                      <p className="text-white/80">Never miss an opportunity again</p>
-                    </div>
-                  </div>
-                </>
-              )}
-              {step === 2 && (
-                <>
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">Company Profile</h3>
-                      <p className="text-white/80">Help us understand your business better</p>
+            {/* Feature Carousel - Bottom Aligned (only for step 1) */}
+            {step === 1 && (
+              <div className="max-w-lg mx-auto pb-8 w-full">
+                <div className="relative">
+                  {/* Carousel Content */}
+                  <div className="overflow-hidden w-full">
+                    <div 
+                      className="flex transition-transform duration-500 ease-in-out"
+                      style={{ 
+                        width: `${features.length * 100}%`,
+                        transform: `translateX(-${(activeFeatureIndex * 100) / features.length}%)` 
+                      }}
+                    >
+                      {features.map((feature, index) => (
+                        <div
+                          key={index}
+                          className="flex-shrink-0"
+                          style={{ width: `${100 / features.length}%` }}
+                        >
+                          <div className="text-center px-2">
+                            <h3 className="text-2xl lg:text-3xl font-semibold text-white mb-3 leading-tight">
+                              {feature.heading}
+                            </h3>
+                            <p className="text-sm lg:text-base text-white/80 leading-relaxed">
+                              {feature.subheading}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </>
-              )}
-              {step === 3 && (
-                <>
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">AI Preferences</h3>
-                      <p className="text-white/80">Customize your tender discovery experience</p>
-                    </div>
+
+                  {/* Minimal Indicator Bar */}
+                  <div className="flex items-center justify-center gap-2 mt-6">
+                    {features.map((_, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setActiveFeatureIndex(index)}
+                        className="focus:outline-none"
+                        aria-label={`Go to feature ${index + 1}`}
+                      >
+                        <div
+                          className={`h-1 rounded-full transition-all duration-500 ${
+                            index === activeFeatureIndex
+                              ? 'w-8 bg-white'
+                              : 'w-1 bg-white/40'
+                          }`}
+                        />
+                      </button>
+                    ))}
                   </div>
-                </>
-              )}
-            </div>
+                </div>
+              </div>
+            )}
+            {step === 2 && (
+              <div className="space-y-6 max-w-lg mx-auto pb-8">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-1">Company Profile</h3>
+                    <p className="text-white/80">Help us understand your business better</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            {step === 3 && (
+              <div className="space-y-6 max-w-lg mx-auto pb-8">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-1">AI Preferences</h3>
+                    <p className="text-white/80">Customize your tender discovery experience</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
         </div>
       </div>
 
       {/* Right Side - Form Section */}
-      <div className="flex-1 flex flex-col min-h-screen" style={{ backgroundColor: '#fefcf3' }}>
+      <div className="flex-1 flex flex-col h-screen overflow-hidden" style={{ backgroundColor: '#fefcf3' }}>
         {/* Mobile Logo - Only on small screens */}
-        <div className="lg:hidden p-6 border-b border-gray-200" style={{ backgroundColor: '#fefcf3' }}>
+        <div className="lg:hidden flex-shrink-0 p-6 border-b border-gray-200" style={{ backgroundColor: '#fefcf3' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-0">
               <Image
@@ -692,11 +741,11 @@ export default function OnboardingClient() {
           </div>
         </div>
 
-        {/* Form Container */}
-        <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
-          <div className="w-full max-w-md">
+        {/* Form Container - Scrollable */}
+        <div className={`flex-1 flex ${step === 2 ? 'flex-col' : 'items-center justify-center'} p-6 sm:p-8 overflow-y-auto`}>
+          <div className={`w-full ${step === 2 ? 'max-w-xl' : 'max-w-md'} mx-auto`}>
             {/* Minimal Web3 Style Progress Indicator */}
-            <div className="mb-10">
+            <div className={`mb-10 flex-shrink-0`}>
               <div className="relative flex items-center justify-center gap-3">
                 {/* Step Dots */}
                 {steps.map((s) => {
@@ -721,24 +770,43 @@ export default function OnboardingClient() {
               </div>
             </div>
 
-            {/* Form Card */}
-            <div className="rounded-2xl shadow-sm border border-gray-200 p-8" style={{ backgroundColor: '#fefcf3' }}>
+            {/* Form Card - Containerless for step 2 */}
+            <div className={`${step === 2 ? 'px-4 sm:px-8' : step === 1 ? '' : 'rounded-2xl shadow-sm border border-gray-200 p-8'}`} style={step === 2 || step === 1 ? {} : { backgroundColor: '#fefcf3' }}>
               {/* Step Title */}
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {step === 1 && 'Sign Up / Sign In'}
-                  {step === 2 && 'Company Details'}
-                  {step === 3 && 'AI Preferences'}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {step === 1 && 'Create your account to get started'}
-                  {step === 2 && 'Tell us about your business'}
-                  {step === 3 && 'Customize your AI assistant'}
-                </p>
-              </div>
+              {step === 1 ? (
+                <div className="mb-6">
+                  <div className="flex items-center justify-start space-x-0 mb-2">
+                    <Image
+                      src="/tplogo.png" 
+                      alt="TenderPost" 
+                      className="h-10 w-10 rounded-lg"
+                      priority
+                      width={40}
+                      height={40}
+                    />
+                    <span className="text-2xl font-bold text-gray-900 tracking-tight">
+                      <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Create your account to get started
+                  </p>
+                </div>
+              ) : (
+                <div className={`${step === 2 ? 'mb-8 flex-shrink-0' : 'mb-6'}`}>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    {step === 2 && 'Company Details'}
+                    {step === 3 && 'AI Preferences'}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {step === 2 && 'Tell us about your business'}
+                    {step === 3 && 'Customize your AI assistant'}
+                  </p>
+                </div>
+              )}
 
               {/* Form Content */}
-              <div>
+              <div className={step === 2 ? 'flex-shrink-0' : ''}>
               {step === 1 && (
                 <div className="space-y-6">
                   {/* Tab Switcher */}
@@ -968,11 +1036,11 @@ export default function OnboardingClient() {
               )}
 
               {step === 2 && (
-                <div className="space-y-5">
+                <div className="space-y-8">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Full Name</label>
                     <input 
-                      className={`w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isFullNameLocked ? 'bg-gray-100 cursor-not-allowed' : ''}`} 
+                      className={`w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent ${isFullNameLocked ? 'bg-gray-50 cursor-not-allowed' : ''}`} 
                       placeholder="Enter your full name" 
                       value={fullName} 
                       onChange={e => setFullName(e.target.value)} 
@@ -982,9 +1050,9 @@ export default function OnboardingClient() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Company Name</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent" 
                       placeholder="Enter company name" 
                       value={company} 
                       onChange={e => setCompany(e.target.value)} 
@@ -992,9 +1060,9 @@ export default function OnboardingClient() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Business Type</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 bg-transparent cursor-pointer focus:outline-none focus:border-gray-900 transition-colors" 
                       value={businessType} 
                       onChange={e => setBusinessType(e.target.value)}
                     >
@@ -1005,9 +1073,9 @@ export default function OnboardingClient() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">GST Number (Optional)</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">GST Number <span className="normal-case font-normal text-gray-400">(Optional)</span></label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent" 
                       placeholder="Enter GST number" 
                       value={gstNumber} 
                       onChange={e => setGstNumber(e.target.value)} 
@@ -1015,9 +1083,9 @@ export default function OnboardingClient() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Years in Operation</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Years in Operation</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 bg-transparent cursor-pointer focus:outline-none focus:border-gray-900 transition-colors" 
                       value={years} 
                       onChange={e => setYears(parseInt(e.target.value))}
                     >
@@ -1028,7 +1096,7 @@ export default function OnboardingClient() {
                   </div>
                   {/* Primary Industry Autocomplete */}
                   <div className="relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Primary Industry</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Primary Industry</label>
                     <div className="relative">
                       <input
                         ref={primaryInputRef}
@@ -1041,7 +1109,7 @@ export default function OnboardingClient() {
                         }}
                         onFocus={() => setShowPrimaryDropdown(true)}
                         onBlur={() => setTimeout(() => setShowPrimaryDropdown(false), 200)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent"
                       />
                       {primaryIndustry && (
                         <button
@@ -1091,8 +1159,8 @@ export default function OnboardingClient() {
 
                   {/* Secondary Industries Autocomplete */}
                   <div className="relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Secondary Industries (up to 3)
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
+                      Secondary Industries <span className="normal-case font-normal text-gray-400">(up to 3)</span>
                     </label>
                     <div className="relative">
                       <input
@@ -1107,7 +1175,7 @@ export default function OnboardingClient() {
                         onFocus={() => setShowSecondaryDropdown(true)}
                         onBlur={() => setTimeout(() => setShowSecondaryDropdown(false), 200)}
                         disabled={secondaryIndustries.length >= 3}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        className="w-full border-0 border-b-2 border-gray-200 px-0 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                     {secondaryIndustries.length > 0 && (
@@ -1152,17 +1220,17 @@ export default function OnboardingClient() {
                     )}
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex gap-3 pt-8">
                     <Button 
                       variant="outline" 
                       onClick={() => setStep(1)}
-                      className="flex-1 border-2 border-gray-300 hover:bg-gray-50 py-3"
+                      className="flex-1 border border-gray-300 hover:bg-gray-50 py-2.5"
                     >
                       Back
                     </Button>
                     <Button 
                       onClick={() => setStep(3)}
-                      className="flex-1 bg-[#3d2817] hover:bg-[#2d1f12] text-white py-3"
+                      className="flex-1 bg-[#3d2817] hover:bg-[#2d1f12] text-white py-2.5"
                     >
                       Next
                     </Button>

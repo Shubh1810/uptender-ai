@@ -12,10 +12,37 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // Successfully authenticated - no need for prefetch!
-      // Dashboard will load data when user navigates there
-      // Stats are always available from Supabase latest_snapshot
+      // Check if user has completed onboarding
+      const { data: { user } } = await supabase.auth.getUser();
       
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        const isOnboardingCompleted = profile?.onboarding_completed === true || 
+                                      profile?.onboarding_completed === 'true' || 
+                                      profile?.onboarding_completed === 1;
+        
+        // Redirect unonboarded users to onboarding step 2
+        if (!isOnboardingCompleted) {
+          const forwardedHost = request.headers.get('x-forwarded-host');
+          const isLocalEnv = process.env.NODE_ENV === 'development';
+          const onboardingUrl = '/onboarding?step=2';
+          
+          if (isLocalEnv) {
+            return NextResponse.redirect(`http://localhost:3000${onboardingUrl}`);
+          } else if (forwardedHost) {
+            return NextResponse.redirect(`https://${forwardedHost}${onboardingUrl}`);
+          } else {
+            return NextResponse.redirect(`${new URL(request.url).origin}${onboardingUrl}`);
+          }
+        }
+      }
+      
+      // User has completed onboarding, redirect to dashboard or next URL
       const forwardedHost = request.headers.get('x-forwarded-host');
       const isLocalEnv = process.env.NODE_ENV === 'development';
       

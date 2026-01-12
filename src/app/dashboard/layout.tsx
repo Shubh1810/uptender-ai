@@ -329,24 +329,24 @@ export default function DashboardLayout({
           const isCompleted = prof.onboarding_completed === true || 
                              prof.onboarding_completed === 'true' || 
                              prof.onboarding_completed === 1;
+          
+          // Redirect unonboarded users to onboarding step 2
+          if (!isCompleted) {
+            router.push('/onboarding?step=2');
+            return;
+          }
+          
           setOnboardingCompleted(isCompleted);
           
           // Check if user is director
           setIsDirector(prof.role === 'director');
           
           // Calculate progress based on filled fields (3 steps total)
-          if (isCompleted) {
-            setOnboardingProgress(100);
-          } else {
-            let progress = 0;
-            if (prof.full_name) progress += 33; // Step 1
-            if (prof.company) progress += 33; // Step 2
-            if (prof.primary_industry) progress += 34; // Step 3
-            setOnboardingProgress(Math.min(100, progress));
-          }
+          setOnboardingProgress(100);
         } else {
-          setOnboardingCompleted(false);
-          setOnboardingProgress(0);
+          // No profile exists, redirect to onboarding step 2
+          router.push('/onboarding?step=2');
+          return;
         }
       } catch (error) {
         console.error('Exception checking onboarding:', error);
@@ -356,7 +356,7 @@ export default function DashboardLayout({
     };
     
     checkOnboarding();
-  }, [user, supabase]);
+  }, [user, supabase, router]);
 
   // Track dashboard section views
   useEffect(() => {
