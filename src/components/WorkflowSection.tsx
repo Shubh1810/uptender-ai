@@ -209,6 +209,7 @@ function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win
 export function WorkflowSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [direction, setDirection] = useState<'down' | 'up'>('down');
@@ -219,12 +220,13 @@ export function WorkflowSection() {
     
     const section = sectionRef.current;
     const trigger = triggerRef.current;
-    if (!section || !trigger) return;
+    const imageContainer = imageContainerRef.current;
+    if (!section || !trigger || !imageContainer) return;
 
     // Create GSAP context for cleanup
     const ctx = gsap.context(() => {
       // Create the ScrollTrigger with pinning
-      ScrollTrigger.create({
+      const scrollTrigger = ScrollTrigger.create({
         trigger: trigger,
         start: 'top top',
         end: '+=2400', // Total scroll distance (800px per step × 3 steps)
@@ -243,6 +245,11 @@ export function WorkflowSection() {
           
           // Track direction
           setDirection(self.direction === 1 ? 'down' : 'up');
+          
+          // Animate background image position based on scroll progress
+          // Scroll from top (0%) to bottom (100%) of the image
+          const backgroundPositionY = prog * 100;
+          imageContainer.style.backgroundPositionY = `${backgroundPositionY}%`;
         },
       });
     }, section);
@@ -385,13 +392,25 @@ export function WorkflowSection() {
 
             {/* Right column - Full height container */}
             <div className="w-full max-w-md mx-auto lg:ml-auto lg:mr-0 order-2 lg:order-2">
-              {/* Static warm-toned container spanning full height */}
+              {/* Image container with scrollable background */}
               <div 
+                ref={imageContainerRef}
                 className="relative rounded-3xl p-6 shadow-xl h-full min-h-[450px] flex items-center overflow-hidden"
                 style={{ 
-                  backgroundImage: 'linear-gradient(5deg, #e8d9c8 0%, #f0e1d0 50%, #f8f0e5 100%)'
+                  backgroundImage: 'url(/workflow.jpeg)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center top',
+                  backgroundRepeat: 'no-repeat',
                 }}
               >
+                {/* Overlay to maintain readability of content */}
+                <div 
+                  className="absolute inset-0 rounded-3xl"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(232, 217, 200, 0.3) 0%, rgba(240, 225, 208, 0.2) 50%, rgba(248, 240, 229, 0.3) 100%)'
+                  }}
+                />
+                
                 {/* Static wavy lines background */}
                 <WavyLines />
                 

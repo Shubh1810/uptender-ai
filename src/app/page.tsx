@@ -281,7 +281,7 @@ export default function Home() {
             {/* Left side content */}
             <div className="text-center lg:text-left mt-8 lg:mt-12 px-2 lg:pl-24">
               <h1 className="text-2xl md:text-4xl text-gray-900 mb-2 leading-tight" style={{ fontFamily: '"Funnel Display", sans-serif' }}>
-                Your <span className="text-2xl md:text-4xl font-semibold">AI-powered Tender Automation</span> <span className="font-semibold">Platform</span>{' '}
+                 <span className="text-2xl md:text-4xl font-semibold">AI-powered Tender Intelligence that tells you what's worth bidding.</span> <span className="font-semibold"></span>{' '}
                 <span className="inline-flex items-center ml-2 text-sm text-gray-600 font-medium">
                   powered by{' '}
                   <Image
@@ -294,13 +294,12 @@ export default function Home() {
                 </span>
               </h1>
               <p className="font-ubuntu text-xs text-gray-600 mb-6 leading-relaxed px-1 lg:px-0">
-                Get instant notifications for <strong>government tenders</strong> across all Industries in India. 
-                AI-powered tender analysis, bid automation, and intelligent next-gen tender tracking system.
+              Instant tender alerts, intelligent filtering, and AI-powered bid support. Intelligence that replaces manual tracking, risky bids, and expensive procurement consultants.
               </p>
               
               <div className="mb-8 flex justify-center lg:justify-start">
                 <SearchBar 
-                  placeholder="Search tenders by keyword..."
+                  placeholder="Describe your business (e.g. “IT, Construction, Healthcare”)..."
                   onFocus={() => {
                     // Redirect to onboarding/sign-in page when user clicks/focuses on search
                     window.location.href = '/onboarding';
@@ -603,8 +602,28 @@ export default function Home() {
 
       {/* Modern Minimal CTA Section */}
       <section className="py-32 px-4 sm:px-6 lg:px-8 relative z-10 overflow-hidden" style={{ backgroundColor: '#ff8c42' }}>
+        {/* Rotated background image */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <img 
+            src="/mobile wallpaper.jpeg"
+            alt=""
+            className="absolute"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%) rotate(90deg)',
+              transformOrigin: 'center center',
+              width: '100vh',
+              height: '100vw',
+              minWidth: '100%',
+              minHeight: '100%',
+              objectFit: 'contain',
+            }}
+          />
+        </div>
+        
         {/* Wavy motif lines */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-10">
           {/* Top wavy lines */}
           <svg className="absolute top-0 left-0 w-full opacity-30" viewBox="0 0 1200 100" preserveAspectRatio="none" style={{ height: '80px' }}>
             <path d="M0,50 Q300,20 600,50 T1200,50" stroke="white" strokeWidth="2" fill="none" />
@@ -619,7 +638,7 @@ export default function Home() {
           </svg>
         </div>
         
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <div className="max-w-4xl mx-auto text-center relative z-20">
           {/* Heading */}
           <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">
             Join the Waitlist
@@ -636,13 +655,15 @@ export default function Home() {
                 placeholder="Enter your email address"
                 value={ctaEmail}
                 onChange={(e) => setCtaEmail(e.target.value)}
-                className="w-full h-14 pl-6 pr-32 bg-white rounded-2xl text-gray-900 placeholder-gray-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300"
+                className="w-full h-14 pl-6 pr-32 bg-white text-gray-900 placeholder-gray-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300"
+                style={{ borderRadius: 0 }}
                 disabled={ctaLoading}
                 required
               />
               <button
                 type="submit"
-                className="absolute right-2 top-2 h-10 px-6 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="absolute right-2 top-2 h-10 px-6 bg-[#3d2817] hover:bg-[#2d1f12] text-white font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ borderRadius: 0 }}
                 disabled={ctaLoading}
               >
                 {ctaLoading ? 'Joining...' : 'Join'}
@@ -689,13 +710,14 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-items-center">
             {/* Healthcare */}
             <div className="flex flex-col items-center justify-center group">
-              <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors">
+              <div className="mb-3">
                 <Image 
                   src="/healthcare-icon.svg" 
                   alt="Healthcare" 
                   width={40} 
                   height={40} 
                   className="h-10 w-10"
+                  style={{ filter: 'brightness(0)' }}
                 />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">Healthcare</span>
@@ -703,40 +725,40 @@ export default function Home() {
 
             {/* Construction */}
             <div className="flex flex-col items-center justify-center group">
-              <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mb-3 group-hover:bg-orange-100 transition-colors">
-                <Building className="h-10 w-10 text-orange-600" />
+              <div className="mb-3">
+                <Building className="h-10 w-10 text-black" />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">Construction</span>
             </div>
 
             {/* IT & Software */}
             <div className="flex flex-col items-center justify-center group">
-              <div className="w-20 h-20 rounded-full bg-purple-50 flex items-center justify-center mb-3 group-hover:bg-purple-100 transition-colors">
-                <Zap className="h-10 w-10 text-purple-600" />
+              <div className="mb-3">
+                <Zap className="h-10 w-10 text-black" />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">IT & Software</span>
             </div>
 
             {/* Government */}
             <div className="flex flex-col items-center justify-center group">
-              <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mb-3 group-hover:bg-green-100 transition-colors">
-                <Shield className="h-10 w-10 text-green-600" />
+              <div className="mb-3">
+                <Shield className="h-10 w-10 text-black" />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">Government</span>
             </div>
 
             {/* Defense */}
             <div className="flex flex-col items-center justify-center group">
-              <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-3 group-hover:bg-red-100 transition-colors">
-                <Trophy className="h-10 w-10 text-red-600" />
+              <div className="mb-3">
+                <Trophy className="h-10 w-10 text-black" />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">Defense</span>
             </div>
 
             {/* Education */}
             <div className="flex flex-col items-center justify-center group">
-              <div className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-3 group-hover:bg-indigo-100 transition-colors">
-                <FileText className="h-10 w-10 text-indigo-600" />
+              <div className="mb-3">
+                <FileText className="h-10 w-10 text-black" />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">Education</span>
             </div>

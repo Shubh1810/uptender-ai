@@ -94,9 +94,6 @@ export default function DashboardHome() {
               className="w-full pl-11 pr-4 py-2.5 text-sm text-gray-900 dark:text-white bg-black/[0.03] dark:bg-white/[0.05] border-0 rounded-lg placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white dark:focus:bg-white/[0.08] transition-all"
             />
           </div>
-          <button className="ai-button-gradient">
-            <span>AI</span>
-          </button>
         </div>
 
         {/* Tabs */}
