@@ -536,20 +536,20 @@ export default function OnboardingClient() {
             <div className="absolute top-6 left-6 z-20">
               <Link 
                 href="/"
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 shadow-sm hover:bg-white hover:shadow-md transition-all duration-200"
+                className="inline-block hover:opacity-80 transition-opacity duration-200"
                 aria-label="Back to home"
               >
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 text-gray-700" 
+                  className="h-6 w-6 text-white" 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"
+                  strokeWidth={2.5}
                 >
                   <path 
                     strokeLinecap="round" 
                     strokeLinejoin="round" 
-                    strokeWidth={2} 
                     d="M10 19l-7-7m0 0l7-7m-7 7h18" 
                   />
                 </svg>
@@ -561,9 +561,9 @@ export default function OnboardingClient() {
           <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/60 z-[5]"></div>
 
           {/* Content Overlay */}
-          <div className="absolute inset-0 z-10 flex flex-col p-12 pt-16">
+          <div className="absolute inset-0 z-10 flex flex-col p-12 pt-12">
             {/* Logo - Centered */}
-            <div className="flex items-center justify-center space-x-3 mb-16">
+            <div className="flex items-center justify-center space-x-0 mb-8">
               <Image
                 src="/tpllogo-wite.png" 
                 alt="TenderPost" 
@@ -578,24 +578,22 @@ export default function OnboardingClient() {
             </div>
 
             {/* Hero Content - Higher Up */}
-            <div className="space-y-4 mb-16 text-center">
-              <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight whitespace-nowrap">
-                Welcome to TenderPost
+            <div className="space-y-2 mb-auto text-center px-4">
+              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
+                Welcome to <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
               </h1>
-              <p className="text-xl text-white/90 leading-relaxed">
+              <p className="text-lg lg:text-xl text-white/90 leading-relaxed">
                 Your Gateway to Smarter Tender Discovery
               </p>
             </div>
 
-            {/* Feature Highlights - Dynamic based on step */}
-            <div className="space-y-6 max-w-lg mx-auto">
+            {/* Feature Highlights - Bottom Aligned */}
+            <div className="space-y-6 max-w-lg mx-auto pb-8">
               {step === 1 && (
                 <>
                   <div className="flex items-start space-x-4">
                     <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
+                      <span className="text-white font-bold text-lg">AI</span>
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-white mb-1">AI-Powered Matching</h3>
@@ -656,7 +654,7 @@ export default function OnboardingClient() {
         {/* Mobile Logo - Only on small screens */}
         <div className="lg:hidden p-6 border-b border-gray-200" style={{ backgroundColor: '#fefcf3' }}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-0">
               <Image
                 src="/tplogo.png" 
                 alt="TenderPost" 
@@ -744,17 +742,17 @@ export default function OnboardingClient() {
               {step === 1 && (
                 <div className="space-y-6">
                   {/* Tab Switcher */}
-                  <div className="flex gap-2 p-1 rounded-lg" style={{ backgroundColor: '#e8e0d5' }}>
+                  <div className="flex gap-2 p-1 rounded-lg" style={{ backgroundColor: '#efe8dc' }}>
                     <button
                       type="button"
                       onClick={() => {
                         setIsSignUp(true);
                         setAuthError('');
                       }}
-                      className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                      className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-300 ease-in-out ${
                         isSignUp 
-                          ? 'bg-[#3d2817] text-white' 
-                          : 'text-gray-600 hover:text-gray-900'
+                          ? 'bg-[#3d2817] hover:bg-[#4d3520] text-white shadow-sm scale-[1.02]' 
+                          : 'text-gray-600 hover:text-gray-700 hover:bg-[#e0d4c0]'
                       }`}
                     >
                       Sign Up
@@ -765,10 +763,10 @@ export default function OnboardingClient() {
                         setIsSignUp(false);
                         setAuthError('');
                       }}
-                      className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                      className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-300 ease-in-out ${
                         !isSignUp 
-                          ? 'bg-[#3d2817] text-white' 
-                          : 'text-gray-600 hover:text-gray-900'
+                          ? 'bg-[#3d2817] hover:bg-[#4d3520] text-white shadow-sm scale-[1.02]' 
+                          : 'text-gray-600 hover:text-gray-700 hover:bg-[#e0d4c0]'
                       }`}
                     >
                       Sign In
@@ -843,6 +841,17 @@ export default function OnboardingClient() {
                         required
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3d2817] focus:border-transparent transition-all"
                       />
+                      <div className="flex justify-end mt-2">
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="w-4 h-4 text-[#3d2817] border-gray-300 rounded focus:ring-[#3d2817] focus:ring-2"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">Remember me</span>
+                        </label>
+                      </div>
                       {isSignUp && (
                         <>
                           <p className="text-xs text-gray-500 mt-2">Password Strength : Weak</p>
@@ -858,7 +867,10 @@ export default function OnboardingClient() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3.5 rounded-lg font-medium transition-all shadow-sm hover:shadow"
+                      className="w-full text-white px-4 py-3.5 rounded-lg font-medium transition-all shadow-sm hover:shadow hover:opacity-90"
+                      style={{
+                        background: 'radial-gradient(circle, #2563eb 0%, #2563eb 65%, #FF9933 100%)'
+                      }}
                     >
                       {loading 
                         ? (isSignUp ? 'Creating Account...' : 'Signing in...') 
@@ -900,7 +912,7 @@ export default function OnboardingClient() {
                         }
                       }}
                       disabled={loading}
-                      className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ backgroundColor: '#fefcf3' }}
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -909,6 +921,7 @@ export default function OnboardingClient() {
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                       </svg>
+                      <span className="text-sm font-medium text-gray-700">Google</span>
                     </button>
                     
                     <button
@@ -932,12 +945,13 @@ export default function OnboardingClient() {
                         }
                       }}
                       disabled={loading}
-                      className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ backgroundColor: '#fefcf3' }}
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                       </svg>
+                      <span className="text-sm font-medium text-gray-700">Apple</span>
                     </button>
                   </div>
 
