@@ -867,10 +867,7 @@ export default function OnboardingClient() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full text-white px-4 py-3.5 rounded-lg font-medium transition-all shadow-sm hover:shadow hover:opacity-90"
-                      style={{
-                        background: 'radial-gradient(circle, #2563eb 0%, #2563eb 65%, #FF9933 100%)'
-                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3.5 rounded-lg font-medium transition-all shadow-sm hover:shadow"
                     >
                       {loading 
                         ? (isSignUp ? 'Creating Account...' : 'Signing in...') 
