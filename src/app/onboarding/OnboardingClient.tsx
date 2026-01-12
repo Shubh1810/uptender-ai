@@ -565,7 +565,7 @@ export default function OnboardingClient() {
             {/* Logo - Centered */}
             <div className="flex items-center justify-center space-x-0 mb-8">
               <Image
-                src="/tpllogo-wite.png" 
+                src="/tpllogo-wite.PNG" 
                 alt="TenderPost" 
                 className="h-10 w-10 rounded-lg"
                 priority
