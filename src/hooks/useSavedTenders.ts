@@ -54,7 +54,7 @@ export function useSavedTenders() {
       setSavedTenders(data.saved_tenders || []);
       
       // Create Set of IDs for fast O(1) lookup
-      const ids = new Set(
+      const ids = new Set<string>(
         (data.saved_tenders || []).map((t: SavedTenderData) => t.tender_ref)
       );
       setSavedTenderIds(ids);
