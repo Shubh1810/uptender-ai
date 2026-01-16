@@ -18,14 +18,19 @@ export function GoogleSignInButton({ className = '', children, startOnboarding =
   const router = useRouter();
   const supabase = createClient();
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // If we want to start onboarding flow first, just navigate there immediately
+    if (startOnboarding) {
+      // Prevent any default button behavior
+      e.preventDefault();
+      e.stopPropagation();
+      // Use window.location for reliable navigation in production
+      window.location.href = '/onboarding';
+      return;
+    }
+    
     try {
       setLoading(true);
-      // If we want to start onboarding flow first, just navigate there
-      if (startOnboarding) {
-        router.push('/onboarding');
-        return;
-      }
       
       // Use environment variable if set, otherwise use current origin
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
@@ -65,6 +70,7 @@ export function GoogleSignInButton({ className = '', children, startOnboarding =
 
   return (
     <Button
+      type="button"
       onClick={handleGoogleSignIn}
       disabled={loading}
       className={className}
