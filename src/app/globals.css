@@ -182,7 +182,7 @@ header {
   align-items: center;
   justify-content: center;
   padding: 0.55rem 1.4rem;
-  border-radius: 8px;
+  border-radius: 8px !important;
   font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
@@ -196,7 +196,7 @@ header {
   content: "";
   position: absolute;
   inset: -2px;
-  border-radius: inherit;
+  border-radius: 10px;
   background: linear-gradient(135deg, #93c5fd, #3b82f6, #1e3a8a);
   z-index: -1;
   opacity: 1;

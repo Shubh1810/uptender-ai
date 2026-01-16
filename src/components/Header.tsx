@@ -89,7 +89,7 @@ export function Header({
         <div className="flex justify-between items-center py-4">
           <Link 
             href="/" 
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-0"
             onClick={trackLogoClick}
           >
             <Image
@@ -100,7 +100,7 @@ export function Header({
               width={40}
               height={40}
             />
-            <span className="text-2xl font-bold text-gray-900 tracking-tight">
+            <span className="text-2xl font-bold text-gray-900 tracking-tight ml-0">
               <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
             </span>
             {variant === 'main' && (
@@ -150,7 +150,7 @@ function MainNavigation() {
 
   return (
     <nav className="flex items-center space-x-8">
-      <div className="hidden md:flex items-center space-x-8 font-ubuntu">
+      <div className="hidden md:flex items-center space-x-8 font-ubuntu text-sm">
         <a 
           href="#features" 
           className="text-gray-600 hover:text-gray-900 transition-colors"
@@ -261,7 +261,7 @@ export function InternalPageDesktopNav() {
   };
 
   return (
-    <nav className="hidden md:flex items-center space-x-8 font-ubuntu">
+    <nav className="hidden md:flex items-center space-x-8 font-ubuntu text-sm">
       <Link 
         href="/" 
         className="text-gray-600 hover:text-gray-900 transition-colors"

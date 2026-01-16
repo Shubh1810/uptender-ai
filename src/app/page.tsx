@@ -558,11 +558,11 @@ export default function Home() {
       {/* Subtle FAQ Section */}
       <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6 text-gray-900">
+          <div className="text-center mb-8 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-6 text-gray-900">
               Frequently Asked Questions
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-sm sm:text-xl text-gray-600 max-w-3xl mx-auto">
               Everything you need to know about government tenders and 
               AI-powered tender notifications in India
             </p>
@@ -576,22 +576,22 @@ export default function Home() {
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
+                  className="w-full px-4 sm:px-6 py-3 sm:py-4 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 pr-4">
+                  <h3 className="text-xs sm:text-lg font-semibold text-gray-900 pr-2 sm:pr-4 leading-tight">
                     {faq.question}
                   </h3>
                   <div className="flex-shrink-0">
                     {openFaq === index ? (
-                      <MinusCircle className="h-5 w-5 text-gray-600" />
+                      <MinusCircle className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
                     ) : (
-                      <PlusCircle className="h-5 w-5 text-gray-600" />
+                      <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
                     )}
                   </div>
                 </button>
                 {openFaq === index && (
-                  <div className="px-6 pb-4 border-t border-gray-200">
-                    <p className="text-gray-600 leading-relaxed pt-4">{faq.answer}</p>
+                  <div className="px-4 sm:px-6 pb-4 border-t border-gray-200">
+                    <p className="text-gray-600 leading-relaxed pt-4 text-sm sm:text-base">{faq.answer}</p>
                   </div>
                 )}
               </div>
@@ -655,10 +655,10 @@ export default function Home() {
         
         <div className="max-w-4xl mx-auto text-center relative z-20">
           {/* Heading */}
-          <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 text-white">
             Join the Waitlist
           </h2>
-          <p className="text-xl mb-12 max-w-2xl mx-auto text-white/90">
+          <p className="text-base sm:text-xl mb-12 max-w-2xl mx-auto text-white/90">
             Be the first to access AI-powered tender notifications. Get early access and exclusive launch pricing.
           </p>
 

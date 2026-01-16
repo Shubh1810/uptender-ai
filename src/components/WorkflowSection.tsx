@@ -395,7 +395,7 @@ export function WorkflowSection() {
               {/* Image container with scrollable background */}
               <div 
                 ref={imageContainerRef}
-                className="relative rounded-3xl p-6 shadow-xl h-full min-h-[450px] flex items-center overflow-hidden"
+                className="relative rounded-3xl p-6 shadow-xl h-full min-h-[350px] sm:min-h-[450px] flex items-center overflow-hidden"
                 style={{ 
                   backgroundImage: 'url(/workflow.jpeg)',
                   backgroundSize: 'cover',
