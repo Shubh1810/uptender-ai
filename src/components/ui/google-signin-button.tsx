@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { trackUserSignedIn } from '@/lib/posthog/events';
@@ -18,17 +19,22 @@ export function GoogleSignInButton({ className = '', children, startOnboarding =
   const router = useRouter();
   const supabase = createClient();
 
+  // If startOnboarding is true, render as Link to avoid form submission issues
+  // This completely avoids any button/form submission problems in production
+  if (startOnboarding) {
+    return (
+      <Button
+        asChild
+        className={className}
+      >
+        <Link href="/onboarding">
+          {children || 'Get started'}
+        </Link>
+      </Button>
+    );
+  }
+
   const handleGoogleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    // If we want to start onboarding flow first, just navigate there immediately
-    if (startOnboarding) {
-      // Prevent any default button behavior
-      e.preventDefault();
-      e.stopPropagation();
-      // Use window.location for reliable navigation in production
-      window.location.href = '/onboarding';
-      return;
-    }
-    
     try {
       setLoading(true);
       
