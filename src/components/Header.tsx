@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { GoogleSignInButton } from '@/components/ui/google-signin-button';
 import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { User } from '@supabase/supabase-js';
 
 interface HeaderProps {
@@ -130,25 +130,7 @@ export function Header({
 function MainNavigation() {
   const posthog = usePostHog();
   const router = useRouter();
-  const supabase = createClient();
-  const [user, setUser] = useState<User | null>(null);
-
-  // Check authentication status
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    
-    checkUser();
-    
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  const { user } = useAuth(); // Use shared auth hook - single listener for entire app
 
   const triggerWaitlist = () => {
     // Force show waitlist overlay immediately
@@ -228,25 +210,7 @@ function MainNavigation() {
 // Alternative navigation for tender-guide and other internal pages (Mobile)
 export function InternalPageNavigation() {
   const posthog = usePostHog();
-  const supabase = createClient();
-  const [user, setUser] = useState<User | null>(null);
-
-  // Check authentication status
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    
-    checkUser();
-    
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  const { user } = useAuth(); // Use shared auth hook
 
   const trackInternalNavClick = (page: string) => {
     posthog?.capture('internal_header_navigation_clicked', {
@@ -285,25 +249,7 @@ export function InternalPageNavigation() {
 // Desktop navigation for internal pages
 export function InternalPageDesktopNav() {
   const posthog = usePostHog();
-  const supabase = createClient();
-  const [user, setUser] = useState<User | null>(null);
-
-  // Check authentication status
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    
-    checkUser();
-    
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  const { user } = useAuth(); // Use shared auth hook
 
   const trackInternalNavClick = (page: string) => {
     posthog?.capture('internal_header_navigation_clicked', {

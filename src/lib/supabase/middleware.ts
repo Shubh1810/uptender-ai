@@ -29,17 +29,27 @@ export async function updateSession(request: NextRequest) {
 
   // Refresh the auth token and handle errors gracefully
   const { data: { user }, error } = await supabase.auth.getUser();
-  
-  // If there's an auth error (like invalid refresh token), clear cookies and redirect
-  if (error) {
-    console.warn('Auth middleware error:', error.message);
-    
-    // Only redirect if on a protected route (dashboard)
-    if (request.nextUrl.pathname.startsWith('/dashboard')) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = '/';
-      return NextResponse.redirect(redirectUrl);
+
+  // Define protected routes that require authentication
+  const isProtectedRoute =
+    request.nextUrl.pathname.startsWith('/dashboard') ||
+    request.nextUrl.pathname.startsWith('/onboarding') ||
+    request.nextUrl.pathname.startsWith('/api/saved-tenders') ||
+    request.nextUrl.pathname.startsWith('/api/alert-preferences') ||
+    request.nextUrl.pathname.startsWith('/api/admin');
+
+  // If there's an auth error OR no user on protected routes, redirect to home
+  if (isProtectedRoute && (error || !user)) {
+    if (error) {
+      console.warn('Auth middleware error:', error.message, 'on', request.nextUrl.pathname);
+    } else {
+      console.warn('No authenticated user accessing protected route:', request.nextUrl.pathname);
     }
+
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/';
+    redirectUrl.searchParams.set('redirected', 'auth_required');
+    return NextResponse.redirect(redirectUrl);
   }
 
   return supabaseResponse;

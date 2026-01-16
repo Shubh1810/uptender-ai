@@ -53,7 +53,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [onboardingProgress, setOnboardingProgress] = useState<number>(0);
@@ -237,8 +236,6 @@ export default function DashboardLayout({
 
   useEffect(() => {
     let mounted = true;
-    let retryCount = 0;
-    const maxRetries = 3;
 
     const getUser = async () => {
       try {
@@ -246,7 +243,6 @@ export default function DashboardLayout({
         
         if (session?.user && mounted) {
           setUser(session.user);
-          setLoading(false);
           
           // Identify user in PostHog
           identifyUser({
@@ -254,13 +250,8 @@ export default function DashboardLayout({
             email: session.user.email,
             name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
           });
-        } else if (retryCount < maxRetries) {
-          retryCount++;
-          setTimeout(getUser, retryCount * 500);
-        } else {
-          if (mounted) {
-            router.push('/');
-          }
+        } else if (mounted) {
+          router.push('/');
         }
       } catch (error) {
         console.error('Error getting user:', error);
@@ -275,9 +266,10 @@ export default function DashboardLayout({
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user && mounted) {
         setUser(session.user);
-        setLoading(false);
       } else if (_event === 'SIGNED_OUT' && mounted) {
-        router.push('/');
+        // Don't navigate here - handleSignOut uses window.location.href for full page reload
+        // This prevents race conditions between router.push and window.location
+        setUser(null);
       }
     });
 
@@ -288,23 +280,44 @@ export default function DashboardLayout({
   }, [router, supabase.auth]);
 
   const handleSignOut = async () => {
-    trackUserSignedOut();
     try {
-      // Sign out from Supabase - this should clear the session
+      // Sign out from Supabase FIRST - don't let analytics block this
       const { error } = await supabase.auth.signOut({
         scope: 'global'
       });
-      
+
       if (error) {
         console.error('Sign out error:', error);
       }
-      
-      // Force redirect to ensure logout is processed
-      // Using window.location instead of router to ensure full page reload
+
+      // Clear all localStorage items that might hold user data
+      try {
+        localStorage.removeItem('saved_tender_ids');
+        localStorage.removeItem('tender_cache');
+        localStorage.removeItem('tender_cache_timestamp');
+        localStorage.removeItem('last_refresh_timestamp');
+        // Keep theme and cookie consent preferences
+      } catch (storageError) {
+        console.error('localStorage cleanup error:', storageError);
+      }
+
+      // Track sign-out AFTER it completes (fire-and-forget, with timeout)
+      try {
+        const trackingPromise = Promise.race([
+          trackUserSignedOut(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Tracking timeout')), 1000))
+        ]);
+        trackingPromise.catch(err => console.warn('PostHog tracking failed:', err));
+      } catch (trackingError) {
+        // Never let tracking errors block sign-out
+        console.warn('PostHog tracking error:', trackingError);
+      }
+
+      // Force full page reload to clear all state
       window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
-      // Force redirect even on error
+      // Force redirect even on error - always complete sign-out
       window.location.href = '/';
     }
   };
@@ -382,20 +395,6 @@ export default function DashboardLayout({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [userMenuOpen]);
-
-  if (loading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#fefcf3' }}
-      >
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#3d2817] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[#3d2817] text-sm font-medium">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (!user) {
     return null;

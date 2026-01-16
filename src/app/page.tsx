@@ -741,7 +741,13 @@ export default function Home() {
             {/* Construction */}
             <div className="flex flex-col items-center justify-center group">
               <div className="mb-3">
-                <Building className="h-10 w-10 text-black" />
+                <Image 
+                  src="/construction-site.png" 
+                  alt="Construction" 
+                  width={40} 
+                  height={40} 
+                  className="h-10 w-10 object-contain"
+                />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">Construction</span>
             </div>
@@ -749,7 +755,13 @@ export default function Home() {
             {/* IT & Software */}
             <div className="flex flex-col items-center justify-center group">
               <div className="mb-3">
-                <Zap className="h-10 w-10 text-black" />
+                <Image 
+                  src="/layers.png" 
+                  alt="IT & Software" 
+                  width={40} 
+                  height={40} 
+                  className="h-10 w-10 object-contain"
+                />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">IT & Software</span>
             </div>
@@ -757,25 +769,43 @@ export default function Home() {
             {/* Government */}
             <div className="flex flex-col items-center justify-center group">
               <div className="mb-3">
-                <Shield className="h-10 w-10 text-black" />
+                <Image 
+                  src="/government.png" 
+                  alt="Government" 
+                  width={40} 
+                  height={40} 
+                  className="h-10 w-10 object-contain"
+                />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">Government</span>
             </div>
 
-            {/* Defense */}
+            {/* Transport */}
             <div className="flex flex-col items-center justify-center group">
               <div className="mb-3">
-                <Trophy className="h-10 w-10 text-black" />
+                <Image 
+                  src="/fast-delivery.png" 
+                  alt="Transport" 
+                  width={40} 
+                  height={40} 
+                  className="h-10 w-10 object-contain"
+                />
               </div>
-              <span className="text-sm font-medium text-gray-700 text-center">Defense</span>
+              <span className="text-sm font-medium text-gray-700 text-center">Transport</span>
             </div>
 
-            {/* Education */}
+            {/* Energy */}
             <div className="flex flex-col items-center justify-center group">
               <div className="mb-3">
-                <FileText className="h-10 w-10 text-black" />
+                <Image 
+                  src="/renewable-energy.png" 
+                  alt="Energy" 
+                  width={40} 
+                  height={40} 
+                  className="h-10 w-10 object-contain"
+                />
               </div>
-              <span className="text-sm font-medium text-gray-700 text-center">Education</span>
+              <span className="text-sm font-medium text-gray-700 text-center">Energy</span>
             </div>
           </div>
         </div>
