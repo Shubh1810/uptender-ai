@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Bell, CheckCircle, Loader2 } from 'lucide-react';
+import { Mail, Bell, CheckCircle, Loader2, Lock } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useWaitlistOverlay } from '@/hooks/useWaitlistOverlay';
@@ -118,44 +118,56 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto"
           >
-            {/* Clean Professional Card */}
-            <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
-              {/* Close Button */}
-              <button
-                onClick={handleClose}
-                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-              >
-                <X className="h-5 w-5 text-gray-600" />
-              </button>
+            {/* Clean Professional Card - Sharp Edges, Wider */}
+            <div className="relative bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row">
+              {/* Left Half - Waitlist Image with Logo */}
+              <div className="hidden md:block w-1/2 relative min-h-[400px]">
+                {/* Background Image */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{
+                    backgroundImage: "url('/waitlist.jpeg')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                />
+                {/* Overlay for better logo visibility */}
+                <div className="absolute inset-0 bg-black/20"></div>
+                
+                {/* Logo and Branding - Top Center */}
+              </div>
 
-              {/* Content */}
-              <div className="relative p-6">
+              {/* Right Half - Current Waitlist Content */}
+              <div className="w-full md:w-1/2 relative p-5 md:p-6">
                 {!isSuccess ? (
                   <>
-                    {/* Header with TenderPost Logo */}
-                    <div className="text-center mb-6">
+                    {/* Header with TenderPost Logo and Brand Name */}
+                    <div className="text-center mb-4">
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.2, type: "spring" }}
-                        className="mb-4"
+                        className="flex items-center justify-center space-x-1 mb-3"
                       >
                         <Image
                           src="/tplogo.png" 
                           alt="TenderPost Logo" 
-                          className="h-12 w-12 object-contain mx-auto"
-                          width={48}
-                          height={48}
+                          className="h-6 w-6 object-contain"
+                          width={24}
+                          height={24}
                         />
+                        <span className="text-gray-900 font-semibold text-sm leading-tight">
+                          <span className="font-inter">Tender</span><span className="font-kings -ml-0.5">Post</span>
+                        </span>
                       </motion.div>
                       
                       <motion.h2
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="text-2xl font-bold text-gray-900 mb-2"
+                        className="text-xl font-bold text-gray-900 mb-2"
                       >
                         Don't Miss Out! 🚀
                       </motion.h2>
@@ -164,7 +176,7 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="text-gray-600 leading-relaxed"
+                        className="text-sm text-gray-600 leading-relaxed"
                       >
                         Join <span className="font-semibold text-blue-600">5,000+</span> businesses already on our waitlist. 
                         Be the first to access AI-powered tender notifications when we launch!
@@ -176,18 +188,18 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 }}
-                      className="space-y-2 mb-5"
+                      className="space-y-1.5 mb-4"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-black rounded-full" />
+                        <div className="w-1.5 h-1.5 bg-black rounded-full" />
                         <span className="text-sm text-gray-700">Early access to premium features</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-black rounded-full" />
+                        <div className="w-1.5 h-1.5 bg-black rounded-full" />
                         <span className="text-sm text-gray-700">Exclusive launch discounts</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-black rounded-full" />
+                        <div className="w-1.5 h-1.5 bg-black rounded-full" />
                         <span className="text-sm text-gray-700">Priority customer support</span>
                       </div>
                     </motion.div>
@@ -198,17 +210,17 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 }}
                       onSubmit={handleSubmit}
-                      className="space-y-4"
+                      className="space-y-3"
                     >
                       <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <input
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Enter your email address"
                           required
-                          className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500 shadow-sm"
+                          className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500 shadow-sm text-sm"
                         />
                       </div>
 
@@ -216,27 +228,27 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                         <motion.div
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="p-3 bg-red-50 border border-red-200 rounded-lg"
+                          className="p-2 bg-red-50 border border-red-200"
                         >
-                          <p className="text-red-600 text-sm">{error}</p>
+                          <p className="text-red-600 text-xs">{error}</p>
                         </motion.div>
                       )}
 
                       {/* Header-style Gradient Button */}
-                      <div className="relative p-[2px] rounded-lg bg-gradient-to-r from-blue-900 via-blue-600 to-sky-400 hover:from-blue-800 hover:via-blue-500 hover:to-sky-300 transition-all duration-300 shadow-md hover:shadow-lg">
+                      <div className="relative p-[2px] bg-gradient-to-r from-blue-900 via-blue-600 to-sky-400 hover:from-blue-800 hover:via-blue-500 hover:to-sky-300 transition-all duration-300 shadow-md hover:shadow-lg">
                         <button
                           type="submit"
                           disabled={isLoading}
-                          className="w-full bg-white hover:bg-blue-900 text-gray-900 hover:text-white py-4 px-6 rounded-[calc(0.5rem-2px)] font-semibold transition-all duration-300 disabled:opacity-50"
+                          className="w-full bg-white hover:bg-blue-900 text-gray-900 hover:text-white py-3 px-4 font-semibold transition-all duration-300 disabled:opacity-50 text-sm"
                         >
                           {isLoading ? (
                             <div className="flex items-center justify-center space-x-2">
-                              <Loader2 className="h-5 w-5 animate-spin" />
+                              <Loader2 className="h-4 w-4 animate-spin" />
                               <span>Joining Waitlist...</span>
                             </div>
                           ) : (
                             <div className="flex items-center justify-center space-x-2">
-                              <Bell className="h-5 w-5" />
+                              <Bell className="h-4 w-4" />
                               <span>Join Waitlist - It's Free!</span>
                             </div>
                           )}
@@ -249,10 +261,11 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.7 }}
-                      className="mt-6 text-center"
+                      className="mt-4 text-center"
                     >
-                      <p className="text-xs text-gray-500">
-                        🔒 We respect your privacy. Unsubscribe anytime.
+                      <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                        <Lock className="h-3 w-3 text-gray-500" />
+                        We respect your privacy. Unsubscribe anytime.
                       </p>
                     </motion.div>
                   </>
@@ -261,35 +274,35 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-4"
+                    className="text-center py-2"
                   >
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", delay: 0.1 }}
-                      className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-2xl mb-4"
+                      className="inline-flex items-center justify-center w-12 h-12 bg-green-100 mb-3"
                     >
-                      <CheckCircle className="h-8 w-8 text-green-600" />
+                      <CheckCircle className="h-6 w-6 text-green-600" />
                     </motion.div>
                     
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
                       Welcome to the Waitlist! 🎉
                     </h3>
                     
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-sm text-gray-600 mb-3">
                       Thank you for joining! We've sent a confirmation email to <strong>{email}</strong>
                     </p>
                     
-                    <div className="bg-blue-50 rounded-xl p-4 mb-4">
-                      <p className="text-blue-800 text-sm">
+                    <div className="bg-blue-50 p-3 mb-3">
+                      <p className="text-blue-800 text-xs">
                         💡 <strong>What's next?</strong> You'll be among the first to know when TenderPost launches with exclusive early access!
                       </p>
                     </div>
                     
-                    <div className="relative p-[2px] rounded-lg bg-gradient-to-r from-blue-900 via-blue-600 to-sky-400 hover:from-blue-800 hover:via-blue-500 hover:to-sky-300 transition-all duration-300 shadow-md hover:shadow-lg">
+                    <div className="relative p-[2px] bg-gradient-to-r from-blue-900 via-blue-600 to-sky-400 hover:from-blue-800 hover:via-blue-500 hover:to-sky-300 transition-all duration-300 shadow-md hover:shadow-lg">
                       <button
                         onClick={handleClose}
-                        className="bg-white hover:bg-blue-900 text-gray-900 hover:text-white px-6 py-2 rounded-[calc(0.5rem-2px)] font-semibold transition-all duration-300"
+                        className="bg-white hover:bg-blue-900 text-gray-900 hover:text-white px-4 py-2 font-semibold transition-all duration-300 text-sm"
                       >
                         Continue Exploring
                       </button>

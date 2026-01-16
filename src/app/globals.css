@@ -139,6 +139,10 @@
   font-family: var(--font-kings), cursive;
 }
 
+.font-inter {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
 .font-roboto {
   font-family: var(--font-roboto), sans-serif;
 }
@@ -217,6 +221,26 @@ header {
 .get-started-cta:focus-visible {
   outline: none;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.28);
+}
+
+/* Mobile-only search bar styling */
+@media (max-width: 640px) {
+  .search-bar-mobile input {
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+    font-size: 0.75rem !important;
+  }
+  .search-bar-mobile .absolute.left-4 {
+    height: 1rem !important;
+    width: 1rem !important;
+  }
+  .search-bar-mobile button {
+    padding: 0.375rem !important;
+  }
+  .search-bar-mobile button svg {
+    height: 0.875rem !important;
+    width: 0.875rem !important;
+  }
 }
 
 /* Modern Progress Stepper Animations */

@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useLayoutEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { 
   Shield, 
   Zap, 
@@ -38,6 +40,129 @@ import { EmailSignup } from '@/components/ui/email-signup';
 import { WaitlistOverlay } from '@/components/ui/waitlist-overlay';
 import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
 import { WorkflowSection } from '@/components/WorkflowSection';
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+// Features Section Component with Scroll Animations
+interface Feature {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}
+
+function FeaturesSection({ features }: { features: Feature[] }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Initialize refs array with correct length
+  if (featureRefs.current.length !== features.length) {
+    featureRefs.current = new Array(features.length).fill(null);
+  }
+
+  // Helper function to determine which column an item belongs to (0, 1, or 2)
+  const getColumnIndex = (index: number) => index % 3;
+
+  // Calculate initial Y offset based on column
+  const getInitialY = (columnIndex: number) => {
+    if (columnIndex === 0) return 0;      // Column 1: no offset
+    if (columnIndex === 1) return 80;     // Column 2: lower
+    return 160;                            // Column 3: even lower
+  };
+
+  useLayoutEffect(() => {
+    // Skip on server
+    if (typeof window === 'undefined') return;
+    
+    const section = sectionRef.current;
+    const trigger = triggerRef.current;
+    if (!section || !trigger) return;
+
+    // Create GSAP context for cleanup
+    const ctx = gsap.context(() => {
+      // Animate each feature card based on its column
+      featureRefs.current.forEach((el, index) => {
+        if (!el) return;
+        
+        const columnIndex = getColumnIndex(index);
+        const initialY = getInitialY(columnIndex);
+        
+        // All columns: animate Y position only (no opacity)
+        gsap.fromTo(
+          el,
+          { 
+            y: initialY
+          },
+          {
+            y: 0,
+            ease: 'none', // Linear animation - no easing
+            scrollTrigger: {
+              trigger: trigger,
+              start: 'top bottom', // Start when section enters viewport (50% sooner)
+              end: 'top 50%', // Complete when section is 50% shown
+              scrub: 0.1, // Very snappy - minimal lag
+            },
+          }
+        );
+      });
+    }, section);
+
+    // Cleanup
+    return () => {
+      ctx.revert();
+    };
+  }, [features.length]);
+
+  return (
+    <section 
+      ref={sectionRef}
+      id="features" 
+      className="py-20 px-4 sm:px-6 lg:px-8 relative z-10" 
+      style={{ backgroundImage: 'linear-gradient(to bottom, #fefcf3 0%, #fefcf3 60%, #ffffff 100%)' }}
+    >
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900" style={{ fontFamily: '"Funnel Display", sans-serif' }}>
+            Advanced AI-Powered Tender Management Features
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Everything you need to dominate the government tender landscape with intelligent automation, real-time notifications, and next-generation AI-driven insights.
+          </p>
+        </div>
+
+        {/* Feature Grid */}
+        <div ref={triggerRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => {
+            const columnIndex = getColumnIndex(index);
+            const initialY = getInitialY(columnIndex);
+            
+            return (
+              <div
+                key={index}
+                ref={(el) => {
+                  featureRefs.current[index] = el;
+                }}
+                className="bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg group"
+                style={{
+                  transform: `translateY(${initialY}px)`,
+                }}
+              >
+                <div className="flex items-center mb-6">
+                  <feature.icon className="h-8 w-8 text-blue-600" />
+                  <h3 className="text-xl font-bold text-gray-900 ml-4">{feature.title}</h3>
+                </div>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
@@ -280,8 +405,8 @@ export default function Home() {
               <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left side content */}
             <div className="text-center lg:text-left mt-8 lg:mt-12 px-2 lg:pl-24">
-              <h1 className="text-2xl md:text-4xl text-gray-900 mb-2 leading-tight" style={{ fontFamily: '"Funnel Display", sans-serif' }}>
-                 <span className="text-2xl md:text-4xl font-semibold">AI-powered Tender Intelligence that tells you what's worth bidding.</span> <span className="font-semibold"></span>{' '}
+              <h1 className="text-3xl md:text-4xl text-gray-900 mb-2 leading-tight" style={{ fontFamily: '"Funnel Display", sans-serif' }}>
+                 <span className="text-3xl md:text-4xl font-semibold">AI-powered Tender Intelligence that tells you what's worth bidding.</span> <span className="font-semibold"></span>{' '}
                 <span className="inline-flex items-center ml-2 text-sm text-gray-600 font-medium">
                   powered by{' '}
                   <Image
@@ -308,7 +433,7 @@ export default function Home() {
                     // Redirect to onboarding/sign-in page when user searches
                     window.location.href = '/onboarding';
                   }}
-                  className="max-w-lg w-full"
+                  className="max-w-lg w-full search-bar-mobile"
                 />
               </div>
 
@@ -323,13 +448,13 @@ export default function Home() {
                     {/* Content */}
                     <div className="relative z-10">
                       {/* Live Tenders - Dynamic */}
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-3 h-3 rounded-full shadow-lg ${tenderStats.isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full shadow-lg ${tenderStats.isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
                         <div>
-                          <div className={`font-ubuntu text-xl font-bold ${tenderStats.isConnected ? 'text-green-600' : 'text-gray-600'}`}>
+                          <div className={`font-ubuntu text-base sm:text-xl font-bold ${tenderStats.isConnected ? 'text-green-600' : 'text-gray-600'}`}>
                             {tenderStats.liveTendersCount.toLocaleString()}
                           </div>
-                          <div className="font-ubuntu text-xs text-gray-500 font-medium">
+                          <div className="font-ubuntu text-[10px] sm:text-xs text-gray-500 font-medium">
                             Live Tenders {tenderStats.isConnected ? '· Connected' : '· Not Connected'}
                           </div>
                         </div>
@@ -436,34 +561,7 @@ export default function Home() {
       <WorkflowSection />
 
       {/* Professional Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative z-10" style={{ backgroundImage: 'linear-gradient(to bottom, #fefcf3 0%, #fefcf3 60%, #ffffff 100%)' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900" style={{ fontFamily: '"Funnel Display", sans-serif' }}>
-              Advanced AI-Powered Tender Management Features
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Everything you need to dominate the government tender landscape with intelligent automation, real-time notifications, and next-generation AI-driven insights.
-            </p>
-          </div>
-
-          {/* Feature Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg group"
-              >
-                <div className="flex items-center mb-6">
-                  <feature.icon className="h-8 w-8 text-blue-600" />
-                  <h3 className="text-xl font-bold text-gray-900 ml-4">{feature.title}</h3>
-                </div>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeaturesSection features={features} />
 
       {/* Simplified Pricing Section */}
       <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10">
@@ -601,7 +699,7 @@ export default function Home() {
       </section>
 
       {/* Modern Minimal CTA Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 relative z-10 overflow-hidden" style={{ backgroundColor: '#ff8c42' }}>
+      <section className="py-16 sm:py-32 px-4 sm:px-6 lg:px-8 relative z-10 overflow-hidden" style={{ backgroundColor: '#ff8c42' }}>
         {/* Rotated background image */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img 

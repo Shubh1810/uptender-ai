@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Cookie } from 'lucide-react';
+import { X, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 export function CookieBanner() {
@@ -35,13 +35,13 @@ export function CookieBanner() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent backdrop-blur-sm" />
       
       {/* Cookie Banner */}
-      <div className="relative bg-white border-t border-gray-200 shadow-2xl">
+      <div className="relative shadow-2xl" style={{ backgroundColor: '#fefcf3', borderTop: '4px solid #1e3a8a' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-6 sm:pb-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             {/* Left: Icon + Message */}
             <div className="flex items-start gap-3 flex-1">
-              <div className="flex-shrink-0 w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
-                <Cookie className="h-5 w-5 text-orange-600" />
+              <div className="flex-shrink-0">
+                <Shield className="h-7 w-7 text-gray-700" />
               </div>
               
               <div className="flex-1 min-w-0">
@@ -50,7 +50,7 @@ export function CookieBanner() {
                 </p>
                 <p className="text-xs text-gray-600 leading-relaxed">
                   We use essential cookies to make our site work. With your consent, we may also use non-essential cookies to improve user experience and analyze website traffic.{' '}
-                  <Link href="/privacy-policy" className="text-orange-600 hover:text-orange-700 underline">
+                  <Link href="/privacy-policy" className="text-[#1e3a8a] hover:text-[#1e40af] underline">
                     Learn more
                   </Link>
                 </p>
@@ -68,7 +68,10 @@ export function CookieBanner() {
               </Button>
               <Button
                 onClick={handleAccept}
-                className="flex-1 sm:flex-none text-sm px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white"
+                className="flex-1 sm:flex-none text-sm px-6 py-2 text-white"
+                style={{ backgroundColor: '#1e3a8a' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1e40af'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1e3a8a'}
               >
                 Accept
               </Button>
