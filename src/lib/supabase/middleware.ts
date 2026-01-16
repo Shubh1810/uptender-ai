@@ -31,9 +31,9 @@ export async function updateSession(request: NextRequest) {
   const { data: { user }, error } = await supabase.auth.getUser();
 
   // Define protected routes that require authentication
+  // Note: /onboarding is NOT protected - it's the entry point for new users to sign up
   const isProtectedRoute =
     request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/onboarding') ||
     request.nextUrl.pathname.startsWith('/api/saved-tenders') ||
     request.nextUrl.pathname.startsWith('/api/alert-preferences') ||
     request.nextUrl.pathname.startsWith('/api/admin');
