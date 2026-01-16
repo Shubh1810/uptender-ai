@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { trackUserSignedIn } from '@/lib/posthog/events';
@@ -14,6 +15,7 @@ interface GoogleSignInButtonProps {
 
 export function GoogleSignInButton({ className = '', children, startOnboarding = false, hideIcon = false }: GoogleSignInButtonProps) {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const supabase = createClient();
 
   const handleGoogleSignIn = async () => {
@@ -21,7 +23,7 @@ export function GoogleSignInButton({ className = '', children, startOnboarding =
       setLoading(true);
       // If we want to start onboarding flow first, just navigate there
       if (startOnboarding) {
-        window.location.href = '/onboarding';
+        router.push('/onboarding');
         return;
       }
       
