@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Shield } from 'lucide-react';
+import { X, Shield, Cookie } from 'lucide-react';
 import Link from 'next/link';
 
 export function CookieBanner() {
