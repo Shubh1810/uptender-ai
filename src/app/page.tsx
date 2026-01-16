@@ -148,6 +148,7 @@ function FeaturesSection({ features }: { features: Feature[] }) {
                 className="bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg group"
                 style={{
                   transform: `translateY(${initialY}px)`,
+                  boxShadow: '0 10px 15px -3px rgba(30, 58, 138, 0.2), 0 4px 6px -2px rgba(30, 58, 138, 0.15)',
                 }}
               >
                 <div className="flex items-center mb-6">
