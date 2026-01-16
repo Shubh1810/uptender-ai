@@ -41,6 +41,17 @@ export default function OnboardingClient() {
   const [isFullNameLocked, setIsFullNameLocked] = React.useState(false);
   const [company, setCompany] = React.useState('');
   const [businessType, setBusinessType] = React.useState('Proprietorship');
+
+  // Business type mapping: display name -> API value
+  const businessTypeMapping: Record<string, string> = {
+    'Proprietorship': 'Proprietorship',
+    'Private Limited': 'Pvt Ltd',
+    'Limited Liability Partnership': 'LLP',
+    'Micro, Small & Medium Enterprises (MSME)': 'MSME',
+    'Startup': 'Startup',
+    'Consultant': 'Consultant',
+    'Individual': 'Individual'
+  };
   const [gstNumber, setGstNumber] = React.useState('');
   const [years, setYears] = React.useState<number>(0);
   const [primaryIndustry, setPrimaryIndustry] = React.useState('');
@@ -270,10 +281,7 @@ export default function OnboardingClient() {
   // Step 3: AI Preferences (New simplified version)
   const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
   const [userGoal, setUserGoal] = React.useState<string>('');
-  const [categorySearch, setCategorySearch] = React.useState('');
-  const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
-  const [showCategoryDropdown, setShowCategoryDropdown] = React.useState(false);
-  const categoryInputRef = React.useRef<HTMLInputElement>(null);
+  const [tenderDocumentationComfort, setTenderDocumentationComfort] = React.useState<string>('');
 
   // Feature carousel state (only for step 1)
   const [activeFeatureIndex, setActiveFeatureIndex] = React.useState(0);
@@ -293,10 +301,78 @@ export default function OnboardingClient() {
     }
   ];
 
+  // Step 3 carousel state
+  const [activeStep3Index, setActiveStep3Index] = React.useState(0);
+
+  const step3Priorities = React.useMemo(() => [
+    {
+      text: "Tenders suitable for new bidders"
+    },
+    {
+      text: `Categories aligned with ${primaryIndustry || 'your industry'}`
+    },
+    {
+      text: "Opportunities with lower eligibility friction"
+    }
+  ], [primaryIndustry]);
+
+  // Dynamic advisor state for step 2
+  const [focusedField, setFocusedField] = React.useState<string | null>(null);
+
+  // Field insights for dynamic advisor
+  const getFieldInsight = (fieldName: string) => {
+    const insights: Record<string, { insight: string; whyItMatters: string; hint?: string }> = {
+      fullName: {
+        insight: "Used for official tender alerts and compliance records.",
+        whyItMatters: "Many tenders require named authorized contacts. Incorrect details can invalidate submissions."
+      },
+      company: {
+        insight: "We match tenders against company eligibility rules.",
+        whyItMatters: "PSU and government buyers often restrict bids by entity type and registration history.",
+        hint: "Tip: Use the exact name as on GST or incorporation documents."
+      },
+      businessType: {
+        insight: businessType === 'Proprietorship' 
+          ? "Certain tenders are legally restricted by business structure. We'll automatically hide tenders where proprietorships are ineligible."
+          : "Certain tenders are legally restricted by business structure.",
+        whyItMatters: businessType === 'Proprietorship'
+          ? "Many PSU tenders exclude proprietorships above certain contract values."
+          : "For example, many PSU tenders exclude proprietorships above certain contract values."
+      },
+      gstNumber: {
+        insight: "GST unlocks higher-value and compliance-heavy tenders.",
+        whyItMatters: "Without GST, we'll only surface exemption-friendly opportunities.",
+        hint: "Add GST to access 3–5× more tenders in your category."
+      },
+      years: {
+        insight: years <= 1
+          ? "Experience thresholds are one of the top rejection reasons. We'll prioritize startup-friendly and MSME-focused tenders."
+          : "Experience thresholds are one of the top rejection reasons.",
+        whyItMatters: "Many tenders require 2–5 years of operational history."
+      },
+      primaryIndustry: {
+        insight: "Industry selection powers our AI relevance scoring.",
+        whyItMatters: "We exclude tenders where technical criteria don't match your manufacturing or service profile."
+      },
+      secondaryIndustries: {
+        insight: secondaryIndustries.length === 3
+          ? "That's optimal. We'll keep matches tight."
+          : "Secondary industries expand reach without diluting relevance.",
+        whyItMatters: secondaryIndustries.length === 3
+          ? ""
+          : "We cap this to avoid flooding you with low-fit tenders."
+      }
+    };
+    return insights[fieldName] || { insight: "", whyItMatters: "" };
+  };
+
   // Reset carousel when step changes
   React.useEffect(() => {
     if (step === 1) {
       setActiveFeatureIndex(0);
+    }
+    if (step === 3) {
+      setActiveStep3Index(0);
     }
   }, [step]);
 
@@ -311,20 +387,36 @@ export default function OnboardingClient() {
     return () => clearInterval(interval);
   }, [step, features.length]);
 
+  // Auto-rotate carousel for step 3
+  React.useEffect(() => {
+    if (step !== 3) return;
+    
+    const interval = setInterval(() => {
+      setActiveStep3Index((prev) => (prev + 1) % step3Priorities.length);
+    }, 4000); // Change every 4 seconds
 
-  const roleOptions = ['Contractor', 'Consultant', 'Vendor', 'Supplier', 'New bidder'];
+    return () => clearInterval(interval);
+  }, [step, step3Priorities.length]);
+
+  // Reset focused field when step changes
+  React.useEffect(() => {
+    if (step !== 2) {
+      setFocusedField(null);
+    }
+  }, [step]);
+
+
+  const roleOptions = ['Manufacturer', 'Authorized Dealer / Distributor', 'Contractor / EPC', 'Service Provider', 'Consultant', 'New Bidder (≤ 2 years)'];
   const goalOptions = [
     { value: 'relevant_tenders', label: 'I want more relevant tenders' },
     { value: 'ai_bid_drafting', label: 'I want AI to help me draft bids' },
     { value: 'both', label: 'Both' }
   ];
 
-  const tenderCategories = [
-    'Healthcare & Medical', 'Construction & Infrastructure', 'IT & Technology',
-    'Manufacturing & Industrial', 'Consulting & Services', 'Education & Research',
-    'Agriculture & Rural', 'Energy & Power', 'Transportation & Logistics',
-    'Defense & Security', 'Finance & Banking', 'Telecommunications',
-    'Pharmaceuticals', 'Environmental Services', 'Real Estate'
+  const tenderDocumentationOptions = [
+    { value: 'experienced', label: "I've done this many times" },
+    { value: 'guided', label: 'I can manage with guidance' },
+    { value: 'new', label: "I'm new to this" }
   ];
 
   const toggleRole = (role: string) => {
@@ -333,24 +425,11 @@ export default function OnboardingClient() {
     );
   };
 
-  const toggleCategory = (category: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
-    );
-  };
-
-  const filterCategories = (searchTerm: string) => {
-    if (!searchTerm.trim()) return tenderCategories;
-    const lowerSearch = searchTerm.toLowerCase();
-    return tenderCategories.filter(cat =>
-      cat.toLowerCase().includes(lowerSearch)
-    );
-  };
 
   const steps = [
     { id: 1 as Step, label: 'Sign up / Login' },
     { id: 2 as Step, label: 'Company Snapshot' },
-    { id: 3 as Step, label: 'AI Preferences' },
+    { id: 3 as Step, label: 'Bid Intelligence Setup' },
   ] as const;
 
   // Refs for measuring dot positions
@@ -501,7 +580,7 @@ export default function OnboardingClient() {
         profile: {
           full_name: fullName || 'User',
           company,
-          business_type: businessType as any,
+          business_type: businessTypeMapping[businessType] || businessType,
           gst_number: gstNumber || undefined,
           years_in_operation: years,
           primary_industry: primaryIndustry,
@@ -513,10 +592,10 @@ export default function OnboardingClient() {
           frequency: 'daily' as const,
           alert_threshold: 70,
           keywords: [],
-          categories: selectedCategories,
           regions: [],
           roles: selectedRoles,
           user_goal: userGoal,
+          tender_documentation_comfort: tenderDocumentationComfort,
         },
       };
 
@@ -553,7 +632,7 @@ export default function OnboardingClient() {
   return (
     <div className="h-screen flex overflow-hidden">
       {/* Left Side - Hero Section */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-white p-4">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden p-4" style={{ backgroundColor: '#fefcf3' }}>
         {/* Background Image Container */}
         <div className="relative flex-1 rounded-2xl overflow-hidden">
           {/* Static Background Image */}
@@ -601,11 +680,21 @@ export default function OnboardingClient() {
             {/* Hero Content - Higher Up */}
             <div className="space-y-2 mb-auto text-center px-4 mt-8">
               <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
-                Welcome to <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>
+                {step === 1 && (
+                  <>Welcome to <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span></>
+                )}
+                {step === 2 && (
+                  <>We <span className="underline">tailor</span> <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span> for your business.</>
+                )}
+                {step === 3 && (
+                  <>Let <span className="font-inter">Tender</span><span className="font-kings -ml-1">Post</span>  work the way you do.</>
+                )}
               </h1>
-              <p className="text-lg lg:text-xl text-white/90 leading-relaxed">
-                Your Gateway to Smarter Tender Discovery
-              </p>
+              {step === 1 && (
+                <p className="text-lg lg:text-xl text-white/90 leading-relaxed">
+                  Your Gateway to Smarter Tender Discovery
+                </p>
+              )}
             </div>
 
             {/* Feature Carousel - Bottom Aligned (only for step 1) */}
@@ -664,32 +753,75 @@ export default function OnboardingClient() {
               </div>
             )}
             {step === 2 && (
-              <div className="space-y-6 max-w-lg mx-auto pb-8">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+              <div className="max-w-lg mx-auto pb-8 w-full">
+                {focusedField ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="text-xl lg:text-2xl font-semibold text-white leading-tight">
+                        {focusedField === 'fullName' && 'Full Name'}
+                        {focusedField === 'company' && 'Company Name'}
+                        {focusedField === 'businessType' && 'Business Type'}
+                        {focusedField === 'gstNumber' && 'GST Number'}
+                        {focusedField === 'years' && 'Years in Operation'}
+                        {focusedField === 'primaryIndustry' && 'Primary Industry'}
+                        {focusedField === 'secondaryIndustries' && 'Secondary Industries'}
+                      </h3>
+                      <p className="text-base lg:text-lg text-white/90 leading-relaxed">
+                        {getFieldInsight(focusedField).insight}
+                      </p>
+                    </div>
+                    {getFieldInsight(focusedField).whyItMatters && (
+                      <div className="pt-2 border-t border-white/20">
+                        <p className="text-sm text-white/70 italic">
+                          Why it matters: {getFieldInsight(focusedField).whyItMatters}
+                        </p>
+                      </div>
+                    )}
+                    {getFieldInsight(focusedField).hint && (
+                      <div className="pt-2">
+                        <p className="text-sm text-white/80 font-medium">
+                          {getFieldInsight(focusedField).hint}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">Company Profile</h3>
-                    <p className="text-white/80">Help us understand your business better</p>
+                ) : (
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl lg:text-2xl font-semibold text-white leading-tight">
+                      Company Profile
+                    </h3>
+                    <p className="text-sm lg:text-base text-white/80 leading-relaxed">
+                    Most vendors lose time chasing tenders they were never eligible for. These details help TenderPost filter those out automatically.
+                    </p>
                   </div>
-                </div>
+                )}
               </div>
             )}
             {step === 3 && (
-              <div className="space-y-6 max-w-lg mx-auto pb-8">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">AI Preferences</h3>
-                    <p className="text-white/80">Customize your tender discovery experience</p>
-                  </div>
+              <div className="max-w-lg mx-auto pb-8 w-full">
+                <div className="text-center space-y-4 mb-6">
+                  <h3 className="text-xl lg:text-2xl font-semibold text-white leading-tight">
+                    Based on your profile, we'll prioritize:
+                  </h3>
+                </div>
+                <div className="relative h-20 overflow-hidden">
+                  {/* Vertical Slot Machine Carousel */}
+                  {step3Priorities.map((priority, index) => (
+                    <div
+                      key={index}
+                      className="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out"
+                      style={{
+                        transform: `translateY(${(index - activeStep3Index) * 100}%)`,
+                        opacity: index === activeStep3Index ? 1 : 0
+                      }}
+                    >
+                      <div className="text-center px-2">
+                        <p className="text-base lg:text-lg text-white/90 leading-relaxed">
+                          {priority.text}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -742,36 +874,11 @@ export default function OnboardingClient() {
         </div>
 
         {/* Form Container - Scrollable */}
-        <div className={`flex-1 flex ${step === 2 ? 'flex-col' : 'items-center justify-center'} p-6 sm:p-8 overflow-y-auto`}>
-          <div className={`w-full ${step === 2 ? 'max-w-xl' : 'max-w-md'} mx-auto`}>
-            {/* Minimal Web3 Style Progress Indicator */}
-            <div className={`mb-10 flex-shrink-0`}>
-              <div className="relative flex items-center justify-center gap-3">
-                {/* Step Dots */}
-                {steps.map((s) => {
-                  const isCompleted = step > s.id;
-                  const isActive = step === s.id;
-                  
-                  return (
-                    <div 
-                      key={s.id} 
-                      className={`
-                        w-2 h-2 rounded-full transition-all duration-300
-                        ${isCompleted 
-                          ? 'bg-[#3d2817]' 
-                          : isActive
-                          ? 'bg-[#3d2817] scale-150'
-                          : 'bg-gray-300'
-                        }
-                      `}
-                    />
-                  );
-                })}
-              </div>
-            </div>
+        <div className={`flex-1 flex ${step === 2 || step === 3 ? 'flex-col' : 'items-center justify-center'} p-6 sm:p-8 overflow-y-auto`}>
+          <div className={`w-full ${step === 2 || step === 3 ? 'max-w-xl mt-12 sm:mt-16' : 'max-w-md'} mx-auto`}>
 
-            {/* Form Card - Containerless for step 2 */}
-            <div className={`${step === 2 ? 'px-4 sm:px-8' : step === 1 ? '' : 'rounded-2xl shadow-sm border border-gray-200 p-8'}`} style={step === 2 || step === 1 ? {} : { backgroundColor: '#fefcf3' }}>
+            {/* Form Card - Containerless for step 2 and 3 */}
+            <div className={`${step === 2 || step === 3 ? 'px-4 sm:px-8 pt-8' : step === 1 ? '' : 'rounded-2xl shadow-sm border border-gray-200 p-8'}`} style={step === 2 || step === 3 || step === 1 ? {} : { backgroundColor: '#fefcf3' }}>
               {/* Step Title */}
               {step === 1 ? (
                 <div className="mb-6">
@@ -793,20 +900,20 @@ export default function OnboardingClient() {
                   </p>
                 </div>
               ) : (
-                <div className={`${step === 2 ? 'mb-8 flex-shrink-0' : 'mb-6'}`}>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <div className={`${step === 2 || step === 3 ? 'mb-5 flex-shrink-0' : 'mb-6'}`}>
+                  <h2 className={`${step === 2 || step === 3 ? 'text-xl font-semibold' : 'text-2xl font-bold'} text-gray-900 ${step === 2 || step === 3 ? 'mb-0.5' : 'mb-2'}`}>
                     {step === 2 && 'Company Details'}
-                    {step === 3 && 'AI Preferences'}
+                    {step === 3 && 'Bid Intelligence Setup'}
                   </h2>
-                  <p className="text-sm text-gray-600">
-                    {step === 2 && 'Tell us about your business'}
-                    {step === 3 && 'Customize your AI assistant'}
+                  <p className={`${step === 2 || step === 3 ? 'text-xs text-gray-500' : 'text-sm text-gray-600'}`}>
+                    {step === 2 && 'Help us qualify and protect you from bad tenders'}
+                    {step === 3 && 'How you Win Tenders.'}
                   </p>
                 </div>
               )}
 
               {/* Form Content */}
-              <div className={step === 2 ? 'flex-shrink-0' : ''}>
+              <div className={step === 2 || step === 3 ? 'flex-shrink-0' : ''}>
               {step === 1 && (
                 <div className="space-y-6">
                   {/* Tab Switcher */}
@@ -877,7 +984,7 @@ export default function OnboardingClient() {
                   } : handleEmailSignIn} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Id
+                        Email Id <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
@@ -892,7 +999,7 @@ export default function OnboardingClient() {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="block text-sm font-medium text-gray-700">
-                          Password
+                          Password <span className="text-red-500">*</span>
                         </label>
                         <Link
                           href="/auth/reset-password"
@@ -1036,35 +1143,39 @@ export default function OnboardingClient() {
               )}
 
               {step === 2 && (
-                <div className="space-y-8">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Full Name</label>
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5 uppercase tracking-wider">Full Name <span className="text-red-500">*</span></label>
                     <input 
-                      className={`w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent ${isFullNameLocked ? 'bg-gray-50 cursor-not-allowed' : ''}`} 
+                      className={`w-full border-0 border-b border-gray-300 px-0 py-1 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors duration-200 bg-transparent ${isFullNameLocked ? 'bg-gray-50 cursor-not-allowed' : ''}`} 
                       placeholder="Enter your full name" 
                       value={fullName} 
                       onChange={e => setFullName(e.target.value)} 
+                      onFocus={() => setFocusedField('fullName')}
                       disabled={isFullNameLocked}
                       readOnly={isFullNameLocked}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Company Name</label>
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5 uppercase tracking-wider">Company Name <span className="text-red-500">*</span></label>
                     <input 
-                      className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent" 
+                      className="w-full border-0 border-b border-gray-300 px-0 py-1 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors duration-200 bg-transparent" 
                       placeholder="Enter company name" 
                       value={company} 
                       onChange={e => setCompany(e.target.value)} 
+                      onFocus={() => setFocusedField('company')}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Business Type</label>
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5 uppercase tracking-wider">Business Type <span className="text-red-500">*</span></label>
                     <select 
-                      className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 bg-transparent cursor-pointer focus:outline-none focus:border-gray-900 transition-colors" 
+                      className="w-full border-0 border-b border-gray-300 px-0 py-1 text-sm text-gray-900 bg-transparent cursor-pointer focus:outline-none focus:border-gray-900 transition-colors duration-200 appearance-none bg-no-repeat bg-right pr-5" 
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0 top 50%' }}
                       value={businessType} 
                       onChange={e => setBusinessType(e.target.value)}
+                      onFocus={() => setFocusedField('businessType')}
                     >
                       {['Proprietorship','Private Limited','Limited Liability Partnership','Micro, Small & Medium Enterprises (MSME)','Startup','Consultant','Individual'].map(o => (
                         <option key={o} value={o}>{o}</option>
@@ -1073,21 +1184,25 @@ export default function OnboardingClient() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">GST Number <span className="normal-case font-normal text-gray-400">(Optional)</span></label>
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5 uppercase tracking-wider">GST Number <span className="normal-case font-normal text-gray-400">(Optional)</span></label>
                     <input 
-                      className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent" 
+                      className="w-full border-0 border-b border-gray-300 px-0 py-1 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors duration-200 bg-transparent" 
                       placeholder="Enter GST number" 
                       value={gstNumber} 
                       onChange={e => setGstNumber(e.target.value)} 
+                      onFocus={() => setFocusedField('gstNumber')}
                     />
+                    <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">Add GST to access 3–5× more tenders in your category</p>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Years in Operation</label>
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5 uppercase tracking-wider">Years in Operation <span className="text-red-500">*</span></label>
                     <select 
-                      className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 bg-transparent cursor-pointer focus:outline-none focus:border-gray-900 transition-colors" 
+                      className="w-full border-0 border-b border-gray-300 px-0 py-1 text-sm text-gray-900 bg-transparent cursor-pointer focus:outline-none focus:border-gray-900 transition-colors duration-200 appearance-none bg-no-repeat bg-right pr-5" 
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0 top 50%' }}
                       value={years} 
                       onChange={e => setYears(parseInt(e.target.value))}
+                      onFocus={() => setFocusedField('years')}
                     >
                       {Array.from({ length: 21 }, (_, i) => i).map(v => (
                         <option key={v} value={v}>{v === 20 ? '20+' : v}</option>
@@ -1096,7 +1211,7 @@ export default function OnboardingClient() {
                   </div>
                   {/* Primary Industry Autocomplete */}
                   <div className="relative">
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Primary Industry</label>
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5 uppercase tracking-wider">Primary Industry <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <input
                         ref={primaryInputRef}
@@ -1107,9 +1222,12 @@ export default function OnboardingClient() {
                           setPrimarySearch(e.target.value);
                           setShowPrimaryDropdown(true);
                         }}
-                        onFocus={() => setShowPrimaryDropdown(true)}
+                        onFocus={() => {
+                          setFocusedField('primaryIndustry');
+                          setShowPrimaryDropdown(true);
+                        }}
                         onBlur={() => setTimeout(() => setShowPrimaryDropdown(false), 200)}
-                        className="w-full border-0 border-b-2 border-gray-200 px-0 py-1.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent"
+                        className="w-full border-0 border-b border-gray-300 px-0 py-1 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors duration-200 bg-transparent"
                       />
                       {primaryIndustry && (
                         <button
@@ -1118,20 +1236,20 @@ export default function OnboardingClient() {
                             setPrimaryIndustry('');
                             setPrimarySearch('');
                           }}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-base leading-none"
                         >
                           ×
                         </button>
                       )}
                     </div>
                     {primaryIndustry && (
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                      <div className="mt-1.5 flex items-center gap-1.5">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs border border-blue-100">
                           {primaryIndustry}
                           <button 
                             type="button" 
                             onClick={() => setPrimaryIndustry('')}
-                            className="hover:text-blue-900"
+                            className="hover:text-blue-900 text-xs leading-none"
                           >
                             ×
                           </button>
@@ -1139,19 +1257,19 @@ export default function OnboardingClient() {
                       </div>
                     )}
                     {showPrimaryDropdown && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div className="absolute z-10 w-full mt-0.5 bg-white border border-gray-200 rounded shadow-lg max-h-60 overflow-y-auto">
                         {filterIndustries(primarySearch).map((industry) => (
                           <button
                             key={industry} 
                             type="button"
                             onClick={() => handlePrimarySelect(industry)}
-                            className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm border-b border-gray-100 last:border-b-0"
+                            className="w-full text-left px-2.5 py-1.5 hover:bg-blue-50 text-xs border-b border-gray-50 last:border-b-0 transition-colors"
                           >
                                 {industry}
                           </button>
                         ))}
                         {filterIndustries(primarySearch).length === 0 && (
-                          <div className="px-3 py-2 text-sm text-gray-500">No industries found</div>
+                          <div className="px-2.5 py-1.5 text-xs text-gray-500">No industries found</div>
                         )}
                     </div>
                     )}
@@ -1159,7 +1277,7 @@ export default function OnboardingClient() {
 
                   {/* Secondary Industries Autocomplete */}
                   <div className="relative">
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5 uppercase tracking-wider">
                       Secondary Industries <span className="normal-case font-normal text-gray-400">(up to 3)</span>
                     </label>
                     <div className="relative">
@@ -1172,24 +1290,27 @@ export default function OnboardingClient() {
                           setSecondarySearch(e.target.value);
                           setShowSecondaryDropdown(true);
                         }}
-                        onFocus={() => setShowSecondaryDropdown(true)}
+                        onFocus={() => {
+                          setFocusedField('secondaryIndustries');
+                          setShowSecondaryDropdown(true);
+                        }}
                         onBlur={() => setTimeout(() => setShowSecondaryDropdown(false), 200)}
                         disabled={secondaryIndustries.length >= 3}
-                        className="w-full border-0 border-b-2 border-gray-200 px-0 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full border-0 border-b border-gray-300 px-0 py-1 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 transition-colors duration-200 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                     {secondaryIndustries.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      <div className="mt-1.5 flex flex-wrap gap-1.5">
                         {secondaryIndustries.map((industry) => (
                           <span
                             key={industry}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 rounded text-xs border border-green-100"
                           >
                             {industry}
                           <button 
                             type="button" 
                               onClick={() => removeSecondaryIndustry(industry)}
-                              className="hover:text-green-900"
+                              className="hover:text-green-900 text-xs leading-none"
                             >
                               ×
                             </button>
@@ -1198,7 +1319,7 @@ export default function OnboardingClient() {
                       </div>
                     )}
                     {showSecondaryDropdown && secondaryIndustries.length < 3 && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div className="absolute z-10 w-full mt-0.5 bg-white border border-gray-200 rounded shadow-lg max-h-60 overflow-y-auto">
                         {filterIndustries(secondarySearch)
                           .filter(industry => !secondaryIndustries.includes(industry))
                           .map((industry) => (
@@ -1206,13 +1327,13 @@ export default function OnboardingClient() {
                             key={industry} 
                               type="button"
                               onClick={() => handleSecondarySelect(industry)}
-                              className="w-full text-left px-3 py-2 hover:bg-green-50 text-sm border-b border-gray-100 last:border-b-0"
+                              className="w-full text-left px-2.5 py-1.5 hover:bg-green-50 text-xs border-b border-gray-50 last:border-b-0 transition-colors"
                           >
                             {industry}
                           </button>
                         ))}
                         {filterIndustries(secondarySearch).filter(industry => !secondaryIndustries.includes(industry)).length === 0 && (
-                          <div className="px-3 py-2 text-sm text-gray-500">
+                          <div className="px-2.5 py-1.5 text-xs text-gray-500">
                             {secondarySearch ? 'No industries found' : 'All matching industries selected'}
                       </div>
                         )}
@@ -1220,17 +1341,18 @@ export default function OnboardingClient() {
                     )}
                   </div>
 
-                  <div className="flex gap-3 pt-8">
+                  <div className="flex gap-2.5 pt-6">
                     <Button 
                       variant="outline" 
                       onClick={() => setStep(1)}
-                      className="flex-1 border border-gray-300 hover:bg-gray-50 py-2.5"
+                      className="flex-1 border border-gray-300 hover:bg-gray-50 py-2 text-sm font-medium"
                     >
                       Back
                     </Button>
                     <Button 
+                      disabled={!fullName || !company || !primaryIndustry}
                       onClick={() => setStep(3)}
-                      className="flex-1 bg-[#3d2817] hover:bg-[#2d1f12] text-white py-2.5"
+                      className="flex-1 bg-[#3d2817] hover:bg-[#2d1f12] text-white py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </Button>
@@ -1239,88 +1361,25 @@ export default function OnboardingClient() {
               )}
 
               {step === 3 && (
-                <div className="space-y-6">
-                  {/* Categories of Interest */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Categories of Interest
-                    </label>
-                    <div className="relative">
-                      <input
-                        ref={categoryInputRef}
-                        type="text"
-                        placeholder="Search categories..."
-                        value={categorySearch}
-                        onChange={(e) => {
-                          setCategorySearch(e.target.value);
-                          setShowCategoryDropdown(true);
-                        }}
-                        onFocus={() => setShowCategoryDropdown(true)}
-                        onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 200)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      />
-                    </div>
-                    {selectedCategories.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {selectedCategories.map((category) => (
-                          <span
-                            key={category}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
-                          >
-                            {category}
-                            <button
-                              type="button"
-                              onClick={() => toggleCategory(category)}
-                              className="hover:text-purple-900"
-                            >
-                              ×
-                            </button>
-                          </span>
-                    ))}
-                  </div>
-                    )}
-                    {showCategoryDropdown && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
-                        {filterCategories(categorySearch).map((category) => (
-                          <button
-                            key={category}
-                            type="button"
-                            onClick={() => {
-                              toggleCategory(category);
-                              setCategorySearch('');
-                            }}
-                            className={`w-full text-left px-3 py-2 hover:bg-purple-50 text-sm border-b border-gray-100 last:border-b-0 ${
-                              selectedCategories.includes(category) ? 'bg-purple-50 font-medium' : ''
-                            }`}
-                          >
-                            {category}
-                            {selectedCategories.includes(category) && (
-                              <span className="float-right text-purple-600">✓</span>
-                            )}
-                          </button>
-                        ))}
-                  </div>
-                    )}
-                  </div>
-
+                <div className="space-y-4">
                   {/* Role Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Your Role
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5 uppercase tracking-wider">
+                      Your Role <span className="text-red-500">*</span>
                     </label>
-                    <p className="text-xs text-gray-500 mb-3">
+                    <p className="text-[10px] text-gray-400 mb-2 leading-relaxed">
                       Select roles that best describe your business
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {roleOptions.map((role) => (
                         <button
                           key={role}
                           type="button"
                           onClick={() => toggleRole(role)}
-                          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                          className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
                             selectedRoles.includes(role)
                               ? 'bg-[#3d2817] text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              : 'bg-[#efe8dc] text-[#3d2817] hover:bg-[#e0d4c0] border border-[#8b7355]'
                           }`}
                         >
                           {role}
@@ -1329,18 +1388,41 @@ export default function OnboardingClient() {
                     </div>
                   </div>
 
+                  {/* Tender Documentation Comfort */}
+                  <div>
+                    <label className="block text-[10px] font-medium text-gray-500 mb-1.5 uppercase tracking-wider">
+                      How comfortable are you with tender documentation? <span className="text-red-500">*</span>
+                    </label>
+                    <div className="space-y-2">
+                      {tenderDocumentationOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setTenderDocumentationComfort(option.value)}
+                          className={`w-full text-left px-3 py-2 rounded border transition-all duration-200 text-sm ${
+                            tenderDocumentationComfort === option.value
+                              ? 'border-[#3d2817] bg-[#f5f0e8] text-[#3d2817] font-medium'
+                              : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* User Goal */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      What Describes You Best?
+                    <label className="block text-[10px] font-medium text-gray-500 mb-1.5 uppercase tracking-wider">
+                      What Describes You Best? <span className="text-red-500">*</span>
                     </label>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {goalOptions.map((option) => (
                         <button
                           key={option.value}
                           type="button"
                           onClick={() => setUserGoal(option.value)}
-                          className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
+                          className={`w-full text-left px-3 py-2 rounded border transition-all duration-200 text-sm ${
                             userGoal === option.value
                               ? 'border-[#3d2817] bg-[#f5f0e8] text-[#3d2817] font-medium'
                               : 'border-gray-200 hover:border-gray-300 text-gray-700'
@@ -1352,18 +1434,18 @@ export default function OnboardingClient() {
                     </div>
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex gap-2.5 pt-6">
                     <Button 
                       variant="outline" 
                       onClick={() => setStep(2)}
-                      className="flex-1 border-2 border-gray-300 hover:bg-gray-50 py-3"
+                      className="flex-1 border border-gray-300 hover:bg-gray-50 py-2 text-sm font-medium"
                     >
                       Back
                     </Button>
                     <Button 
-                      disabled={loading} 
+                      disabled={loading || selectedRoles.length === 0 || !userGoal || !tenderDocumentationComfort} 
                       onClick={submitOnboarding}
-                      className="flex-1 bg-[#3d2817] hover:bg-[#2d1f12] text-white py-3 disabled:opacity-50"
+                      className="flex-1 bg-[#3d2817] hover:bg-[#2d1f12] text-white py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? 'Saving...' : 'Finish Setup'}
                     </Button>

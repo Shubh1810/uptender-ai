@@ -25,6 +25,12 @@ const preferencesSchema = z.object({
   keywords: z.array(z.string()).default([]),
   categories: z.array(z.string()).default([]),
   regions: z.array(z.string()).default([]),
+  // New Step 3 fields from Bid Intelligence Setup
+  roles: z.array(z.string()).min(1, 'At least one role must be selected'),
+  user_goal: z.string().min(1, 'User goal is required'),
+  tender_documentation_comfort: z.enum(['experienced', 'guided', 'new'], {
+    required_error: 'Tender documentation comfort level is required'
+  }),
 });
 
 const payloadSchema = z.object({
@@ -96,6 +102,10 @@ export async function POST(req: Request) {
         keywords: pref.keywords,
         categories: pref.categories,
         regions: pref.regions,
+        // New Step 3 fields
+        roles: pref.roles,
+        user_goal: pref.user_goal,
+        tender_documentation_comfort: pref.tender_documentation_comfort,
         updated_at: new Date().toISOString(),
       })
       .select();

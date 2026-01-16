@@ -385,10 +385,13 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-zinc-900">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: '#fefcf3' }}
+      >
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <div className="w-16 h-16 border-4 border-[#3d2817] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#3d2817] text-sm font-medium">Loading...</p>
         </div>
       </div>
     );
