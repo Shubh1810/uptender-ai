@@ -38,6 +38,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { identifyUser, trackUserSignedOut, trackDashboardViewed } from '@/lib/posthog/events';
+import { resetAuthState } from '@/hooks/useAuth';
 
 // Tab interface
 interface Tab {
@@ -239,19 +240,27 @@ export default function DashboardLayout({
 
     const getUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Use getUser() instead of getSession() — getUser() validates the
+        // JWT with the Supabase server, while getSession() reads from local
+        // storage without verification and can return stale/revoked sessions.
+        const { data: { user: authUser }, error } = await supabase.auth.getUser();
         
-        if (session?.user && mounted) {
-          setUser(session.user);
+        if (error || !authUser) {
+          if (mounted) {
+            router.push('/');
+          }
+          return;
+        }
+
+        if (mounted) {
+          setUser(authUser);
           
           // Identify user in PostHog
           identifyUser({
-            userId: session.user.id,
-            email: session.user.email,
-            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+            userId: authUser.id,
+            email: authUser.email,
+            name: authUser.user_metadata?.full_name || authUser.user_metadata?.name,
           });
-        } else if (mounted) {
-          router.push('/');
         }
       } catch (error) {
         console.error('Error getting user:', error);
@@ -281,16 +290,28 @@ export default function DashboardLayout({
 
   const handleSignOut = async () => {
     try {
-      // Sign out from Supabase FIRST - don't let analytics block this
-      const { error } = await supabase.auth.signOut({
-        scope: 'global'
-      });
-
-      if (error) {
-        console.error('Sign out error:', error);
+      // 1. Server-side sign-out FIRST — this creates a response with
+      //    proper Set-Cookie headers that expire/delete the auth cookies.
+      //    This is critical because the client-side signOut() alone cannot
+      //    reliably clear HTTP cookies before the redirect fires, and the
+      //    middleware would otherwise refresh the session on the next request.
+      try {
+        await fetch('/api/auth/signout', { method: 'POST' });
+      } catch (fetchErr) {
+        console.error('Server sign-out request failed:', fetchErr);
+        // Continue anyway — the client-side signOut below will still clear
+        // local state, and the middleware will reject the stale cookies.
       }
 
-      // Clear all localStorage items that might hold user data
+      // 2. Client-side sign-out — clears browser cookies and local storage
+      //    managed by the Supabase client. Using 'local' scope here because
+      //    the server route already revoked sessions globally.
+      await supabase.auth.signOut({ scope: 'local' });
+
+      // 3. Reset the useAuth singleton so it doesn't hold a stale user
+      resetAuthState();
+
+      // 4. Clear all localStorage items that might hold user data
       try {
         localStorage.removeItem('saved_tender_ids');
         localStorage.removeItem('tender_cache');
@@ -301,23 +322,26 @@ export default function DashboardLayout({
         console.error('localStorage cleanup error:', storageError);
       }
 
-      // Track sign-out AFTER it completes (fire-and-forget, with timeout)
+      // 5. Track sign-out (fire-and-forget with timeout — never blocks redirect)
       try {
         const trackingPromise = Promise.race([
           trackUserSignedOut(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Tracking timeout')), 1000))
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Tracking timeout')), 1000)
+          ),
         ]);
-        trackingPromise.catch(err => console.warn('PostHog tracking failed:', err));
+        trackingPromise.catch((err) =>
+          console.warn('PostHog tracking failed:', err)
+        );
       } catch (trackingError) {
-        // Never let tracking errors block sign-out
         console.warn('PostHog tracking error:', trackingError);
       }
 
-      // Force full page reload to clear all state
+      // 6. Hard redirect to clear all in-memory React state
       window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
-      // Force redirect even on error - always complete sign-out
+      // Always complete sign-out — force redirect even on error
       window.location.href = '/';
     }
   };
