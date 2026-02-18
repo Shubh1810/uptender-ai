@@ -265,7 +265,7 @@ export default function DashboardLayout({
     // Single listener — only handles SIGNED_OUT to null-out local state.
     // Token refreshes and session updates are handled by the middleware and
     // the useAuth singleton; we don't duplicate that work here.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string) => {
       if (event === 'SIGNED_OUT' && mounted) {
         setUser(null);
       }
@@ -277,53 +277,47 @@ export default function DashboardLayout({
     };
   }, [router, supabase.auth]);
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
+    // 1. Tear down the useAuth singleton so no component re-renders
+    //    with stale data while the sign-out navigation is in flight.
+    resetAuthState();
+
+    // 2. Client-side sign-out (fire-and-forget). Clears Supabase
+    //    localStorage tokens and non-HttpOnly cookies.
+    supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+
+    // 3. Nuclear localStorage cleanup. If step 2 raced or failed,
+    //    lingering sb-*-auth-token keys cause auto-re-login on the
+    //    next page load.
     try {
-      // 1. Tear down the useAuth singleton immediately so no component
-      //    re-renders with stale user data while cleanup is in progress.
-      resetAuthState();
-
-      // 2. Server-side sign-out — the ONLY reliable way to clear HttpOnly
-      //    auth cookies. The route explicitly expires every sb-* cookie on
-      //    the response, and the browser processes Set-Cookie headers from
-      //    same-origin fetch automatically.
-      try {
-        await fetch('/api/auth/signout', {
-          method: 'POST',
-          credentials: 'same-origin',
-        });
-      } catch (fetchErr) {
-        console.error('Server sign-out request failed:', fetchErr);
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('sb-') || key.startsWith('supabase'))) {
+          keysToRemove.push(key);
+        }
       }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+      localStorage.removeItem('saved_tender_ids');
+      localStorage.removeItem('tender_cache');
+      localStorage.removeItem('tender_cache_timestamp');
+      localStorage.removeItem('last_refresh_timestamp');
+    } catch { /* private browsing */ }
 
-      // 3. Client-side sign-out — clears any non-HttpOnly cookies and
-      //    Supabase's internal localStorage entries. Using 'local' scope
-      //    because the server route already revoked the session globally.
-      try {
-        await supabase.auth.signOut({ scope: 'local' });
-      } catch {
-        // Swallow — cookies already cleared server-side.
-      }
+    // 4. Fire-and-forget analytics.
+    try { trackUserSignedOut(); } catch { /* non-critical */ }
 
-      // 4. Clear app-specific localStorage (keep theme/consent prefs).
-      try {
-        localStorage.removeItem('saved_tender_ids');
-        localStorage.removeItem('tender_cache');
-        localStorage.removeItem('tender_cache_timestamp');
-        localStorage.removeItem('last_refresh_timestamp');
-      } catch {
-        // Private browsing or quota errors — not critical.
-      }
-
-      // 5. Fire-and-forget analytics.
-      try { trackUserSignedOut(); } catch { /* non-critical */ }
-    } catch (error) {
-      console.error('Sign out error:', error);
-    } finally {
-      // 6. ALWAYS hard-redirect — clears all in-memory React state,
-      //    pending requests, and WebSocket connections.
-      window.location.href = '/';
-    }
+    // 5. Navigate to the signout API route via a real form submission.
+    //    This is the ONLY cross-browser way to reliably clear HttpOnly
+    //    cookies. Safari silently ignores Set-Cookie headers from
+    //    fetch() responses, but always processes them on 302 redirects
+    //    from a real navigation. The route clears all sb-* cookies
+    //    then redirects to "/".
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/auth/signout?redirect=/';
+    document.body.appendChild(form);
+    form.submit();
   };
 
   // Check onboarding status and progress

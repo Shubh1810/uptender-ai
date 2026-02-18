@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { GoogleSignInButton } from '@/components/ui/google-signin-button';
+
 import { createClient } from '@/lib/supabase/client';
 
 type Step = 1 | 2 | 3;
@@ -481,21 +481,19 @@ export default function OnboardingClient() {
       return; // Don't check onboarding if step is explicitly set
     }
 
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(({ data }: { data: { user: import('@supabase/supabase-js').User | null } }) => {
       if (data.user) {
-        // First, extract OAuth name from user_metadata
         const oauthFullName = 
           data.user.user_metadata?.full_name || 
           data.user.user_metadata?.name || 
           data.user.user_metadata?.display_name;
         
-        // Check if user has completed onboarding before redirecting to step 2
         supabase
           .from('profiles')
           .select('onboarding_completed, full_name')
           .eq('id', data.user.id)
           .maybeSingle()
-          .then(({ data: profile, error }) => {
+          .then(({ data: profile, error }: { data: { onboarding_completed?: boolean | string; full_name?: string } | null; error: unknown }) => {
             if (error) {
               console.error('Error fetching profile:', error);
               // On error, default to step 2 and use OAuth name if available
@@ -1068,10 +1066,15 @@ export default function OnboardingClient() {
                       onClick={async () => {
                         setLoading(true);
                         try {
+                          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
                           const { error } = await supabase.auth.signInWithOAuth({
                             provider: 'google',
                             options: {
-                              redirectTo: `${window.location.origin}/auth/callback`,
+                              redirectTo: `${siteUrl}/auth/callback`,
+                              queryParams: {
+                                access_type: 'offline',
+                                prompt: 'select_account',
+                              },
                             },
                           });
                           if (error) {
@@ -1101,10 +1104,11 @@ export default function OnboardingClient() {
                       onClick={async () => {
                         setLoading(true);
                         try {
+                          const appleSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
                           const { error } = await supabase.auth.signInWithOAuth({
                             provider: 'apple',
                             options: {
-                              redirectTo: `${window.location.origin}/auth/callback`,
+                              redirectTo: `${appleSiteUrl}/auth/callback`,
                             },
                           });
                           if (error) {

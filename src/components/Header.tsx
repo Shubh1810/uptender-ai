@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePostHog } from 'posthog-js/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { GoogleSignInButton } from '@/components/ui/google-signin-button';
+import { GetStartedButton } from '@/components/ui/get-started-button';
 import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
 import { useAuth } from '@/hooks/useAuth';
 import { User } from '@supabase/supabase-js';
@@ -198,10 +198,10 @@ function MainNavigation() {
         </Link>
       ) : (
         // Not logged in - show Get started button
-        <GoogleSignInButton hideIcon startOnboarding className="get-started-cta">
+        <GetStartedButton hideIcon startOnboarding className="get-started-cta">
           <span className="hidden md:inline">Get started</span>
           <span className="md:hidden">Get started</span>
-        </GoogleSignInButton>
+        </GetStartedButton>
       )}
     </nav>
   );
@@ -238,9 +238,9 @@ export function InternalPageNavigation() {
           )}
         </Link>
       ) : (
-        <GoogleSignInButton hideIcon startOnboarding className="get-started-cta text-sm">
+        <GetStartedButton hideIcon startOnboarding className="get-started-cta text-sm">
           <span>Get started</span>
-        </GoogleSignInButton>
+        </GetStartedButton>
       )}
     </nav>
   );
@@ -298,9 +298,9 @@ export function InternalPageDesktopNav() {
           )}
         </Link>
       ) : (
-        <GoogleSignInButton hideIcon startOnboarding className="get-started-cta text-base">
+        <GetStartedButton hideIcon startOnboarding className="get-started-cta text-base">
           <span>Get started</span>
-        </GoogleSignInButton>
+        </GetStartedButton>
       )}
     </nav>
   );

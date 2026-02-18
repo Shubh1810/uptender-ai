@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { GoogleSignInButton } from '@/components/ui/google-signin-button';
+import { GetStartedButton } from '@/components/ui/get-started-button';
 import { createClient } from '@/lib/supabase/client';
 
 export default function SignUpPage() {
@@ -55,7 +55,7 @@ export default function SignUpPage() {
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`,
         },
       });
 
@@ -154,17 +154,18 @@ export default function SignUpPage() {
 
           {/* Social Sign-up Buttons */}
           <div className="space-y-3 mb-6">
-            <GoogleSignInButton className="w-full relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 px-4 py-2.5" />
+            <GetStartedButton className="w-full relative bg-white hover:bg-blue-900 text-gray-900 hover:text-white border-2 border-transparent bg-clip-padding shadow-md hover:shadow-lg transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:m-[-2px] before:rounded-[inherit] before:bg-gradient-to-r before:from-blue-900 before:via-blue-600 before:to-sky-400 hover:before:bg-blue-900 px-4 py-2.5" />
 
             <button
               type="button"
               onClick={async () => {
                 setLoading(true);
                 try {
+                  const appleSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
                   const { error } = await supabase.auth.signInWithOAuth({
                     provider: 'apple',
                     options: {
-                      redirectTo: `${window.location.origin}/auth/callback`,
+                      redirectTo: `${appleSiteUrl}/auth/callback`,
                     },
                   });
                   if (error) {

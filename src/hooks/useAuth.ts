@@ -1,38 +1,32 @@
 /**
  * Shared authentication hook — singleton pattern.
  *
- * Only ONE onAuthStateChange listener exists across the entire app,
- * no matter how many components call useAuth().
+ * Only ONE onAuthStateChange listener exists across the entire app.
  *
  * Exports:
  *  - useAuth()        — React hook returning { user, loading }
- *  - resetAuthState() — imperative helper called during sign-out to
- *                        immediately clear cached state and tear down
- *                        the listener so it re-initialises on next mount.
+ *  - resetAuthState() — imperative helper called during sign-out
  */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
 
-// ── Module-level singleton state ──────────────────────────────────────
 let cachedUser: User | null = null;
 let initialized = false;
 let listeners: Set<() => void> = new Set();
 let authSubscription: { unsubscribe: () => void } | null = null;
+let signingOut = false;
 
 function notifyListeners() {
   listeners.forEach((fn) => fn());
 }
 
-/**
- * Call during sign-out to immediately clear the cached user,
- * notify all subscribers, and tear down the global auth listener.
- */
 export function resetAuthState() {
+  signingOut = true;
   cachedUser = null;
-  initialized = false;
+  initialized = true;
 
   if (authSubscription) {
     authSubscription.unsubscribe();
@@ -44,10 +38,14 @@ export function resetAuthState() {
 
 function initializeAuthListener() {
   if (authSubscription) return;
+  // Don't re-initialize during sign-out — the hard redirect will
+  // load a fresh page that starts from scratch.
+  if (signingOut) return;
 
   const supabase = createClient();
 
-  supabase.auth.getUser().then(({ data: { user } }) => {
+  supabase.auth.getUser().then(({ data: { user } }: { data: { user: User | null } }) => {
+    if (signingOut) return;
     cachedUser = user ?? null;
     initialized = true;
     notifyListeners();
@@ -55,7 +53,9 @@ function initializeAuthListener() {
 
   const {
     data: { subscription },
-  } = supabase.auth.onAuthStateChange((event, session) => {
+  } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+    if (signingOut) return;
+
     if (event === 'SIGNED_OUT') {
       cachedUser = null;
       initialized = true;
@@ -73,7 +73,6 @@ function initializeAuthListener() {
   authSubscription = subscription;
 }
 
-// ── React hook ────────────────────────────────────────────────────────
 export function useAuth() {
   const [user, setUser] = useState<User | null>(cachedUser);
   const [loading, setLoading] = useState(!initialized);
@@ -86,8 +85,6 @@ export function useAuth() {
       setLoading(!initialized);
     };
     listeners.add(listener);
-
-    // Sync with latest value in case it resolved between render and effect.
     listener();
 
     return () => {
