@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend to avoid build-time errors
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -114,7 +125,8 @@ export async function POST(request: NextRequest) {
     `;
 
     // Send notification email to admin
-    const notificationEmail = await resend.emails.send({
+    const resendClient = getResendClient();
+    const notificationEmail = await resendClient.emails.send({
       from: 'TenderPost Contact <onboarding@resend.dev>',
       to: process.env.NOTIFICATION_EMAIL || 'sales@tenderpost.org',
       subject: `New Contact Form: ${name}`,
@@ -187,7 +199,7 @@ export async function POST(request: NextRequest) {
       </html>
     `;
 
-    await resend.emails.send({
+    await resendClient.emails.send({
       from: 'TenderPost <onboarding@resend.dev>',
       to: email,
       subject: 'We received your message - TenderPost',

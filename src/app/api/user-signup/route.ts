@@ -2,7 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { getWelcomeEmailHTML } from '@/components/email-templates/welcome-email';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend to avoid build-time errors
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +46,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Send full welcome email to the user from onboarding
-    const welcomeEmail = await resend.emails.send({
+    const resendClient = getResendClient();
+    const welcomeEmail = await resendClient.emails.send({
       from: 'TenderPost Onboarding <onboarding@resend.dev>',
       to: [email],
       subject: '🎉 Welcome to TenderPost - Let\'s Get Started!',

@@ -1,7 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend to avoid build-time errors
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +51,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Send waitlist confirmation email to the user
-    const waitlistEmail = await resend.emails.send({
+    const resendClient = getResendClient();
+    const waitlistEmail = await resendClient.emails.send({
       from: 'TenderPost Waitlist <onboarding@resend.dev>',
       to: [email],
       subject: '✅ You\'re on the TenderPost Waitlist!',
@@ -80,7 +93,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Send simple notification to sales team from analytics
-    const salesEmail = await resend.emails.send({
+    const salesEmail = await resendClient.emails.send({
       from: 'TenderPost Analytics <analytics@resend.dev>',
       to: ['shethshubh@gmail.com'],
       subject: 'New Waitlist Signup - TenderPost (Sales Notification)',
