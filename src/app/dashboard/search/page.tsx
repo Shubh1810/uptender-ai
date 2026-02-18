@@ -86,28 +86,22 @@ export default function SearchPage() {
 
   // Auth check and load saved tenders
   useEffect(() => {
-    const getUser = async () => {
+    let mounted = true;
+
+    const init = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        // Handle auth errors (like invalid refresh token)
-        if (error) {
-          console.error('Auth error:', error.message);
-          // Clear invalid session and redirect
-          await supabase.auth.signOut();
-          router.push('/');
+        const { data: { user: authUser }, error } = await supabase.auth.getUser();
+
+        if (error || !authUser) {
+          if (mounted) window.location.href = '/';
           return;
         }
-        
-        if (!session?.user) {
-          router.push('/');
-          return;
-        }
-        
-        setUser(session.user);
-        
-        // Load saved tenders from localStorage
-        const savedData = loadTendersFromLocalStorage(session.user.id);
+
+        if (!mounted) return;
+
+        setUser(authUser);
+
+        const savedData = loadTendersFromLocalStorage(authUser.id);
         if (savedData && savedData.tenders.length > 0) {
           setTenders(savedData.tenders);
           setTotalCount(savedData.totalCount);
@@ -115,21 +109,14 @@ export default function SearchPage() {
           setSearchQuery(savedData.searchQuery);
           setLastFetchTime(new Date(savedData.lastFetched).toLocaleTimeString());
           setLoadedFromCache(true);
-          
-          // Check if data is fresh
-          const isFresh = isStoredDataFresh(savedData.lastFetched);
-          console.log(
-            `📦 Loaded ${savedData.tenders.length} tenders from localStorage (${isFresh ? 'fresh' : 'stale - consider refreshing'})`
-          );
         }
-        // Note: If no localStorage data, user clicks "Search" to fetch from Supabase snapshot
-      } catch (error) {
-        console.error('Error in getUser:', error);
-        // On any error, redirect to home
-        router.push('/');
+      } catch {
+        if (mounted) window.location.href = '/';
       }
     };
-    getUser();
+
+    init();
+    return () => { mounted = false; };
   }, [router, supabase.auth]);
 
   // Fetch tenders from API

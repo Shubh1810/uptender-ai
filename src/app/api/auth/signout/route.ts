@@ -1,31 +1,44 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { type NextRequest, NextResponse } from 'next/server';
 
-export async function POST() {
-  try {
-    const supabase = await createClient();
+export async function POST(request: NextRequest) {
+  const response = NextResponse.json({ success: true });
 
-    // Server-side signOut properly clears cookies via Set-Cookie response headers.
-    // Using 'global' scope revokes ALL sessions for this user across all devices.
-    const { error } = await supabase.auth.signOut({ scope: 'global' });
-
-    if (error) {
-      console.error('Server sign-out error:', error.message);
-      // Still return 200 so the client proceeds with cleanup — the local
-      // cookies will have been cleared by the server client even if the
-      // Supabase backend revocation failed.
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 200 }
-      );
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
     }
+  );
 
-    return NextResponse.json({ success: true });
+  try {
+    await supabase.auth.signOut({ scope: 'global' });
   } catch (err) {
-    console.error('Unexpected sign-out error:', err);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Supabase signOut error:', err);
   }
+
+  // Safety net: forcibly expire every Supabase auth cookie regardless of
+  // whether signOut succeeded. HttpOnly cookies can only be cleared
+  // server-side, so this is the only reliable way to remove them.
+  request.cookies.getAll().forEach((cookie) => {
+    if (cookie.name.startsWith('sb-')) {
+      response.cookies.set(cookie.name, '', {
+        path: '/',
+        maxAge: 0,
+        expires: new Date(0),
+      });
+    }
+  });
+
+  return response;
 }

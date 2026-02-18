@@ -57,15 +57,17 @@ export default function SettingsPage() {
   const [regionInput, setRegionInput] = useState('');
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        await fetchUserData(session.user.id);
+    const init = async () => {
+      const { data: { user: authUser }, error } = await supabase.auth.getUser();
+      if (error || !authUser) {
+        setLoading(false);
+        return;
       }
+      setUser(authUser);
+      await fetchUserData(authUser.id);
       setLoading(false);
     };
-    getUser();
+    init();
   }, []);
 
   const fetchUserData = async (userId: string) => {

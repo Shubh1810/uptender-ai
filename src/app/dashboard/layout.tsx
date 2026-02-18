@@ -238,46 +238,35 @@ export default function DashboardLayout({
   useEffect(() => {
     let mounted = true;
 
-    const getUser = async () => {
+    const init = async () => {
       try {
-        // Use getUser() instead of getSession() — getUser() validates the
-        // JWT with the Supabase server, while getSession() reads from local
-        // storage without verification and can return stale/revoked sessions.
         const { data: { user: authUser }, error } = await supabase.auth.getUser();
-        
+
         if (error || !authUser) {
-          if (mounted) {
-            router.push('/');
-          }
+          if (mounted) router.push('/');
           return;
         }
 
         if (mounted) {
           setUser(authUser);
-          
-          // Identify user in PostHog
           identifyUser({
             userId: authUser.id,
             email: authUser.email,
             name: authUser.user_metadata?.full_name || authUser.user_metadata?.name,
           });
         }
-      } catch (error) {
-        console.error('Error getting user:', error);
-        if (mounted) {
-          router.push('/');
-        }
+      } catch {
+        if (mounted) router.push('/');
       }
     };
 
-    getUser();
+    init();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user && mounted) {
-        setUser(session.user);
-      } else if (_event === 'SIGNED_OUT' && mounted) {
-        // Don't navigate here - handleSignOut uses window.location.href for full page reload
-        // This prevents race conditions between router.push and window.location
+    // Single listener — only handles SIGNED_OUT to null-out local state.
+    // Token refreshes and session updates are handled by the middleware and
+    // the useAuth singleton; we don't duplicate that work here.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT' && mounted) {
         setUser(null);
       }
     });
@@ -290,58 +279,49 @@ export default function DashboardLayout({
 
   const handleSignOut = async () => {
     try {
-      // 1. Server-side sign-out FIRST — this creates a response with
-      //    proper Set-Cookie headers that expire/delete the auth cookies.
-      //    This is critical because the client-side signOut() alone cannot
-      //    reliably clear HTTP cookies before the redirect fires, and the
-      //    middleware would otherwise refresh the session on the next request.
-      try {
-        await fetch('/api/auth/signout', { method: 'POST' });
-      } catch (fetchErr) {
-        console.error('Server sign-out request failed:', fetchErr);
-        // Continue anyway — the client-side signOut below will still clear
-        // local state, and the middleware will reject the stale cookies.
-      }
-
-      // 2. Client-side sign-out — clears browser cookies and local storage
-      //    managed by the Supabase client. Using 'local' scope here because
-      //    the server route already revoked sessions globally.
-      await supabase.auth.signOut({ scope: 'local' });
-
-      // 3. Reset the useAuth singleton so it doesn't hold a stale user
+      // 1. Tear down the useAuth singleton immediately so no component
+      //    re-renders with stale user data while cleanup is in progress.
       resetAuthState();
 
-      // 4. Clear all localStorage items that might hold user data
+      // 2. Server-side sign-out — the ONLY reliable way to clear HttpOnly
+      //    auth cookies. The route explicitly expires every sb-* cookie on
+      //    the response, and the browser processes Set-Cookie headers from
+      //    same-origin fetch automatically.
+      try {
+        await fetch('/api/auth/signout', {
+          method: 'POST',
+          credentials: 'same-origin',
+        });
+      } catch (fetchErr) {
+        console.error('Server sign-out request failed:', fetchErr);
+      }
+
+      // 3. Client-side sign-out — clears any non-HttpOnly cookies and
+      //    Supabase's internal localStorage entries. Using 'local' scope
+      //    because the server route already revoked the session globally.
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch {
+        // Swallow — cookies already cleared server-side.
+      }
+
+      // 4. Clear app-specific localStorage (keep theme/consent prefs).
       try {
         localStorage.removeItem('saved_tender_ids');
         localStorage.removeItem('tender_cache');
         localStorage.removeItem('tender_cache_timestamp');
         localStorage.removeItem('last_refresh_timestamp');
-        // Keep theme and cookie consent preferences
-      } catch (storageError) {
-        console.error('localStorage cleanup error:', storageError);
+      } catch {
+        // Private browsing or quota errors — not critical.
       }
 
-      // 5. Track sign-out (fire-and-forget with timeout — never blocks redirect)
-      try {
-        const trackingPromise = Promise.race([
-          trackUserSignedOut(),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Tracking timeout')), 1000)
-          ),
-        ]);
-        trackingPromise.catch((err) =>
-          console.warn('PostHog tracking failed:', err)
-        );
-      } catch (trackingError) {
-        console.warn('PostHog tracking error:', trackingError);
-      }
-
-      // 6. Hard redirect to clear all in-memory React state
-      window.location.href = '/';
+      // 5. Fire-and-forget analytics.
+      try { trackUserSignedOut(); } catch { /* non-critical */ }
     } catch (error) {
       console.error('Sign out error:', error);
-      // Always complete sign-out — force redirect even on error
+    } finally {
+      // 6. ALWAYS hard-redirect — clears all in-memory React state,
+      //    pending requests, and WebSocket connections.
       window.location.href = '/';
     }
   };

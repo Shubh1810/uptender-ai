@@ -43,11 +43,6 @@ export function GoogleSignInButton({ className = '', children, startOnboarding =
       // Always redirect to callback - it will check onboarding status and route accordingly
       const redirectUrl = `${siteUrl}/auth/callback`;
       
-      console.log('🔐 Site URL:', siteUrl);
-      console.log('🔗 Redirect URL:', redirectUrl);
-      console.log('🌍 Current origin:', window.location.origin);
-      
-      // Track sign-in attempt
       trackUserSignedIn({ method: 'google' });
       
       const { error } = await supabase.auth.signInWithOAuth({
@@ -56,9 +51,8 @@ export function GoogleSignInButton({ className = '', children, startOnboarding =
           redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
+            prompt: 'select_account',
           },
-          scopes: 'profile email openid',
         },
       });
 
