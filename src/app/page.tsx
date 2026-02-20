@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { HeroSection } from '@/components/HeroSection';
 import { 
   Shield, 
   Zap, 
@@ -380,7 +381,11 @@ export default function Home() {
 
 
 
-      {/* Professional Hero Section */}
+      {/* New hero: HeroSection.tsx (badge, headline, search, live tenders, CTA, MacBook mockup, Trusted By) */}
+      <HeroSection />
+
+      {/* ——— OLD HERO SECTION (commented out, preserved for reference) ——— */}
+      {false && (
       <section 
         className="hero-section relative py-16 lg:py-24 z-10 pt-32"
         style={{
@@ -557,6 +562,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Workflow Section - GSAP ScrollTrigger powered */}
       <WorkflowSection />
