@@ -17,6 +17,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { WavyBackground } from '@/components/ui/wavy-background';
 import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
 
 export function HeroSection() {
@@ -43,105 +44,16 @@ export function HeroSection() {
       className="relative overflow-hidden pt-28 pb-0"
       style={{ backgroundColor: '#fefcf3' }}
     >
-      {/* ── Advanced Figma-style blurs: SVG feGaussianBlur + rotated blurred divs ── */}
-
-      {/* Layer 1 — SVG with feGaussianBlur (supports true rotation, closest to Figma) */}
-      <svg
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 w-full h-full"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ overflow: 'visible' }}
-      >
-        <defs>
-          <filter id="f-xl" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="75" />
-          </filter>
-          <filter id="f-lg" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="52" />
-          </filter>
-          <filter id="f-md" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="36" />
-          </filter>
-        </defs>
-
-        {/* ── SAFFRON (#FF9933) — top-right ── */}
-        {/* Primary orb */}
-        <ellipse cx="90%" cy="9%"  rx="19%" ry="28%" fill="rgba(255,153,51,0.50)" filter="url(#f-xl)" />
-        {/* Tighter core */}
-        <ellipse cx="95%" cy="4%"  rx="10%" ry="14%" fill="rgba(255,153,51,0.36)" filter="url(#f-lg)" />
-        {/* Diagonal tail sweeping inward */}
-        <ellipse
-          cx="76%" cy="20%" rx="26%" ry="10%"
-          fill="rgba(255,153,51,0.20)" filter="url(#f-xl)"
-          transform="rotate(-32, 760, 200)"
-        />
-
-        {/* ── SKY BLUE — long diagonal center beam ── */}
-        {/* Main beam */}
-        <ellipse
-          cx="50%" cy="50%" rx="52%" ry="15%"
-          fill="rgba(50,150,220,0.18)" filter="url(#f-xl)"
-          transform="rotate(-35, 700, 400)"
-        />
-        {/* Wider soft halo */}
-        <ellipse
-          cx="50%" cy="50%" rx="44%" ry="24%"
-          fill="rgba(100,180,240,0.09)" filter="url(#f-xl)"
-          transform="rotate(-35, 700, 400)"
-        />
-        {/* Accent near top-right blending into saffron zone */}
-        <ellipse
-          cx="70%" cy="24%" rx="16%" ry="7%"
-          fill="rgba(50,150,220,0.13)" filter="url(#f-lg)"
-          transform="rotate(-28, 700, 240)"
-        />
-
-        {/* ── INDIA GREEN (#138808) — bottom-left ── */}
-        {/* Primary orb */}
-        <ellipse cx="10%" cy="88%" rx="16%" ry="26%" fill="rgba(19,136,8,0.46)" filter="url(#f-xl)" />
-        {/* Tighter core */}
-        <ellipse cx="4%"  cy="96%" rx="9%"  ry="13%" fill="rgba(19,136,8,0.30)" filter="url(#f-lg)" />
-        {/* Diagonal tail sweeping inward */}
-        <ellipse
-          cx="24%" cy="76%" rx="24%" ry="9%"
-          fill="rgba(19,136,8,0.16)" filter="url(#f-xl)"
-          transform="rotate(-30, 240, 760)"
-        />
-      </svg>
-
-      {/* Layer 2 — CSS blurred divs for extra atmospheric depth on top of SVG */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        {/* Saffron soft bloom — top right */}
-        <div style={{
-          position: 'absolute', top: '-10%', right: '-8%',
-          width: '48%', height: '55%',
-          background: 'rgba(255,153,51,0.16)',
-          borderRadius: '50%',
-          filter: 'blur(90px)',
-          transform: 'rotate(-18deg)',
-          willChange: 'transform',
-        }} />
-        {/* Blue diagonal beam — center */}
-        <div style={{
-          position: 'absolute', top: '18%', left: '5%',
-          width: '88%', height: '40%',
-          background: 'rgba(50,150,220,0.08)',
-          borderRadius: '50%',
-          filter: 'blur(110px)',
-          transform: 'rotate(-35deg)',
-          willChange: 'transform',
-        }} />
-        {/* Green soft bloom — bottom left */}
-        <div style={{
-          position: 'absolute', bottom: '-12%', left: '-8%',
-          width: '44%', height: '52%',
-          background: 'rgba(19,136,8,0.15)',
-          borderRadius: '50%',
-          filter: 'blur(90px)',
-          transform: 'rotate(12deg)',
-          willChange: 'transform',
-        }} />
-      </div>
+      <WavyBackground
+        containerClassName="pointer-events-none absolute inset-0 z-0 -rotate-[10deg] origin-center scale-125 translate-y-16 md:translate-y-24"
+        className="h-full w-full"
+        backgroundFill="#fefcf3"
+        colors={['#0ea5e9', '#22c55e', '#14b8a6', '#1d4ed8']}
+        waveWidth={80}
+        blur={16}
+        speed="slow"
+        waveOpacity={0.6}
+      />
 
       {/* Dot grid */}
       <div
@@ -312,10 +224,18 @@ function DashboardMockup() {
           gap: 2,
         }}
       >
-        {/* Logo */}
+        {/* Logo — brand logo + brand fonts (Inter/Geist + Kings) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, paddingLeft: 4 }}>
-          <div style={{ width: 18, height: 18, borderRadius: 5, background: '#f97316', flexShrink: 0 }} />
-          <span style={{ color: '#fff', fontWeight: 700, fontSize: 12, letterSpacing: '-0.02em' }}>TenderPost</span>
+          <Image
+            src="/tpllogo-wite.PNG"
+            alt="TenderPost"
+            width={20}
+            height={20}
+            className="rounded-lg shrink-0 object-contain"
+          />
+          <span style={{ color: '#fff', fontWeight: 700, fontSize: 12, letterSpacing: '-0.02em' }} className="inline-flex items-baseline">
+            <span className="font-inter">Tender</span><span className="font-kings -ml-0.5">Post</span>
+          </span>
         </div>
 
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 8, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', paddingLeft: 8, marginBottom: 4 }}>Main</div>
