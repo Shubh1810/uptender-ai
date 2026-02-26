@@ -48,7 +48,7 @@ export function HeroSection() {
         containerClassName="pointer-events-none absolute inset-0 z-0 -rotate-[10deg] origin-center scale-125 translate-y-16 md:translate-y-24"
         className="h-full w-full"
         backgroundFill="#fefcf3"
-        colors={['#0ea5e9', '#22c55e', '#14b8a6', '#1d4ed8']}
+        colors={['#86efac', '#fef08a', '#fdba74', '#fed7aa']}
         waveWidth={80}
         blur={16}
         speed="slow"
@@ -62,6 +62,15 @@ export function HeroSection() {
         style={{
           backgroundImage: `radial-gradient(circle, #d1d5db 1px, transparent 1px)`,
           backgroundSize: '18px 18px',
+        }}
+      />
+
+      {/* Yellow-gold glow behind MacBook — full hero width */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-[40%] z-[1] h-[60%] w-full"
+        style={{
+          background: 'radial-gradient(ellipse 70% 70% at 50% 100%, rgba(253, 224, 71, 0.36) 0%, rgba(250, 204, 21, 0.28) 35%, rgba(202, 138, 4, 0.14) 60%, transparent 85%)',
         }}
       />
 
@@ -132,7 +141,7 @@ export function HeroSection() {
           {/* Get started button */}
           <Link
             href="/onboarding"
-            className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-gray-700 hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
+            className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
           >
             Get started for free
             <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
