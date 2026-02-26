@@ -15,11 +15,17 @@ import { createClient } from '@supabase/supabase-js';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Create Supabase client without cookies (public data only)
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('❌ Missing Supabase env: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY');
+      return NextResponse.json({
+        success: false,
+        error: process.env.NODE_ENV === 'development' ? 'Missing Supabase env vars' : undefined,
+        data: { liveTendersCount: 0, lastUpdated: '', isConnected: false },
+      }, { status: 500 });
+    }
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
     
     // Direct read from Supabase - always fresh, always accurate
     const { data: snapshot, error } = await supabase
@@ -29,9 +35,10 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('❌ Supabase error fetching tender stats:', error);
+      console.error('❌ Supabase error fetching tender stats:', error.message, error.code, error.details);
       return NextResponse.json({
         success: false,
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
         data: {
           liveTendersCount: 0,
           lastUpdated: '',
