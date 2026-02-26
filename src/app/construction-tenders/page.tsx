@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { ArrowRight, Building2, HardHat, Road, Wrench } from 'lucide-react';
+import { ArrowRight, Building2, HardHat, Route, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ContentPageHeader } from '@/components/Header';
 import { ContentPageFooter } from '@/components/Footer';
@@ -30,7 +30,7 @@ export default function ConstructionTenders() {
       examples: ['Building Construction', 'RCC Works', 'Structural Steel', 'Finishing Works', 'Renovation'],
     },
     {
-      icon: Road,
+      icon: Route,
       title: 'Infrastructure & Roads',
       description: 'Roads, bridges, highways, and urban infrastructure projects',
       examples: ['Road Construction', 'Bridge Works', 'Highway Projects', 'Pavement', 'Drainage'],
