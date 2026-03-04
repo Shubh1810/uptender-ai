@@ -83,7 +83,11 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-3xl text-3xl font-bold leading-tight tracking-tight text-gray-900 sm:text-4xl md:text-5xl"
-          style={{ fontFamily: '"Funnel Display", sans-serif' }}
+          style={{
+            fontFamily: '"Funnel Display", sans-serif',
+            transform: 'scaleX(0.97)',
+            display: 'inline-block',
+          }}
         >
           Your AI Procurement partner that tells you{' '}
           <span className="relative inline-block" style={{ color: '#b84d00' }}>

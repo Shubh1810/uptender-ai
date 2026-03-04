@@ -250,7 +250,19 @@ export default function Home() {
       description: 'Get only the tenders you can win — instant, relevant alerts delivered to email & WhatsApp. Speed and relevance that customers want.'
     },
     {
-      icon: Sparkles,
+      icon: ({ className }: { className?: string }) => (
+        <Image
+          src="/stars.png"
+          alt="Stars"
+          width={32}
+          height={32}
+          className={className}
+          style={{
+            filter:
+              'brightness(0) saturate(100%) invert(21%) sepia(98%) saturate(2476%) hue-rotate(214deg) brightness(95%) contrast(101%)'
+          }}
+        />
+      ),
       title: 'Auto-Bid Generator',
       description: 'A fully formed draft bid (technical + commercial) created instantly from your past documents, profile, and tender requirements. This flips "I don\'t have the team to bid" into "I can bid 5x more tenders".'
     },
@@ -279,7 +291,7 @@ export default function Home() {
   const pricingPlans = [
     {
       name: 'Basic',
-      price: 999,
+      price: 1249,
       description: 'Essential tender tracking for small businesses',
       features: [
         'Government tender notifications',
@@ -291,7 +303,7 @@ export default function Home() {
     },
     {
       name: 'Professional',
-      price: 1249,
+      price: 2499,
       description: 'Advanced features for growing companies',
       features: [
         'All Basic features',
@@ -304,7 +316,7 @@ export default function Home() {
     },
     {
       name: 'Enterprise',
-      price: 1499,
+      price: 7999,
       description: 'Complete solution for large organizations',
       features: [
         'All Professional features',
@@ -637,7 +649,11 @@ export default function Home() {
                         ₹{plan.price.toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-sm">per month, billed yearly.</p>
+                    <p className="text-gray-600 text-sm">
+                      {index === pricingPlans.length - 1
+                        ? 'only per month.'
+                        : 'per month, billed yearly.'}
+                    </p>
                   </div>
 
                   <div>
