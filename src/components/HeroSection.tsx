@@ -48,7 +48,7 @@ export function HeroSection() {
         containerClassName="pointer-events-none absolute inset-0 z-0 -rotate-[10deg] origin-center scale-125 translate-y-16 md:translate-y-24"
         className="h-full w-full"
         backgroundFill="#fefcf3"
-        colors={['#86efac', '#fef08a', '#fdba74', '#fed7aa']}
+        colors={['#32ab61', '#4ade80', '#86efac', '#7dd3fc', '#57cafb']}
         waveWidth={80}
         blur={16}
         speed="slow"
