@@ -26,11 +26,13 @@ export function useSubscription() {
           return;
         }
         
+        const now = new Date().toISOString();
         const { data, error } = await supabase
           .from('user_subscriptions')
           .select(`
             plan_id,
             status,
+            expires_at,
             subscription_plans (
               display_name,
               features,
@@ -39,7 +41,10 @@ export function useSubscription() {
           `)
           .eq('user_id', user.id)
           .eq('status', 'active')
-          .single();
+          .or(`expires_at.is.null,expires_at.gt.${now}`)
+          .order('started_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
         
         if (error || !data) {
           // Default to free plan

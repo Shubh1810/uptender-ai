@@ -49,6 +49,19 @@ export function loadRazorpayScript(): Promise<boolean> {
   });
 }
 
+// Fetch an existing Razorpay order by ID (server-side only)
+export async function fetchRazorpayOrder(orderId: string): Promise<{
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  notes: Record<string, string>;
+}> {
+  const razorpay = createRazorpayInstance();
+  const order = await razorpay.orders.fetch(orderId);
+  return order as any;
+}
+
 // Verify payment signature (should be done on server)
 export function verifyPaymentSignature(
   orderId: string,

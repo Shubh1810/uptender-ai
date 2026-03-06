@@ -33,7 +33,9 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/dashboard') ||
     request.nextUrl.pathname.startsWith('/api/saved-tenders') ||
     request.nextUrl.pathname.startsWith('/api/alert-preferences') ||
-    request.nextUrl.pathname.startsWith('/api/admin');
+    request.nextUrl.pathname.startsWith('/api/admin') ||
+    request.nextUrl.pathname.startsWith('/api/razorpay') ||
+    request.nextUrl.pathname.startsWith('/make-payment');
 
   // IMPORTANT: Only call getUser() on protected routes.
   // Calling getUser() on public routes (like "/" after sign-out) would trigger

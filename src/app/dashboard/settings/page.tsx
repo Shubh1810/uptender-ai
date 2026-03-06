@@ -21,10 +21,31 @@ interface PreferencesData {
   notify_inapp: boolean;
   frequency: 'real_time' | 'daily' | 'weekly';
   alert_threshold: number;
-  keywords: string[];
-  categories: string[];
-  regions: string[];
+  roles: string[];
+  user_goal: string;
+  tender_documentation_comfort: string;
 }
+
+const ROLE_OPTIONS = [
+  'Manufacturer',
+  'Authorized Dealer / Distributor',
+  'Contractor / EPC',
+  'Service Provider',
+  'Consultant',
+  'New Bidder (≤ 2 years)',
+];
+
+const GOAL_OPTIONS = [
+  { value: 'relevant_tenders', label: 'I want more relevant tenders' },
+  { value: 'ai_bid_drafting', label: 'I want AI to help me draft bids' },
+  { value: 'both', label: 'Both' },
+];
+
+const COMFORT_OPTIONS = [
+  { value: 'experienced', label: "I've done this many times" },
+  { value: 'guided', label: 'I can manage with guidance' },
+  { value: 'new', label: "I'm new to this" },
+];
 
 export default function SettingsPage() {
   const supabase = createClient();
@@ -47,14 +68,11 @@ export default function SettingsPage() {
     notify_inapp: true,
     frequency: 'daily',
     alert_threshold: 70,
-    keywords: [],
-    categories: [],
-    regions: [],
+    roles: [],
+    user_goal: '',
+    tender_documentation_comfort: '',
   });
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [keywordInput, setKeywordInput] = useState('');
-  const [categoryInput, setCategoryInput] = useState('');
-  const [regionInput, setRegionInput] = useState('');
 
   useEffect(() => {
     const init = async () => {
@@ -106,9 +124,9 @@ export default function SettingsPage() {
           notify_inapp: prefsData.notify_inapp || true,
           frequency: prefsData.frequency || 'daily',
           alert_threshold: prefsData.alert_threshold || 70,
-          keywords: prefsData.keywords || [],
-          categories: prefsData.categories || [],
-          regions: prefsData.regions || [],
+          roles: prefsData.roles || [],
+          user_goal: prefsData.user_goal || '',
+          tender_documentation_comfort: prefsData.tender_documentation_comfort || '',
         });
       }
     } catch (error) {
@@ -155,9 +173,9 @@ export default function SettingsPage() {
           notify_inapp: preferences.notify_inapp,
           frequency: preferences.frequency,
           alert_threshold: preferences.alert_threshold,
-          keywords: preferences.keywords,
-          categories: preferences.categories,
-          regions: preferences.regions,
+          roles: preferences.roles,
+          user_goal: preferences.user_goal,
+          tender_documentation_comfort: preferences.tender_documentation_comfort,
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id);
@@ -171,69 +189,11 @@ export default function SettingsPage() {
     }
   };
 
-  const addKeyword = async () => {
-    if (keywordInput.trim() && !preferences.keywords.includes(keywordInput.trim())) {
-      const newKeywords = [...preferences.keywords, keywordInput.trim()];
-      setPreferences({
-        ...preferences,
-        keywords: newKeywords,
-      });
-      setKeywordInput('');
-      // Auto-save
-      await savePreferences();
-    }
-  };
-
-  const removeKeyword = async (keyword: string) => {
-    setPreferences({
-      ...preferences,
-      keywords: preferences.keywords.filter(k => k !== keyword),
-    });
-    // Auto-save
-    setTimeout(() => savePreferences(), 100);
-  };
-
-  const addCategory = async () => {
-    if (categoryInput.trim() && !preferences.categories.includes(categoryInput.trim())) {
-      const newCategories = [...preferences.categories, categoryInput.trim()];
-      setPreferences({
-        ...preferences,
-        categories: newCategories,
-      });
-      setCategoryInput('');
-      // Auto-save
-      await savePreferences();
-    }
-  };
-
-  const removeCategory = async (category: string) => {
-    setPreferences({
-      ...preferences,
-      categories: preferences.categories.filter(c => c !== category),
-    });
-    // Auto-save
-    setTimeout(() => savePreferences(), 100);
-  };
-
-  const addRegion = async () => {
-    if (regionInput.trim() && !preferences.regions.includes(regionInput.trim())) {
-      const newRegions = [...preferences.regions, regionInput.trim()];
-      setPreferences({
-        ...preferences,
-        regions: newRegions,
-      });
-      setRegionInput('');
-      // Auto-save
-      await savePreferences();
-    }
-  };
-
-  const removeRegion = async (region: string) => {
-    setPreferences({
-      ...preferences,
-      regions: preferences.regions.filter(r => r !== region),
-    });
-    // Auto-save
+  const toggleRole = async (role: string) => {
+    const newRoles = preferences.roles.includes(role)
+      ? preferences.roles.filter(r => r !== role)
+      : [...preferences.roles, role];
+    setPreferences({ ...preferences, roles: newRoles });
     setTimeout(() => savePreferences(), 100);
   };
 
@@ -536,12 +496,14 @@ export default function SettingsPage() {
               AI Preferences
             </h2>
             <div className="space-y-0">
+              {/* Roles */}
               <SettingRow
-                label="Keywords"
-                value={preferences.keywords.length > 0 ? `${preferences.keywords.length} keywords` : 'None'}
-                onEdit={() => setActiveSection('keywords')}
-                isEditing={activeSection === 'keywords'}
+                label="Your Role(s)"
+                value={preferences.roles.length > 0 ? preferences.roles.join(', ') : 'None selected'}
+                onEdit={() => setActiveSection('roles')}
+                isEditing={activeSection === 'roles'}
                 onSave={async () => {
+                  await savePreferences();
                   setActiveSection(null);
                 }}
                 onCancel={() => {
@@ -549,48 +511,32 @@ export default function SettingsPage() {
                   fetchUserData(user!.id);
                 }}
               >
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={keywordInput}
-                      onChange={(e) => setKeywordInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
-                      className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-md text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Add keyword"
-                    />
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {ROLE_OPTIONS.map((role) => (
                     <button
-                      onClick={addKeyword}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
+                      key={role}
+                      type="button"
+                      onClick={() => toggleRole(role)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                        preferences.roles.includes(role)
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      }`}
                     >
-                      Add
+                      {role}
                     </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {preferences.keywords.map((keyword) => (
-                      <span
-                        key={keyword}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm"
-                      >
-                        {keyword}
-                        <button
-                          onClick={() => removeKeyword(keyword)}
-                          className="hover:text-blue-900 dark:hover:text-blue-100"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  ))}
                 </div>
               </SettingRow>
 
+              {/* Primary Goal */}
               <SettingRow
-                label="Categories"
-                value={preferences.categories.length > 0 ? `${preferences.categories.length} categories` : 'None'}
-                onEdit={() => setActiveSection('categories')}
-                isEditing={activeSection === 'categories'}
+                label="Primary Goal"
+                value={GOAL_OPTIONS.find(o => o.value === preferences.user_goal)?.label || 'Not set'}
+                onEdit={() => setActiveSection('user_goal')}
+                isEditing={activeSection === 'user_goal'}
                 onSave={async () => {
+                  await savePreferences();
                   setActiveSection(null);
                 }}
                 onCancel={() => {
@@ -598,48 +544,32 @@ export default function SettingsPage() {
                   fetchUserData(user!.id);
                 }}
               >
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={categoryInput}
-                      onChange={(e) => setCategoryInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addCategory()}
-                      className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-md text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Add category"
-                    />
+                <div className="space-y-2 pt-1">
+                  {GOAL_OPTIONS.map((option) => (
                     <button
-                      onClick={addCategory}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
+                      key={option.value}
+                      type="button"
+                      onClick={() => setPreferences({ ...preferences, user_goal: option.value })}
+                      className={`w-full text-left px-3 py-2 rounded-md border text-sm transition-colors ${
+                        preferences.user_goal === option.value
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium'
+                          : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
                     >
-                      Add
+                      {option.label}
                     </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {preferences.categories.map((category) => (
-                      <span
-                        key={category}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm"
-                      >
-                        {category}
-                        <button
-                          onClick={() => removeCategory(category)}
-                          className="hover:text-purple-900 dark:hover:text-purple-100"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  ))}
                 </div>
               </SettingRow>
 
+              {/* Documentation Comfort */}
               <SettingRow
-                label="Regions"
-                value={preferences.regions.length > 0 ? `${preferences.regions.length} regions` : 'None'}
-                onEdit={() => setActiveSection('regions')}
-                isEditing={activeSection === 'regions'}
+                label="Tender Documentation Experience"
+                value={COMFORT_OPTIONS.find(o => o.value === preferences.tender_documentation_comfort)?.label || 'Not set'}
+                onEdit={() => setActiveSection('tender_documentation_comfort')}
+                isEditing={activeSection === 'tender_documentation_comfort'}
                 onSave={async () => {
+                  await savePreferences();
                   setActiveSection(null);
                 }}
                 onCancel={() => {
@@ -647,39 +577,21 @@ export default function SettingsPage() {
                   fetchUserData(user!.id);
                 }}
               >
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={regionInput}
-                      onChange={(e) => setRegionInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addRegion()}
-                      className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-md text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Add region"
-                    />
+                <div className="space-y-2 pt-1">
+                  {COMFORT_OPTIONS.map((option) => (
                     <button
-                      onClick={addRegion}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
+                      key={option.value}
+                      type="button"
+                      onClick={() => setPreferences({ ...preferences, tender_documentation_comfort: option.value })}
+                      className={`w-full text-left px-3 py-2 rounded-md border text-sm transition-colors ${
+                        preferences.tender_documentation_comfort === option.value
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium'
+                          : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
                     >
-                      Add
+                      {option.label}
                     </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {preferences.regions.map((region) => (
-                      <span
-                        key={region}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-sm"
-                      >
-                        {region}
-                        <button
-                          onClick={() => removeRegion(region)}
-                          className="hover:text-green-900 dark:hover:text-green-100"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  ))}
                 </div>
               </SettingRow>
             </div>
