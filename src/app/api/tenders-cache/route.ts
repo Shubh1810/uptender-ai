@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
 // Global tender cache (shared across all users)
 // NOTE: This resets on server restart. For production, use Redis or database.
@@ -27,9 +28,16 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Update tender cache (called by search page or auto-refresh)
+// POST: Update tender cache (called by authenticated clients only)
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { tenders, totalCount, liveTendersCount, source } = body;
 

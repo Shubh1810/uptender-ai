@@ -113,7 +113,7 @@ export default function DashboardHome() {
             <input
               type="text"
               placeholder="Search tenders, documents, analytics..."
-              className="w-full pl-11 pr-4 py-2.5 text-sm text-gray-900 dark:text-white bg-black/[0.03] dark:bg-white/[0.05] border-0 rounded-lg placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white dark:focus:bg-white/[0.08] transition-all"
+              className="w-full pl-11 pr-4 py-2.5 text-sm text-gray-900 dark:text-white bg-orange-500/[0.04] dark:bg-white/[0.05] border-0 rounded-lg placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400/20 focus:bg-orange-50/60 dark:focus:bg-white/[0.08] transition-all"
             />
           </div>
         </div>
@@ -126,8 +126,8 @@ export default function DashboardHome() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                 activeTab === tab.id
-                  ? 'bg-black/[0.06] dark:bg-white/[0.1] text-gray-900 dark:text-white'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.05]'
+                  ? 'bg-orange-500/[0.08] dark:bg-white/[0.1] text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-orange-500/[0.05] dark:hover:bg-white/[0.05]'
               }`}
             >
               {tab.label}
@@ -153,8 +153,8 @@ export default function DashboardHome() {
                       href={item.href}
                       className={`flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all duration-150 group ${
                         accessible
-                          ? 'text-gray-600 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white'
-                          : 'text-gray-400 dark:text-gray-600 hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'
+                          ? 'text-gray-600 dark:text-gray-400 hover:bg-orange-500/[0.05] dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white'
+                          : 'text-gray-400 dark:text-gray-600 hover:bg-orange-500/[0.03] dark:hover:bg-white/[0.03]'
                       }`}
                     >
                       <div className="flex items-center space-x-3">
@@ -166,7 +166,7 @@ export default function DashboardHome() {
                         <span>{item.label}</span>
                       </div>
                       {!accessible && item.requiredPlan && (
-                        <span className="flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">
+                        <span className="flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded bg-orange-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500">
                           <Lock className="h-2.5 w-2.5" />
                           {PLAN_LABEL[item.requiredPlan]}
                         </span>

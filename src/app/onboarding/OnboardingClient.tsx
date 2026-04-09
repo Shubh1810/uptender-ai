@@ -476,58 +476,66 @@ export default function OnboardingClient() {
 
   React.useEffect(() => {
     const stepParam = searchParams?.get('step');
-    if (stepParam === '1' || stepParam === '2' || stepParam === '3') {
-      setStep(parseInt(stepParam, 10) as Step);
-      return; // Don't check onboarding if step is explicitly set
-    }
 
+    // Always verify auth and onboarding status first — step param is only
+    // honoured for users who are authenticated but haven't finished onboarding.
     supabase.auth.getUser().then(({ data }: { data: { user: import('@supabase/supabase-js').User | null } }) => {
-      if (data.user) {
-        const oauthFullName = 
-          data.user.user_metadata?.full_name || 
-          data.user.user_metadata?.name || 
-          data.user.user_metadata?.display_name;
-        
-        supabase
-          .from('profiles')
-          .select('onboarding_completed, full_name')
-          .eq('id', data.user.id)
-          .maybeSingle()
-          .then(({ data: profile, error }: { data: { onboarding_completed?: boolean | string; full_name?: string } | null; error: unknown }) => {
-            if (error) {
-              console.error('Error fetching profile:', error);
-              // On error, default to step 2 and use OAuth name if available
-              if (!stepParam) setStep(2);
-              if (oauthFullName && !fullName) {
-                setFullName(oauthFullName);
-                setIsFullNameLocked(true);
-              }
-            } else if (profile) {
-              // If onboarding is completed, redirect to dashboard
-              if (profile.onboarding_completed === true || profile.onboarding_completed === 'true') {
-                window.location.href = '/dashboard';
-                return;
-              }
-              // If not completed, go to step 2
-              if (!stepParam) setStep(2);
-              
-              // Priority: profile.full_name > OAuth name
-              // Use profile name if it exists, otherwise use OAuth name
-              const nameToUse = profile.full_name || oauthFullName;
-              if (nameToUse) {
-                setFullName(nameToUse);
-                setIsFullNameLocked(true);
-              }
-            } else {
-              // No profile exists, go to step 2 and use OAuth name
-              if (!stepParam) setStep(2);
-        if (oauthFullName) {
-          setFullName(oauthFullName);
-          setIsFullNameLocked(true);
-        }
-            }
-          });
+      if (!data.user) {
+        // Not authenticated — always start at step 1 regardless of URL
+        setStep(1);
+        return;
       }
+
+      const oauthFullName =
+        data.user.user_metadata?.full_name ||
+        data.user.user_metadata?.name ||
+        data.user.user_metadata?.display_name;
+
+      supabase
+        .from('profiles')
+        .select('onboarding_completed, full_name')
+        .eq('id', data.user.id)
+        .maybeSingle()
+        .then(({ data: profile, error }: { data: { onboarding_completed?: boolean | string; full_name?: string } | null; error: unknown }) => {
+          if (error) {
+            console.error('Error fetching profile:', error);
+            // On error, default to step 2 and use OAuth name if available
+            setStep(2);
+            if (oauthFullName && !fullName) {
+              setFullName(oauthFullName);
+              setIsFullNameLocked(true);
+            }
+          } else if (profile) {
+            // Already onboarded — send to dashboard regardless of step param
+            if (profile.onboarding_completed === true || profile.onboarding_completed === 'true') {
+              window.location.href = '/dashboard';
+              return;
+            }
+            // Not completed — honour step param for UX continuity, default to step 2
+            if (stepParam === '1' || stepParam === '2' || stepParam === '3') {
+              setStep(parseInt(stepParam, 10) as Step);
+            } else {
+              setStep(2);
+            }
+
+            const nameToUse = profile.full_name || oauthFullName;
+            if (nameToUse) {
+              setFullName(nameToUse);
+              setIsFullNameLocked(true);
+            }
+          } else {
+            // No profile exists — honour step param, default to step 2
+            if (stepParam === '1' || stepParam === '2' || stepParam === '3') {
+              setStep(parseInt(stepParam, 10) as Step);
+            } else {
+              setStep(2);
+            }
+            if (oauthFullName) {
+              setFullName(oauthFullName);
+              setIsFullNameLocked(true);
+            }
+          }
+        });
     });
   }, [supabase, searchParams]);
 

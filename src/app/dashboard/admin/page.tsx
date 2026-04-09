@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Shield, Users, TrendingUp, Activity, RefreshCw } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -23,6 +24,7 @@ interface Usage {
 }
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [isDirector, setIsDirector] = useState(false);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
@@ -163,19 +165,8 @@ export default function AdminDashboardPage() {
   }
 
   if (!isDirector) {
-    return (
-      <div className="h-full flex items-center justify-center p-8">
-        <div className="text-center max-w-md">
-          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Access Denied
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            This page is only accessible to directors
-          </p>
-        </div>
-      </div>
-    );
+    router.replace('/dashboard');
+    return null;
   }
 
   return (

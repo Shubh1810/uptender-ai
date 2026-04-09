@@ -319,26 +319,26 @@ optgroup option {
    macOS-Style Glass Dashboard
    ================================ */
 
-/* Outer container background - cool blue-grey tone */
+/* Outer container background - warm cream-orange tone */
 .dashboard-outer-bg {
-  background: rgba(221, 231, 233, 1);
+  background: rgba(238, 222, 200, 1);
   min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
-/* Frosted glass sidebar - cool blue-grey tone */
+/* Frosted glass sidebar - warm cream-orange tone */
 .glass-sidebar {
-  background: rgba(221, 231, 233, 0.95);
+  background: rgba(238, 222, 200, 0.95);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   z-index: 40;
 }
 
-/* Floating main content panel - light monochromatic blue-grey */
+/* Floating main content panel - light warm cream */
 .floating-content-panel {
   position: relative;
-  background: rgba(240, 245, 246, 0.98);
+  background: rgba(253, 246, 236, 0.98);
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
   border-radius: 0 12px 12px 12px; /* Sharp top-left, rounded others */
@@ -376,7 +376,7 @@ optgroup option {
   flex: 0 1 180px;
   min-width: 80px;
   max-width: 180px;
-  background: rgba(240, 245, 246, 0.98);
+  background: rgba(253, 246, 236, 0.98);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 8px 8px 0 0;
@@ -505,7 +505,7 @@ optgroup option {
   height: 10px;
   background: transparent;
   border-bottom-right-radius: 10px;
-  box-shadow: 5px 1px 0 0 rgba(240, 245, 246, 0.98);
+  box-shadow: 5px 1px 0 0 rgba(253, 246, 236, 0.98);
   display: none; /* Hidden by default */
 }
 
@@ -518,7 +518,7 @@ optgroup option {
   height: 10px;
   background: transparent;
   border-bottom-left-radius: 10px;
-  box-shadow: -5px 1px 0 0 rgba(240, 245, 246, 0.98);
+  box-shadow: -5px 1px 0 0 rgba(253, 246, 236, 0.98);
 }
 
 /* Show left curve for all tabs except the first */
@@ -535,7 +535,7 @@ optgroup option {
 .tab-bump-icon {
   width: 14px;
   height: 14px;
-  color: rgba(59, 130, 246, 0.8);
+  color: rgba(217, 119, 6, 0.8);
   flex-shrink: 0;
   stroke-width: 2;
 }
@@ -558,13 +558,13 @@ optgroup option {
 
 /* Sidebar active item */
 .glass-sidebar-item-active {
-  background: rgba(200, 220, 225, 0.7);
+  background: rgba(215, 185, 148, 0.6);
   border-radius: 6px;
 }
 
 /* Sidebar hover item */
 .glass-sidebar-item:hover {
-  background: rgba(210, 225, 230, 0.5);
+  background: rgba(225, 200, 165, 0.45);
   border-radius: 6px;
 }
 
@@ -584,23 +584,23 @@ optgroup option {
 
 /* User profile card in sidebar */
 .glass-user-card {
-  background: rgba(230, 238, 240, 0.5);
+  background: rgba(238, 218, 190, 0.5);
   border-radius: 10px;
-  border: 1px solid rgba(210, 225, 230, 0.6);
+  border: 1px solid rgba(218, 195, 160, 0.6);
 }
 
 .glass-user-card:hover {
-  background: rgba(220, 233, 236, 0.7);
+  background: rgba(232, 210, 178, 0.7);
 }
 
 /* Dropdown menu glass effect */
 .glass-dropdown {
-  background: rgba(240, 245, 246, 0.98);
+  background: rgba(253, 246, 236, 0.98);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 10px;
-  box-shadow: 
+  box-shadow:
     0 4px 6px rgba(0, 0, 0, 0.05),
     0 10px 40px rgba(0, 0, 0, 0.1);
 }

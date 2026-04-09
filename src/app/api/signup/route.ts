@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     // Send simple notification to sales team from analytics
     const salesEmail = await resendClient.emails.send({
       from: 'TenderPost Analytics <analytics@resend.dev>',
-      to: ['shethshubh@gmail.com'],
+      to: [process.env.SALES_NOTIFICATION_EMAIL || 'shethshubh@gmail.com'],
       subject: 'New Waitlist Signup - TenderPost (Sales Notification)',
       html: `
         <!DOCTYPE html>

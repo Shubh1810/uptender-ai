@@ -59,9 +59,6 @@ export async function POST(req: Request) {
       }, { status: 400 });
     }
 
-    // Optional: encrypt GST here if needed
-    const gstCipher: Uint8Array | null = null;
-
     const { error: pErr, data: profileData } = await supabase
       .from('profiles')
       .upsert({
@@ -69,7 +66,7 @@ export async function POST(req: Request) {
         full_name: parsed.profile.full_name,
         company: parsed.profile.company,
         business_type: parsed.profile.business_type,
-        gst_number_enc: gstCipher, // null if not provided or encryption skipped
+        gst_number_enc: parsed.profile.gst_number ?? null,
         years_in_operation: parsed.profile.years_in_operation,
         primary_industry: parsed.profile.primary_industry,
         secondary_industries: parsed.profile.secondary_industries,

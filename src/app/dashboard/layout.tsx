@@ -61,11 +61,13 @@ export default function DashboardLayout({
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [themeMounted, setThemeMounted] = useState(false);
   const [isDirector, setIsDirector] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    tenders: true,
-    analytics: false,
-    aiWorkspace: false,
-    notifications: false,
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('sidebar-sections') : null;
+      return saved ? JSON.parse(saved) : { tenders: true, analytics: false, aiWorkspace: false, notifications: false };
+    } catch {
+      return { tenders: true, analytics: false, aiWorkspace: false, notifications: false };
+    }
   });
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string>('');
@@ -322,42 +324,53 @@ export default function DashboardLayout({
 
   // Check onboarding status and progress
   useEffect(() => {
+    const fetchProfile = async () => {
+      return supabase
+        .from('profiles')
+        .select('onboarding_completed, full_name, company, primary_industry, role')
+        .eq('id', user!.id)
+        .maybeSingle();
+    };
+
     const checkOnboarding = async () => {
       if (!user) return;
-      
+
       try {
-        const { data: prof, error } = await supabase
-          .from('profiles')
-          .select('onboarding_completed, full_name, company, primary_industry, role')
-          .eq('id', user.id)
-          .maybeSingle();
-        
+        let result = await fetchProfile();
+
+        // Retry once on transient network errors
+        if (result.error) {
+          await new Promise((r) => setTimeout(r, 800));
+          result = await fetchProfile();
+        }
+
+        const { data: prof, error } = result;
+
         if (error) {
-          console.error('Error checking onboarding:', error);
+          // After retry still erroring — leave onboardingCompleted as null
+          // so the render guard keeps showing the loader rather than redirecting
+          console.error('Error checking onboarding (after retry):', error);
           setOnboardingCompleted(null);
           setOnboardingProgress(0);
-        } else if (prof) {
-          const isCompleted = prof.onboarding_completed === true || 
-                             prof.onboarding_completed === 'true' || 
+          return;
+        }
+
+        if (prof) {
+          const isCompleted = prof.onboarding_completed === true ||
+                             prof.onboarding_completed === 'true' ||
                              prof.onboarding_completed === 1;
-          
-          // Redirect unonboarded users to onboarding step 2
+
           if (!isCompleted) {
             router.push('/onboarding?step=2');
             return;
           }
-          
+
           setOnboardingCompleted(isCompleted);
-          
-          // Check if user is director
           setIsDirector(prof.role === 'director');
-          
-          // Calculate progress based on filled fields (3 steps total)
           setOnboardingProgress(100);
         } else {
-          // No profile exists, redirect to onboarding step 2
+          // Genuinely no profile row — new user, send to onboarding
           router.push('/onboarding?step=2');
-          return;
         }
       } catch (error) {
         console.error('Exception checking onboarding:', error);
@@ -365,7 +378,7 @@ export default function DashboardLayout({
         setOnboardingProgress(0);
       }
     };
-    
+
     checkOnboarding();
   }, [user, supabase, router]);
 
@@ -394,7 +407,14 @@ export default function DashboardLayout({
     };
   }, [userMenuOpen]);
 
-  if (!user) {
+  // Persist sidebar section state — must be before any conditional return
+  useEffect(() => {
+    try {
+      localStorage.setItem('sidebar-sections', JSON.stringify(expandedSections));
+    } catch { /* private browsing */ }
+  }, [expandedSections]);
+
+  if (!user || onboardingCompleted === null) {
     return null;
   }
 
@@ -510,8 +530,8 @@ export default function DashboardLayout({
             <Link
               href="/dashboard"
               className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
-                pathname === '/dashboard' 
-                  ? 'glass-sidebar-item-active text-gray-900 dark:text-white' 
+                pathname === '/dashboard'
+                  ? 'glass-sidebar-item-active text-gray-800 dark:text-white'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-sidebar-item'
               }`}
             >
@@ -533,7 +553,7 @@ export default function DashboardLayout({
                     onClick={() => toggleSection(section.key)}
                     className={`w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                       hasActiveItem
-                        ? 'glass-sidebar-item-active text-gray-900 dark:text-white'
+                        ? 'glass-sidebar-item-active text-gray-800 dark:text-white'
                         : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-sidebar-item'
                     }`}
                   >
@@ -559,8 +579,8 @@ export default function DashboardLayout({
                             href={item.href}
                             className={`flex items-center space-x-2.5 px-3 py-1.5 text-sm rounded-lg transition-all duration-150 ${
                               isActive
-                                ? 'bg-orange-50/80 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-medium'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50/50 dark:hover:bg-white/5'
+                                ? 'bg-orange-200/60 dark:bg-orange-900/20 text-gray-800 dark:text-orange-400 font-medium'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-orange-100/50 dark:hover:bg-white/5'
                             }`}
                           >
                             <item.icon className="h-3.5 w-3.5" />
@@ -575,7 +595,7 @@ export default function DashboardLayout({
             })}
 
             {/* Separator */}
-            <div className="h-px bg-gray-200/50 dark:bg-gray-700/50 my-3"></div>
+            <div className="h-px bg-orange-200/50 dark:bg-gray-700/50 my-3"></div>
 
             {/* Director Admin Panel - Only visible to directors */}
             {isDirector && (
@@ -597,7 +617,7 @@ export default function DashboardLayout({
               href="/dashboard/settings"
               className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                 pathname === '/dashboard/settings'
-                  ? 'glass-sidebar-item-active text-gray-900 dark:text-white'
+                  ? 'glass-sidebar-item-active text-gray-800 dark:text-white'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-sidebar-item'
               }`}
             >
@@ -610,7 +630,7 @@ export default function DashboardLayout({
               href="/dashboard/profile"
               className={`flex items-center space-x-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                 pathname === '/dashboard/profile'
-                  ? 'glass-sidebar-item-active text-gray-900 dark:text-white'
+                  ? 'glass-sidebar-item-active text-gray-800 dark:text-white'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white glass-sidebar-item'
               }`}
             >
@@ -652,10 +672,10 @@ export default function DashboardLayout({
                   alt={user.user_metadata?.full_name || 'User'}
                   width={36}
                   height={36}
-                  className="w-9 h-9 rounded-full object-cover ring-2 ring-white/80"
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-orange-100"
                 />
               ) : (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold ring-2 ring-white/80">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-amber-600 flex items-center justify-center text-white text-sm font-semibold ring-2 ring-orange-100">
                   {user.email?.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -665,10 +685,10 @@ export default function DashboardLayout({
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
               </div>
-              <ChevronDown 
+              <ChevronDown
                 className={`h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${
                   userMenuOpen ? 'rotate-180' : ''
-                }`} 
+                }`}
               />
             </button>
             
@@ -679,12 +699,12 @@ export default function DashboardLayout({
                   onClick={() => {
                     setUserMenuOpen(false);
                   }}
-                  className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-black/5 transition-colors first:rounded-t-lg"
+                  className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-100/50 transition-colors first:rounded-t-lg"
                 >
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
                 </button>
-                <div className="h-px bg-black/5 my-1 mx-2"></div>
+                <div className="h-px bg-orange-200/60 my-1 mx-2"></div>
                 <button
                   onClick={() => {
                     setUserMenuOpen(false);
@@ -766,14 +786,6 @@ export default function DashboardLayout({
               +
             </button>
           </div>
-
-          {/* Top Bar with Search - Only on desktop */}
-          <header className="flex-shrink-0 hidden lg:block">
-            <div className="px-4 py-1 flex items-center">
-              <div className="flex items-center justify-between w-full">
-              </div>
-            </div>
-          </header>
 
           {/* Page Content */}
           <div className="flex-1 overflow-y-auto glass-scrollbar pt-0">
