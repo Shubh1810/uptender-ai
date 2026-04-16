@@ -33,9 +33,9 @@ export default function OnboardingClient() {
   // Auth state for step 1
   const [isSignUp, setIsSignUp] = React.useState(true); // Toggle between sign up and sign in
   const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [otp, setOtp] = React.useState('');
+  const [otpSent, setOtpSent] = React.useState(false);
   const [authError, setAuthError] = React.useState('');
-  const [rememberMe, setRememberMe] = React.useState(false);
 
   const [fullName, setFullName] = React.useState('');
   const [isFullNameLocked, setIsFullNameLocked] = React.useState(false);
@@ -540,15 +540,44 @@ export default function OnboardingClient() {
   }, [supabase, searchParams]);
 
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithOtp({
         email,
-        password,
+        options: {
+          shouldCreateUser: isSignUp,
+        },
+      });
+
+      if (error) {
+        setAuthError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      setOtpSent(true);
+    } catch (err) {
+      setAuthError('Failed to send OTP. Please try again.');
+      console.error('OTP send error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email',
       });
 
       if (error) {
@@ -647,7 +676,7 @@ export default function OnboardingClient() {
             alt="TenderPost Onboarding"
             fill
             className="object-cover"
-            quality={100}
+            quality={80}
             priority
             sizes="50vw"
           />
@@ -960,102 +989,70 @@ export default function OnboardingClient() {
                     </div>
                   )}
 
-                  {/* Email/Password Form */}
-                  <form onSubmit={isSignUp ? async (e) => {
-                    e.preventDefault();
-                    setAuthError('');
-                    setLoading(true);
-
-                    try {
-                      const { data, error } = await supabase.auth.signUp({
-                        email,
-                        password,
-                      });
-
-                      if (error) {
-                        setAuthError(error.message);
-                        setLoading(false);
-                        return;
-                      }
-
-                      if (data.user) {
-                        setStep(2);
-                      }
-                    } catch (err) {
-                      setAuthError('An unexpected error occurred');
-                      console.error('Sign up error:', err);
-                    } finally {
-                      setLoading(false);
-                    }
-                  } : handleEmailSignIn} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Id <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3d2817] focus:border-transparent transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Password <span className="text-red-500">*</span>
+                  {/* OTP Flow */}
+                  {!otpSent ? (
+                    /* Step A: Enter email, request OTP */
+                    <form onSubmit={handleSendOtp} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Email Id <span className="text-red-500">*</span>
                         </label>
-                        <Link
-                          href="/auth/reset-password"
-                          className="text-xs text-[#3d2817] hover:text-[#2d1f12] transition-colors"
-                        >
-                          Forgot Password?
-                        </Link>
+                        <input
+                          type="email"
+                          placeholder="Enter your email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3d2817] focus:border-transparent transition-all"
+                        />
                       </div>
-                      <input
-                        type="password"
-                        placeholder="Enter Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3d2817] focus:border-transparent transition-all"
-                      />
-                      <div className="flex justify-end mt-2">
-                        <label className="flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                            className="w-4 h-4 text-[#3d2817] border-gray-300 rounded focus:ring-[#3d2817] focus:ring-2"
-                          />
-                          <span className="ml-2 text-sm text-gray-700">Remember me</span>
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3.5 rounded-lg font-medium transition-all shadow-sm hover:shadow"
+                      >
+                        {loading ? 'Sending OTP...' : (isSignUp ? 'Send OTP to Create Account' : 'Send OTP to Sign In')}
+                      </Button>
+                    </form>
+                  ) : (
+                    /* Step B: Enter 6-digit OTP */
+                    <form onSubmit={handleVerifyOtp} className="space-y-4">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-4">
+                          A 6-digit code was sent to <span className="font-medium text-gray-900">{email}</span>.
+                          {' '}<button type="button" onClick={() => { setOtpSent(false); setOtp(''); setAuthError(''); }} className="text-[#3d2817] underline text-xs">Change email</button>
+                        </p>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Enter OTP <span className="text-red-500">*</span>
                         </label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="123456"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          required
+                          maxLength={6}
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3d2817] focus:border-transparent transition-all tracking-widest text-center text-xl font-mono"
+                        />
                       </div>
-                      {isSignUp && (
-                        <>
-                          <p className="text-xs text-gray-500 mt-2">Password Strength : Weak</p>
-                          <ul className="text-xs text-gray-500 mt-1 space-y-0.5">
-                            <li>• Cannot contain your name or email address</li>
-                            <li>• At least 8 characters</li>
-                            <li>• Contains a number or symbol</li>
-                          </ul>
-                        </>
-                      )}
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3.5 rounded-lg font-medium transition-all shadow-sm hover:shadow"
-                    >
-                      {loading 
-                        ? (isSignUp ? 'Creating Account...' : 'Signing in...') 
-                        : (isSignUp ? 'Create Account' : 'Sign In')
-                      }
-                    </Button>
-                  </form>
+                      <Button
+                        type="submit"
+                        disabled={loading || otp.length < 6}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3.5 rounded-lg font-medium transition-all shadow-sm hover:shadow disabled:opacity-50"
+                      >
+                        {loading ? 'Verifying...' : 'Verify & Continue'}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={loading}
+                        className="w-full text-sm text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
+                      >
+                        Resend OTP
+                      </button>
+                    </form>
+                  )}
 
                   {/* Divider */}
                   <div className="relative">

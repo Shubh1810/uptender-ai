@@ -1,11 +1,8 @@
 /**
  * Tender Statistics Management - Simplified Architecture
- * 
- * Reads live tender count directly from Supabase latest_snapshot table.
- * No more in-memory storage, no more POST updates, no more events!
- * 
- * CRON job updates Supabase → API reads from Supabase → Display shows data
- * Simple, reliable, always accurate!
+ *
+ * Reads the live tender count from the same Supabase `tenders` table query
+ * used by the dashboard search experience.
  */
 
 export interface TenderStats {
@@ -15,10 +12,10 @@ export interface TenderStats {
 }
 
 /**
- * Get live tenders count from Supabase (via API route)
- * 
- * This always reflects the latest CRON scrape data.
- * Works for first-time visitors, logged-out users, and survives deploys!
+ * Get live tenders count from Supabase (via API route).
+ *
+ * This stays aligned with the search dashboard by counting active rows from
+ * the `tenders` table.
  */
 export async function getLiveTendersCount(): Promise<TenderStats> {
   try {
@@ -48,4 +45,3 @@ export async function getLiveTendersCount(): Promise<TenderStats> {
     };
   }
 }
-
