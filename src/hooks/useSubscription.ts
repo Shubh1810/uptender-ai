@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-
-interface SubscriptionPlan {
-  plan_id: string;
-  display_name: string;
-  features: Record<string, any>;
-  limits: Record<string, number>;
-  status: string;
-}
+import { useDashboardAccess, type SubscriptionPlan } from '@/components/dashboard/DashboardAccessProvider';
 
 export function useSubscription() {
-  const [plan, setPlan] = useState<SubscriptionPlan | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { initialPlan } = useDashboardAccess();
+  const [plan, setPlan] = useState<SubscriptionPlan | null>(initialPlan);
+  const [loading, setLoading] = useState(!initialPlan);
   
   useEffect(() => {
     const fetchPlan = async () => {
