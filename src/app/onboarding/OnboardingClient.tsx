@@ -672,11 +672,11 @@ export default function OnboardingClient() {
         <div className="relative flex-1 rounded-2xl overflow-hidden">
           {/* Static Background Image */}
           <Image
-            src="/onboard5.jpeg"
+            src="/onboard5.webp"
             alt="TenderPost Onboarding"
             fill
             className="object-cover"
-            quality={80}
+            quality={75}
             priority
             sizes="50vw"
           />

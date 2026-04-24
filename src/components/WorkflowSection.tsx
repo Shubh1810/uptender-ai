@@ -2,16 +2,20 @@
 
 import React, { useRef, useState, useLayoutEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { 
-  CheckCircle, 
-  Bell, 
-  Target, 
-  Save, 
-  Trophy, 
-  TrendingUp 
+import {
+  CheckCircle,
+  Bell,
+  Save,
+  Trophy,
+  TrendingUp,
+  Sparkles,
+  Users,
+  Medal,
+  AlertTriangle,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -89,6 +93,356 @@ const slotMachineTransition = {
   ease: [0.22, 1, 0.36, 1] as const,
 };
 
+// Apple-style toggle switch
+function AppleToggle({ enabled, onChange }: { enabled: boolean; onChange: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      className="relative flex-shrink-0 focus:outline-none"
+      style={{ width: 51, height: 31 }}
+      aria-checked={enabled}
+      role="switch"
+    >
+      <motion.div
+        className="absolute inset-0 rounded-full"
+        animate={{ backgroundColor: enabled ? '#34c759' : '#e5e7eb' }}
+        transition={{ duration: 0.25 }}
+      />
+      <motion.div
+        className="absolute top-[2px] w-[27px] h-[27px] bg-white rounded-full shadow-md"
+        animate={{ x: enabled ? 22 : 2 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 24, mass: 0.8 }}
+      />
+    </button>
+  );
+}
+
+// Animated AI score bar with counter
+function AIScoreBar({ score, inView }: { score: number; inView: boolean }) {
+  const [displayed, setDisplayed] = useState(0);
+
+  React.useEffect(() => {
+    if (!inView) return;
+    const end = score;
+    const duration = 1100;
+    const stepTime = 16;
+    const steps = Math.floor(duration / stepTime);
+    let current = 0;
+    const timer = setInterval(() => {
+      current++;
+      setDisplayed(Math.round((end * current) / steps));
+      if (current >= steps) clearInterval(timer);
+    }, stepTime);
+    return () => clearInterval(timer);
+  }, [inView, score]);
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full rounded-full"
+          style={{ background: 'linear-gradient(90deg, #1d4ed8 0%, #2563eb 20%, #4338ca 45%, #6d28d9 65%, #9333ea 82%, #db2777 100%)' }}
+          initial={{ width: 0 }}
+          animate={{ width: inView ? `${score}%` : 0 }}
+          transition={{ duration: 1.1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
+      <motion.span
+        className="text-sm font-semibold text-gray-900 w-9 text-right tabular-nums"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: inView ? 1 : 0 }}
+        transition={{ delay: 0.25 }}
+      >
+        {displayed}%
+      </motion.span>
+    </div>
+  );
+}
+
+// Notify step — Apple-style unified card with sequenced animations
+function NotifyContent({ direction }: { direction: 'down' | 'up' }) {
+  const [emailOn, setEmailOn] = useState(false);
+  const [waOn, setWaOn] = useState(false);
+  const [scoreVisible, setScoreVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(cardRef, { once: true, margin: '-60px' });
+
+  // Sequence: email toggle → WhatsApp toggle → AI score
+  // Spring (stiffness:120, damping:18, mass:1.2) settles in ~900ms
+  React.useEffect(() => {
+    if (!inView) return;
+    const t1 = setTimeout(() => setEmailOn(true), 150);
+    const t2 = setTimeout(() => setWaOn(true), 150 + 420);
+    const t3 = setTimeout(() => setScoreVisible(true), 150 + 420 + 420);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [inView]);
+
+  return (
+    <motion.div
+      key="notify-content"
+      ref={cardRef}
+      custom={direction}
+      variants={slotMachineVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={slotMachineTransition}
+      style={{ transformPerspective: 1200 }}
+      className="relative w-full space-y-3"
+    >
+      {/* Unified notification toggles card */}
+      <motion.div
+        className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 16 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Email row */}
+        <div className="flex items-center justify-between px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.273L12 10.91l10.091-7.09h.273c.904 0 1.636.732 1.636 1.636z"/>
+              </svg>
+            </div>
+            <div>
+              <span className="font-medium text-gray-900 text-sm">Email alerts</span>
+              <p className="text-xs text-gray-400">Instant tender match emails</p>
+            </div>
+          </div>
+          <AppleToggle enabled={emailOn} onChange={() => setEmailOn(v => !v)} />
+        </div>
+
+        <div className="h-px bg-gray-100 mx-4" />
+
+        {/* WhatsApp row */}
+        <div className="flex items-center justify-between px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#25D366] rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
+              </svg>
+            </div>
+            <div>
+              <span className="font-medium text-gray-900 text-sm">WhatsApp alerts</span>
+              <p className="text-xs text-gray-400">Real-time notifications</p>
+            </div>
+          </div>
+          <AppleToggle enabled={waOn} onChange={() => setWaOn(v => !v)} />
+        </div>
+      </motion.div>
+
+      {/* AI relevance score card */}
+      <motion.div
+        className="bg-white/95 backdrop-blur-md rounded-2xl px-4 py-4 shadow-sm"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: scoreVisible ? 1 : 0, y: scoreVisible ? 0 : 20 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="relative inline-flex">
+              <svg width="0" height="0" style={{ position: 'absolute', overflow: 'hidden' }}>
+                <defs>
+                  <radialGradient id="sparkle-orange" cx="50%" cy="50%" r="55%">
+                    <stop offset="0%" stopColor="#fed7aa" />
+                    <stop offset="55%" stopColor="#fb923c" />
+                    <stop offset="100%" stopColor="#ea580c" />
+                  </radialGradient>
+                </defs>
+              </svg>
+              <Sparkles className="w-4 h-4" style={{ stroke: 'url(#sparkle-orange)' }} />
+            </span>
+            <span className="text-sm font-semibold text-gray-900"> Relevance Score</span>
+          </div>
+          <span className="text-[11px] text-gray-400 font-medium">this week</span>
+        </div>
+
+        <AIScoreBar score={87} inView={scoreVisible} />
+
+        <motion.p
+          className="text-xs text-gray-400 mt-2.5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: scoreVisible ? 1 : 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          High match · 12 tenders found this week
+        </motion.p>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function WinProbBar({ inView }: { inView: boolean }) {
+  const [displayed, setDisplayed] = useState(0);
+  React.useEffect(() => {
+    if (!inView) return;
+    const total = Math.floor(900 / 16);
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
+      setDisplayed(Math.round((74 * i) / total));
+      if (i >= total) clearInterval(t);
+    }, 16);
+    return () => clearInterval(t);
+  }, [inView]);
+
+  return (
+    <div className="flex items-center gap-3 mt-3">
+      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full rounded-full"
+          style={{ background: 'linear-gradient(90deg, #34d399, #10b981, #059669)' }}
+          initial={{ width: 0 }}
+          animate={{ width: inView ? '74%' : 0 }}
+          transition={{ duration: 1.0, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
+      <span className="text-sm font-semibold text-emerald-600 w-9 text-right tabular-nums">
+        {displayed}%
+      </span>
+    </div>
+  );
+}
+
+function WinContent({ direction }: { direction: 'down' | 'up' }) {
+  const [aiVisible, setAiVisible] = useState(false);
+  const [infoVisible, setInfoVisible] = useState([false, false, false]);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(cardRef, { once: true, margin: '-60px' });
+
+  React.useEffect(() => {
+    if (!inView) return;
+    // AI suggestion after bar finishes (~1.1s)
+    const t1 = setTimeout(() => setAiVisible(true), 1150);
+    // Info rows stagger after AI suggestion
+    [0, 1, 2].forEach(i =>
+      setTimeout(() => setInfoVisible(prev => {
+        const n = [...prev]; n[i] = true; return n;
+      }), 1150 + 300 + i * 180)
+    );
+    return () => clearTimeout(t1);
+  }, [inView]);
+
+  return (
+    <motion.div
+      key="win-content"
+      ref={cardRef}
+      custom={direction}
+      variants={slotMachineVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={slotMachineTransition}
+      style={{ transformPerspective: 1200 }}
+      className="relative w-full space-y-3"
+    >
+      {/* Top card — Win Probability */}
+      <motion.div
+        className="bg-white/95 backdrop-blur-md rounded-2xl px-4 pt-4 pb-4 shadow-sm"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 14 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Header row */}
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Win Probability</span>
+            </div>
+            <span className="text-3xl font-bold text-gray-900 tabular-nums leading-none">74%</span>
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 flex items-center gap-1">
+              <Users className="w-3 h-3" /> #2 of 12 bidders
+            </span>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 flex items-center gap-1">
+              <Medal className="w-3 h-3 text-amber-500" /> ₹1.2 Cr tender
+            </span>
+          </div>
+        </div>
+
+        <WinProbBar inView={inView} />
+      </motion.div>
+
+      {/* AI Suggestion strip */}
+      <motion.div
+        className="bg-white/95 backdrop-blur-md rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: aiVisible ? 1 : 0, y: aiVisible ? 0 : 10 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <span className="relative inline-flex flex-shrink-0">
+          <svg width="0" height="0" style={{ position: 'absolute', overflow: 'hidden' }}>
+            <defs>
+              <radialGradient id="win-sparkle" cx="50%" cy="50%" r="55%">
+                <stop offset="0%" stopColor="#fed7aa" />
+                <stop offset="55%" stopColor="#fb923c" />
+                <stop offset="100%" stopColor="#ea580c" />
+              </radialGradient>
+            </defs>
+          </svg>
+          <Sparkles className="w-4 h-4" style={{ stroke: 'url(#win-sparkle)' }} />
+        </span>
+        <p className="text-sm font-medium text-gray-800">
+          Lower bid by <span className="text-emerald-600 font-semibold">3%</span> to increase win chance
+        </p>
+      </motion.div>
+
+      {/* Info rows card */}
+      <motion.div
+        className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: infoVisible[0] ? 1 : 0, y: infoVisible[0] ? 0 : 10 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Competitor range */}
+        <motion.div
+          className="flex items-center justify-between px-4 py-3"
+          initial={{ opacity: 0, x: -6 }}
+          animate={{ opacity: infoVisible[0] ? 1 : 0, x: infoVisible[0] ? 0 : -6 }}
+          transition={{ duration: 0.3 }}
+        >
+          <span className="text-xs text-gray-500 font-medium">Competitor range</span>
+          <span className="text-xs font-semibold text-gray-800">₹1.08 – 1.15 Cr</span>
+        </motion.div>
+
+        <div className="h-px bg-gray-100 mx-4" />
+
+        {/* Risk */}
+        <motion.div
+          className="flex items-center justify-between px-4 py-3"
+          initial={{ opacity: 0, x: -6 }}
+          animate={{ opacity: infoVisible[1] ? 1 : 0, x: infoVisible[1] ? 0 : -6 }}
+          transition={{ duration: 0.3 }}
+        >
+          <span className="text-xs text-gray-500 font-medium">Risks</span>
+          <span className="text-xs font-semibold text-amber-600 flex items-center gap-1">
+            <AlertTriangle className="w-3 h-3" /> 1 eligibility concern
+          </span>
+        </motion.div>
+
+        <div className="h-px bg-gray-100 mx-4" />
+
+        {/* Deadline */}
+        <motion.div
+          className="flex items-center justify-between px-4 py-3"
+          initial={{ opacity: 0, x: -6 }}
+          animate={{ opacity: infoVisible[2] ? 1 : 0, x: infoVisible[2] ? 0 : -6 }}
+          transition={{ duration: 0.3 }}
+        >
+          <span className="text-xs text-gray-500 font-medium">Deadline</span>
+          <span className="text-xs font-semibold text-red-500 flex items-center gap-1">
+            <Clock className="w-3 h-3" /> 18h left
+          </span>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // Inner content for each step (this is what animates)
 function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win'; direction: 'down' | 'up' }) {
   if (stepKey === 'save') {
@@ -108,7 +462,7 @@ function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win
           <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
           <div className="flex flex-col">
             <span className="font-medium text-gray-900">Profile information</span>
-            <span className="text-xs text-gray-500">Name, phone, GSTIN, company details</span>
+            <span className="text-xs text-gray-500">Company details, Primary industry, GSTIN</span>
           </div>
         </div>
         <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
@@ -122,7 +476,7 @@ function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win
           <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
           <div className="flex flex-col">
             <span className="font-medium text-gray-900">Preferred categories</span>
-            <span className="text-xs text-gray-500">Sectors, locations, budget range</span>
+            <span className="text-xs text-gray-500">Sectors, Locations, Budget range</span>
           </div>
         </div>
       </motion.div>
@@ -130,80 +484,10 @@ function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win
   }
 
   if (stepKey === 'notify') {
-    return (
-      <motion.div 
-        key="notify-content"
-        custom={direction}
-        variants={slotMachineVariants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={slotMachineTransition}
-        style={{ transformPerspective: 1200 }}
-        className="relative grid gap-3 w-full"
-      >
-        <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.273L12 10.91l10.091-7.09h.273c.904 0 1.636.732 1.636 1.636z"/>
-              </svg>
-            </div>
-            <span>Email alert</span>
-          </div>
-          <span className="text-green-600 text-sm font-medium">Enabled</span>
-        </div>
-        <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
-              </svg>
-            </div>
-            <span>WhatsApp alert</span>
-          </div>
-          <span className="text-green-600 text-sm font-medium">Enabled</span>
-        </div>
-        <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-bold">AI</span>
-            </div>
-            <span>AI relevance</span>
-          </div>
-          <span className="text-green-600 text-sm font-medium">High</span>
-        </div>
-      </motion.div>
-    );
+    return <NotifyContent direction={direction} />;
   }
 
-  // win
-  return (
-    <motion.div 
-      key="win-content"
-      custom={direction}
-      variants={slotMachineVariants}
-      initial="enter"
-      animate="center"
-      exit="exit"
-      transition={slotMachineTransition}
-      style={{ transformPerspective: 1200 }}
-      className="relative space-y-3 w-full"
-    >
-      <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
-        <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-        Compliance checklist
-      </div>
-      <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
-        <Target className="h-5 w-5 text-purple-600 mr-3" />
-        Competitive insights
-      </div>
-      <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
-        <TrendingUp className="h-5 w-5 text-rose-600 mr-3" />
-        Likelihood to win
-      </div>
-    </motion.div>
-  );
+  return <WinContent direction={direction} />;
 }
 
 export function WorkflowSection() {

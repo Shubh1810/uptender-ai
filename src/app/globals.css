@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -330,8 +331,6 @@ optgroup option {
 /* Frosted glass sidebar - warm cream-orange tone */
 .glass-sidebar {
   background: rgba(238, 222, 200, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   z-index: 40;
 }
 
@@ -339,8 +338,6 @@ optgroup option {
 .floating-content-panel {
   position: relative;
   background: rgba(253, 246, 236, 0.98);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
   border-radius: 0 12px 12px 12px; /* Sharp top-left, rounded others */
   isolation: isolate;
   overflow: visible;
@@ -377,8 +374,6 @@ optgroup option {
   min-width: 80px;
   max-width: 180px;
   background: rgba(253, 246, 236, 0.98);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-radius: 8px 8px 0 0;
   display: flex;
   align-items: flex-start;
@@ -596,8 +591,6 @@ optgroup option {
 /* Dropdown menu glass effect */
 .glass-dropdown {
   background: rgba(253, 246, 236, 0.98);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 10px;
   box-shadow:
@@ -716,8 +709,6 @@ optgroup option {
 /* Floating main content panel - LIGHT GREY in dark mode */
 .dark .floating-content-panel {
   background: #1f1f23;
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -794,8 +785,6 @@ optgroup option {
 /* Dropdown menu - dark mode */
 .dark .glass-dropdown {
   background: rgba(28, 28, 32, 0.98);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
     0 4px 6px rgba(0, 0, 0, 0.3),
