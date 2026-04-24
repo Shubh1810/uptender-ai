@@ -32,25 +32,28 @@ export function CookieBanner() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] animate-in slide-in-from-bottom duration-500">
       {/* Backdrop blur */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent backdrop-blur-sm dark:from-black/40" />
       
       {/* Cookie Banner */}
-      <div className="relative shadow-2xl" style={{ backgroundColor: '#fefcf3', borderTop: '4px solid #1e3a8a' }}>
+      <div className="relative border-t-4 border-t-blue-900 bg-[#fefcf3] shadow-2xl dark:border-t-blue-400 dark:bg-slate-950/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-6 sm:pb-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             {/* Left: Icon + Message */}
             <div className="flex items-start gap-3 flex-1">
               <div className="flex-shrink-0">
-                <Shield className="h-7 w-7 text-gray-700" />
+                <Shield className="h-7 w-7 text-gray-700 dark:text-slate-200" />
               </div>
               
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 mb-1">
+                <p className="mb-1 text-sm font-medium text-gray-900 dark:text-slate-100">
                   We use cookies
                 </p>
-                <p className="text-xs text-gray-600 leading-relaxed">
+                <p className="text-xs leading-relaxed text-gray-600 dark:text-slate-300">
                   We use essential cookies to make our site work. With your consent, we may also use non-essential cookies to improve user experience and analyze website traffic.{' '}
-                  <Link href="/privacy-policy" className="text-[#1e3a8a] hover:text-[#1e40af] underline">
+                  <Link
+                    href="/privacy-policy"
+                    className="underline text-blue-900 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                  >
                     Learn more
                   </Link>
                 </p>
@@ -62,16 +65,13 @@ export function CookieBanner() {
               <Button
                 onClick={handleDecline}
                 variant="outline"
-                className="flex-1 sm:flex-none text-sm px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                className="flex-1 border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 sm:flex-none"
               >
                 Decline
               </Button>
               <Button
                 onClick={handleAccept}
-                className="flex-1 sm:flex-none text-sm px-6 py-2 text-white"
-                style={{ backgroundColor: '#1e3a8a' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1e40af'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1e3a8a'}
+                className="flex-1 bg-blue-900 px-6 py-2 text-sm text-white hover:bg-blue-800 dark:bg-blue-500 dark:text-slate-950 dark:hover:bg-blue-400 sm:flex-none"
               >
                 Accept
               </Button>
@@ -108,19 +108,19 @@ export function CookieBannerMinimal() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-md z-[100] animate-in slide-in-from-bottom duration-500">
-      <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-4">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-950/95">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0">
-            <Cookie className="h-5 w-5 text-orange-600" />
+            <Cookie className="h-5 w-5 text-orange-600 dark:text-orange-400" />
           </div>
           
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 mb-1">
+            <p className="mb-1 text-sm font-medium text-gray-900 dark:text-slate-100">
               Cookie Notice
             </p>
-            <p className="text-xs text-gray-600 mb-3">
+            <p className="mb-3 text-xs text-gray-600 dark:text-slate-300">
               We use cookies for authentication and analytics.{' '}
-              <Link href="/privacy-policy" className="text-orange-600 hover:underline">
+              <Link href="/privacy-policy" className="text-orange-600 hover:underline dark:text-orange-400">
                 Learn more
               </Link>
             </p>
@@ -128,14 +128,14 @@ export function CookieBannerMinimal() {
             <div className="flex gap-2">
               <Button
                 onClick={handleAccept}
-                className="flex-1 text-xs px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white h-auto"
+                className="h-auto flex-1 bg-orange-600 px-4 py-1.5 text-xs text-white hover:bg-orange-700 dark:bg-orange-500 dark:text-slate-950 dark:hover:bg-orange-400"
               >
                 Accept
               </Button>
               <Button
                 onClick={handleClose}
                 variant="outline"
-                className="text-xs px-3 py-1.5 border-gray-300 text-gray-700 hover:bg-gray-50 h-auto"
+                className="h-auto border-gray-300 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Decline
               </Button>
@@ -144,7 +144,7 @@ export function CookieBannerMinimal() {
 
           <button
             onClick={handleClose}
-            className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+            className="flex-shrink-0 text-gray-400 transition-colors hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -154,4 +154,3 @@ export function CookieBannerMinimal() {
     </div>
   );
 }
-

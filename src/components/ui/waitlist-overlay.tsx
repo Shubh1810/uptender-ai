@@ -299,10 +299,10 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                       </p>
                     </div>
                     
-                    <div className="relative p-[2px] bg-gradient-to-r from-blue-900 via-blue-600 to-sky-400 hover:from-blue-800 hover:via-blue-500 hover:to-sky-300 transition-all duration-300 shadow-md hover:shadow-lg">
+                    <div className="relative w-full p-[2px] bg-gradient-to-r from-blue-900 via-blue-600 to-sky-400 hover:from-blue-800 hover:via-blue-500 hover:to-sky-300 transition-all duration-300 shadow-md hover:shadow-lg">
                       <button
                         onClick={handleClose}
-                        className="bg-white hover:bg-blue-900 text-gray-900 hover:text-white px-4 py-2 font-semibold transition-all duration-300 text-sm"
+                        className="w-full bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition-all duration-300 hover:bg-blue-900 hover:text-white"
                       >
                         Continue Exploring
                       </button>
