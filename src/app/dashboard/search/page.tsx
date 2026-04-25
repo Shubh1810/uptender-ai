@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
+import Image from 'next/image';
 import {
   Search,
-  Filter,
   Calendar,
   MapPin,
   Building,
@@ -23,11 +23,16 @@ import {
   IndianRupee,
   Clock,
   Tag,
+  SlidersHorizontal,
+  ArrowUpDown,
+  Crown,
+  X as CloseIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { trackTenderSearch, trackTenderExternalClick } from '@/lib/posthog/events';
 import { useSavedTenders } from '@/hooks/useSavedTenders';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface Tender {
   id: string;
@@ -63,13 +68,23 @@ interface TenderResponse {
   page: number;
   limit: number;
   has_more: boolean;
-  total_processing_time?: number;
 }
 
-interface Filters {
-  category: string;
-  location: string;
-  dateFilter: string;
+interface SidebarFilters {
+  keywords: string[];
+  excludeKeywords: string[];
+  dateType: 'published' | 'closing';
+  dateRange: string;
+  customDate: string;
+  portal: string;
+  state: string;
+  city: string;
+  procurementType: string;
+  minAmount: string;
+  maxAmount: string;
+  organisation: string;
+  tenderFeeExempted: boolean;
+  emdExempted: boolean;
   tenderType: string;
 }
 
@@ -89,25 +104,114 @@ const formatDate = (dateStr: string | null): string => {
   });
 };
 
+const DATE_QUICK = [
+  { label: 'Today',         value: '1' },
+  { label: 'Last 7 Days',   value: '7' },
+  { label: 'Last 1 Month',  value: '30' },
+  { label: 'Last 3 Months', value: '90' },
+  { label: 'All',           value: '' },
+];
+
+const PORTALS = ['GeM', 'CPPP', 'State Portal', 'Defence', 'Railways', 'NHIDCL'];
+const STATES  = ['Andhra Pradesh','Assam','Bihar','Delhi','Gujarat','Haryana','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Odisha','Punjab','Rajasthan','Tamil Nadu','Telangana','Uttar Pradesh','West Bengal'];
+const PROCUREMENT_TYPES = ['Open Tender', 'Limited Tender', 'Single Tender', 'EOI', 'RFP', 'RFQ', 'Global Tender'];
+
+function AccordionSection({
+  title, children, defaultOpen = false,
+}: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-gray-100 dark:border-white/[0.06]">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/80 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors"
+      >
+        {title}
+        <ChevronDown className={`h-4 w-4 text-gray-400 dark:text-white/30 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && <div className="px-4 pb-4">{children}</div>}
+    </div>
+  );
+}
+
+function KeywordChips({
+  chips, onRemove, placeholder, onAdd,
+}: { chips: string[]; onRemove: (k: string) => void; placeholder: string; onAdd: (k: string) => void }) {
+  const [input, setInput] = useState('');
+  const add = () => {
+    const v = input.trim();
+    if (v && !chips.includes(v)) { onAdd(v); setInput(''); }
+  };
+  return (
+    <div className="space-y-2">
+      {chips.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {chips.map(k => (
+            <span key={k} className="flex items-center gap-1 rounded-full bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-medium text-blue-700 dark:text-blue-400">
+              {k}
+              <button onClick={() => onRemove(k)} className="ml-0.5 text-blue-400 hover:text-blue-600">
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="flex gap-1.5">
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), add())}
+          placeholder={placeholder}
+          className="flex-1 rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20 px-3 py-1.5 text-xs text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:border-blue-400 dark:focus:border-blue-500/50"
+        />
+        <button
+          onClick={add}
+          className="rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-white/[0.04] px-2.5 py-1.5 text-xs font-medium text-gray-700 dark:text-white/60 hover:bg-gray-50 dark:hover:bg-white/[0.08] transition-colors"
+        >
+          Add
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function SearchPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser]           = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [tenders, setTenders] = useState<Tender[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [tenders, setTenders]     = useState<Tender[]>([]);
+  const [loading, setLoading]     = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]         = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<Filters>({
-    category: '', location: '', dateFilter: '', tenderType: '',
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'value_desc' | 'value_asc'>('newest');
+  const [showSortMenu, setShowSortMenu] = useState(false);
+
+  const [filters, setFilters] = useState<SidebarFilters>({
+    keywords: [],
+    excludeKeywords: [],
+    dateType: 'published',
+    dateRange: '',
+    customDate: '',
+    portal: '',
+    state: '',
+    city: '',
+    procurementType: '',
+    minAmount: '',
+    maxAmount: '',
+    organisation: '',
+    tenderFeeExempted: false,
+    emdExempted: false,
+    tenderType: '',
   });
 
   const router = useRouter();
   const supabase = createClient();
   const { isSaved, saveTender, unsaveTender } = useSavedTenders();
+  const { hasFeature, plan } = useSubscription();
+  const [showExportPopup, setShowExportPopup] = useState(false);
 
-  // Auth check
   useEffect(() => {
     let mounted = true;
     const init = async () => {
@@ -115,15 +219,13 @@ export default function SearchPage() {
         const { data: { user: authUser }, error } = await supabase.auth.getUser();
         if (error || !authUser) { if (mounted) window.location.href = '/'; return; }
         if (mounted) setUser(authUser);
-      } catch {
-        if (mounted) window.location.href = '/';
-      }
+      } catch { if (mounted) window.location.href = '/'; }
     };
     init();
     return () => { mounted = false; };
   }, []);
 
-  const fetchTenders = async (page = 1, query = '', activeFilters: Filters = filters) => {
+  const fetchTenders = async (page = 1, query = searchQuery, f: SidebarFilters = filters) => {
     setLoading(true);
     setLoadingProgress(0);
     setError(null);
@@ -133,30 +235,30 @@ export default function SearchPage() {
     }, 150);
 
     try {
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: String(ITEMS_PER_PAGE),
-        ...(query                      && { query }),
-        ...(activeFilters.category     && { category: activeFilters.category }),
-        ...(activeFilters.location     && { location: activeFilters.location }),
-        ...(activeFilters.dateFilter   && { date_filter: activeFilters.dateFilter }),
-        ...(activeFilters.tenderType   && { tender_type: activeFilters.tenderType }),
-      });
+      const allKeywords = [...f.keywords, ...(query.trim() ? [query.trim()] : [])];
+      const params = new URLSearchParams({ page: String(page), limit: String(ITEMS_PER_PAGE) });
+      if (allKeywords.length)        params.set('query', allKeywords.join(' '));
+      if (f.excludeKeywords.length)  params.set('exclude', f.excludeKeywords.join(','));
+      if (f.dateRange)               params.set('date_filter', f.dateRange);
+      if (f.portal)                  params.set('source', f.portal);
+      if (f.state)                   params.set('location', f.state);
+      if (f.city)                    params.set('city', f.city);
+      if (f.procurementType)         params.set('tender_type', f.procurementType);
+      if (f.minAmount)               params.set('min_amount', f.minAmount);
+      if (f.maxAmount)               params.set('max_amount', f.maxAmount);
+      if (f.organisation)            params.set('organisation', f.organisation);
+      if (f.tenderFeeExempted)       params.set('tender_fee_exempted', 'true');
+      if (f.emdExempted)             params.set('emd_exempted', 'true');
 
       const response = await fetch(`/api/tenders?${params}`, { cache: 'no-store' });
-
       clearInterval(progressInterval);
       setLoadingProgress(100);
-
       if (!response.ok) throw new Error('Failed to fetch tenders');
-
       const data: TenderResponse = await response.json();
-
       setTenders(data.items || []);
       setTotalCount(data.total_items || 0);
       setCurrentPage(page);
       setLoading(false);
-
       trackTenderSearch({ query: query || undefined, resultsCount: data.total_items || 0, page });
     } catch (err) {
       clearInterval(progressInterval);
@@ -166,42 +268,110 @@ export default function SearchPage() {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchTenders(1, searchQuery, filters);
-  };
-
-  const handleApplyFilters = () => {
-    fetchTenders(1, searchQuery, filters);
-    setShowFilters(false);
-  };
-
+  const handleSearch = (e: React.FormEvent) => { e.preventDefault(); fetchTenders(1); };
+  const handleApply  = () => { fetchTenders(1); setMobileSidebarOpen(false); };
   const handleClearAll = () => {
     setSearchQuery('');
-    setFilters({ category: '', location: '', dateFilter: '', tenderType: '' });
-    setTenders([]);
-    setTotalCount(0);
-    setCurrentPage(1);
+    setFilters({ keywords: [], excludeKeywords: [], dateType: 'published', dateRange: '', customDate: '', portal: '', state: '', city: '', procurementType: '', minAmount: '', maxAmount: '', organisation: '', tenderFeeExempted: false, emdExempted: false, tenderType: '' });
+    setTenders([]); setTotalCount(0); setCurrentPage(1);
   };
-
   const handlePageChange = (newPage: number) => {
     const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
-      fetchTenders(newPage, searchQuery, filters);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      fetchTenders(newPage); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
-
   const handleToggleSave = async (tender: Tender) => {
     if (isSaved(tender.ref_no)) {
       await unsaveTender(tender.ref_no);
     } else {
       const result = await saveTender(tender as any);
       if (result && !result.success && result.limitExceeded) {
-        const upgrade = confirm(`${result.error}\n\nWould you like to upgrade your plan?`);
-        if (upgrade) router.push('/pricing');
+        if (confirm(`${result.error}\n\nWould you like to upgrade your plan?`)) router.push('/pricing');
       }
     }
+  };
+
+  const downloadExcel = () => {
+    if (tenders.length === 0) return;
+
+    const headers = [
+      'Title',
+      'Organisation',
+      'Reference No',
+      'Tender ID',
+      'Source',
+      'Published Date',
+      'Opening Date',
+      'Closing Date',
+      'Location',
+      'Pincode',
+      'Tender Value',
+      'EMD Amount',
+      'Period of Work Days',
+      'Bid Validity Days',
+      'Tender Type',
+      'Tender Category',
+      'Contract Type',
+      'Product Category',
+      'Sub Category',
+      'URL',
+    ];
+
+    const escapeCsv = (value: string | number | null) => {
+      const stringValue = value == null ? '' : String(value);
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    };
+
+    const rows = tenders.map((tender) => [
+      tender.title,
+      tender.organisation,
+      tender.ref_no,
+      tender.tender_id,
+      tender.source,
+      tender.published_date,
+      tender.opening_date,
+      tender.closing_date,
+      tender.location,
+      tender.pincode,
+      tender.tender_value,
+      tender.emd_amount,
+      tender.period_of_work_days,
+      tender.bid_validity_days,
+      tender.tender_type,
+      tender.tender_category,
+      tender.contract_type,
+      tender.product_category,
+      tender.sub_category,
+      tender.url,
+    ]);
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => escapeCsv(cell)).join(','))
+      .join('\n');
+
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStamp = new Date().toISOString().slice(0, 10);
+
+    link.href = url;
+    link.download = `tenders-${dateStamp}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportExcel = () => {
+    if (tenders.length === 0) return;
+
+    if (hasFeature('export_data')) {
+      downloadExcel();
+      return;
+    }
+
+    setShowExportPopup(true);
   };
 
   const getMatchColorScheme = (score: number) => {
@@ -211,27 +381,22 @@ export default function SearchPage() {
     if (score >= 60) return { bg: 'bg-gray-100 dark:bg-gray-800/50', border: 'border-orange-400/50 dark:border-orange-500/40', text: 'text-orange-600 dark:text-orange-400', glow: 'shadow-[0_0_8px_rgba(249,115,22,0.2)]' };
     return { bg: 'bg-gray-100 dark:bg-gray-800/50', border: 'border-red-400/50 dark:border-red-500/40', text: 'text-red-600 dark:text-red-400', glow: 'shadow-[0_0_8px_rgba(239,68,68,0.2)]' };
   };
-
   const getMatchScore = (refNo: string) => {
     let hash = 0;
-    for (let i = 0; i < refNo.length; i++) {
-      hash = ((hash << 5) - hash) + refNo.charCodeAt(i);
-      hash = hash & hash;
-    }
+    for (let i = 0; i < refNo.length; i++) { hash = ((hash << 5) - hash) + refNo.charCodeAt(i); hash = hash & hash; }
     return Math.abs(hash % 100);
   };
 
   const TenderTitle = ({ title }: { title: string }) => {
-    const containerRef = React.useRef<HTMLDivElement>(null);
-    const textRef = React.useRef<HTMLSpanElement>(null);
-    const [needsMarquee, setNeedsMarquee] = React.useState(false);
-
-    React.useEffect(() => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const textRef      = useRef<HTMLSpanElement>(null);
+    const [needsMarquee, setNeedsMarquee] = useState(false);
+    useEffect(() => {
       const checkOverflow = () => {
         if (containerRef.current && textRef.current) {
           const temp = document.createElement('span');
           temp.style.cssText = 'visibility:hidden;position:absolute;white-space:nowrap';
-          temp.style.fontSize = window.getComputedStyle(textRef.current).fontSize;
+          temp.style.fontSize  = window.getComputedStyle(textRef.current).fontSize;
           temp.style.fontWeight = window.getComputedStyle(textRef.current).fontWeight;
           temp.style.fontFamily = window.getComputedStyle(textRef.current).fontFamily;
           temp.textContent = title;
@@ -244,7 +409,6 @@ export default function SearchPage() {
       window.addEventListener('resize', checkOverflow);
       return () => { clearTimeout(timer); window.removeEventListener('resize', checkOverflow); };
     }, [title]);
-
     return (
       <div ref={containerRef} className="block overflow-hidden">
         {needsMarquee ? (
@@ -263,484 +427,756 @@ export default function SearchPage() {
 
   if (!user) return null;
 
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-  const hasActiveFilters = searchQuery || filters.category || filters.location || filters.dateFilter || filters.tenderType;
+  const totalPages       = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const hasActiveFilters = searchQuery || filters.keywords.length || filters.excludeKeywords.length ||
+    filters.dateRange || filters.portal || filters.state || filters.city ||
+    filters.procurementType || filters.minAmount || filters.maxAmount ||
+    filters.organisation || filters.tenderFeeExempted || filters.emdExempted;
+  const activeFilterCount = [
+    filters.keywords.length > 0, filters.excludeKeywords.length > 0, !!filters.dateRange,
+    !!filters.portal, !!filters.state, !!filters.city, !!filters.procurementType,
+    !!(filters.minAmount || filters.maxAmount), !!filters.organisation,
+    filters.tenderFeeExempted, filters.emdExempted,
+  ].filter(Boolean).length;
 
-  return (
-    <div className="flex-1 px-2 lg:px-4 py-0 lg:py-2">
+  /* ── Sidebar ── */
+  const Sidebar = () => (
+    <aside className="flex h-full flex-col overflow-y-auto rounded-xl border border-gray-200 bg-white dark:border-white/[0.08] dark:bg-[#18181b] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* Header */}
-      <div className="mb-2 lg:mb-3">
-        <h1 className="text-xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-0.5 lg:mb-1">Search Tenders</h1>
-        <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">
-          Search live tenders across India
-          {totalCount > 0 && !loading && (
-            <span className="ml-2 font-medium text-gray-700 dark:text-gray-300">
-              — {totalCount.toLocaleString()} results
-            </span>
-          )}
-        </p>
-      </div>
-
-      {/* Search Bar */}
-      <div className="mb-3 lg:mb-4">
-        <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-2">
-          <div className="flex flex-1 min-w-[200px] border border-gray-300 dark:border-white/[0.12] bg-white dark:bg-[#18181b] overflow-hidden">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by title, organisation, reference no..."
-              className="flex-1 pl-3 pr-3 py-2.5 text-sm bg-transparent text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none border-none"
-            />
-            <Button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2.5 h-auto text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium rounded-none border-none shadow-none transition-all"
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
-            </Button>
-          </div>
-
-          <Button
-            type="button"
-            onClick={() => setShowFilters(!showFilters)}
-            variant="outline"
-            className="px-4 py-2.5 h-[42px] text-sm border-gray-300 dark:border-white/[0.12] text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/[0.06] rounded-none transition-all"
-          >
-            <Filter className="h-4 w-4 mr-1.5" />
-            Filters
-            {(filters.category || filters.location || filters.dateFilter || filters.tenderType) && (
-              <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
-            )}
-            <ChevronDown className={`h-3.5 w-3.5 ml-1 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-          </Button>
-
-          {hasActiveFilters && (
-            <Button
-              type="button"
-              onClick={handleClearAll}
-              variant="outline"
-              className="px-4 py-2.5 h-[42px] text-sm border-gray-300 dark:border-white/[0.12] text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/[0.06] rounded-none transition-all"
-            >
-              <X className="h-3.5 w-3.5 mr-1" />
-              Clear
-            </Button>
-          )}
-
-          <div className="flex-1 hidden lg:block" />
-
-          <Link href="/dashboard/tenders">
-            <Button
-              type="button"
-              variant="outline"
-              className="px-4 py-2.5 h-[42px] text-sm border-blue-300 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-none transition-all"
-            >
-              <Bookmark className="h-4 w-4 mr-1.5" />
-              Saved
-            </Button>
-          </Link>
-        </form>
-
-        {/* Filters Panel */}
-        {showFilters && (
-          <div className="mt-2 p-4 bg-white dark:bg-[#18181b] border border-gray-200 dark:border-white/[0.08]">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-white/70 mb-1.5">Category</label>
-                <select
-                  value={filters.category}
-                  onChange={(e) => setFilters(f => ({ ...f, category: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-white/[0.12] bg-white dark:bg-black/20 text-gray-900 dark:text-white/90 focus:outline-none"
-                >
-                  <option value="">All Categories</option>
-                  <option value="Works">Works</option>
-                  <option value="Goods">Goods</option>
-                  <option value="Services">Services</option>
-                  <option value="Civil">Civil</option>
-                  <option value="Electrical">Electrical</option>
-                  <option value="IT">IT & Technology</option>
-                  <option value="Medical">Medical & Health</option>
-                  <option value="Construction">Construction</option>
-                  <option value="Supply">Supply</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-white/70 mb-1.5">Location</label>
-                <input
-                  type="text"
-                  value={filters.location}
-                  onChange={(e) => setFilters(f => ({ ...f, location: e.target.value }))}
-                  placeholder="e.g. Mumbai, Delhi..."
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-white/[0.12] bg-white dark:bg-black/20 text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-white/70 mb-1.5">Published</label>
-                <select
-                  value={filters.dateFilter}
-                  onChange={(e) => setFilters(f => ({ ...f, dateFilter: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-white/[0.12] bg-white dark:bg-black/20 text-gray-900 dark:text-white/90 focus:outline-none"
-                >
-                  <option value="">All Dates</option>
-                  <option value="7">Last 7 Days</option>
-                  <option value="30">Last 30 Days</option>
-                  <option value="90">Last 90 Days</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-white/70 mb-1.5">Tender Type</label>
-                <select
-                  value={filters.tenderType}
-                  onChange={(e) => setFilters(f => ({ ...f, tenderType: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-white/[0.12] bg-white dark:bg-black/20 text-gray-900 dark:text-white/90 focus:outline-none"
-                >
-                  <option value="">All Types</option>
-                  <option value="Open">Open</option>
-                  <option value="Limited">Limited</option>
-                  <option value="Single">Single</option>
-                  <option value="EOI">EOI</option>
-                  <option value="RFP">RFP</option>
-                  <option value="RFQ">RFQ</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-3 flex justify-end">
-              <Button
-                type="button"
-                onClick={handleApplyFilters}
-                className="px-5 py-2 h-auto text-sm bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black rounded-none"
-              >
-                Apply Filters
-              </Button>
-            </div>
-          </div>
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-white/[0.06]">
+        <span className="text-sm font-bold text-gray-900 dark:text-white">Filters</span>
+        {hasActiveFilters && (
+          <button onClick={handleClearAll} className="text-[11px] font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300">
+            Clear all
+          </button>
         )}
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg p-3 lg:p-4 mb-3 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-red-900 dark:text-red-300 mb-1">Error loading tenders</p>
-            <p className="text-sm text-red-700 dark:text-red-400/80">{error}</p>
-            <Button
-              onClick={() => fetchTenders(currentPage, searchQuery)}
-              className="mt-2 text-xs px-4 py-1.5 h-8 bg-red-600 hover:bg-red-700 text-white"
-            >
-              Try Again
-            </Button>
-          </div>
+      {/* Saved Filters (static placeholder) */}
+      <button className="flex items-center justify-between border-b border-gray-100 px-4 py-3 text-left hover:bg-gray-50 dark:border-white/[0.06] dark:hover:bg-white/[0.03] transition-colors">
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white/70">
+          <Bookmark className="h-3.5 w-3.5 text-blue-500" />
+          Saved Filters
+          {activeFilterCount > 0 && (
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+              {activeFilterCount}
+            </span>
+          )}
         </div>
-      )}
+        <ChevronRight className="h-3.5 w-3.5 text-gray-400 dark:text-white/30" />
+      </button>
 
-      {/* Loading */}
-      {loading && (
-        <div className="flex flex-col items-center justify-center py-8 lg:py-12">
-          <div className="relative w-24 h-24 lg:w-32 lg:h-32 mb-4 lg:mb-6">
-            <svg className="transform -rotate-90 w-24 h-24 lg:w-32 lg:h-32" viewBox="0 0 128 128">
-              <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-gray-200 dark:text-white/[0.08]" />
-              <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="6" fill="transparent"
-                strokeDasharray={2 * Math.PI * 56}
-                strokeDashoffset={2 * Math.PI * 56 * (1 - loadingProgress / 100)}
-                className="text-gray-900 dark:text-white transition-all duration-300 ease-out"
-                strokeLinecap="round"
+      {/* Keywords */}
+      <div className="border-b border-gray-100 px-4 py-3 dark:border-white/[0.06] space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/40">Keywords</p>
+        <KeywordChips
+          chips={filters.keywords}
+          placeholder="Add keyword..."
+          onAdd={k => setFilters(f => ({ ...f, keywords: [...f.keywords, k] }))}
+          onRemove={k => setFilters(f => ({ ...f, keywords: f.keywords.filter(x => x !== k) }))}
+        />
+        <p className="text-[11px] font-medium text-gray-500 dark:text-white/40">Exclude Keywords</p>
+        <KeywordChips
+          chips={filters.excludeKeywords}
+          placeholder="Exclude term..."
+          onAdd={k => setFilters(f => ({ ...f, excludeKeywords: [...f.excludeKeywords, k] }))}
+          onRemove={k => setFilters(f => ({ ...f, excludeKeywords: f.excludeKeywords.filter(x => x !== k) }))}
+        />
+      </div>
+
+      {/* Date filter */}
+      <div className="border-b border-gray-100 px-4 py-3 dark:border-white/[0.06] space-y-3">
+        {/* Tabs */}
+        <div className="flex gap-1 rounded-lg border border-gray-200 dark:border-white/[0.10] p-0.5">
+          {(['published', 'closing'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => setFilters(f => ({ ...f, dateType: t }))}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors capitalize ${
+                filters.dateType === t
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/70'
+              }`}
+            >
+              <Calendar className="h-3 w-3" />
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {/* Quick picks */}
+        <div className="flex flex-wrap gap-1.5">
+          {DATE_QUICK.map(d => (
+            <button
+              key={d.label}
+              onClick={() => setFilters(f => ({ ...f, dateRange: d.value }))}
+              className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                filters.dateRange === d.value
+                  ? 'bg-blue-500 text-white'
+                  : 'border border-gray-200 dark:border-white/[0.10] text-gray-600 dark:text-white/55 hover:border-gray-300 dark:hover:border-white/20'
+              }`}
+            >
+              {d.label}
+            </button>
+          ))}
+          <button
+            onClick={() => setFilters(f => ({ ...f, dateRange: 'pick' }))}
+            className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
+              filters.dateRange === 'pick'
+                ? 'bg-blue-500 text-white'
+                : 'border border-gray-200 dark:border-white/[0.10] text-gray-600 dark:text-white/55 hover:border-gray-300 dark:hover:border-white/20'
+            }`}
+          >
+            <Calendar className="h-3 w-3" />
+            Pick Date
+          </button>
+        </div>
+        {filters.dateRange === 'pick' && (
+          <input
+            type="date"
+            value={filters.customDate}
+            onChange={e => setFilters(f => ({ ...f, customDate: e.target.value }))}
+            className="w-full rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20 px-3 py-1.5 text-xs text-gray-900 dark:text-white/90 focus:outline-none"
+          />
+        )}
+      </div>
+
+      {/* Portal */}
+      <AccordionSection title="Portal">
+        <div className="space-y-2">
+          {PORTALS.map(p => (
+            <label key={p} className="flex cursor-pointer items-center gap-2.5">
+              <input
+                type="radio"
+                name="portal"
+                checked={filters.portal === p}
+                onChange={() => setFilters(f => ({ ...f, portal: f.portal === p ? '' : p }))}
+                className="h-3.5 w-3.5 accent-blue-500"
               />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">{Math.round(loadingProgress)}%</span>
+              <span className="text-xs text-gray-700 dark:text-white/70">{p}</span>
+            </label>
+          ))}
+        </div>
+      </AccordionSection>
+
+      {/* State */}
+      <AccordionSection title="State">
+        <select
+          value={filters.state}
+          onChange={e => setFilters(f => ({ ...f, state: e.target.value }))}
+          className="w-full rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20 px-3 py-2 text-xs text-gray-900 dark:text-white/90 focus:outline-none"
+        >
+          <option value="">All States</option>
+          {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </AccordionSection>
+
+      {/* City */}
+      <AccordionSection title="City">
+        <input
+          type="text"
+          value={filters.city}
+          onChange={e => setFilters(f => ({ ...f, city: e.target.value }))}
+          placeholder="e.g. Mumbai, Pune..."
+          className="w-full rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20 px-3 py-2 text-xs text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none"
+        />
+      </AccordionSection>
+
+      {/* Procurement Type */}
+      <AccordionSection title="Procurement Type">
+        <div className="space-y-2">
+          {PROCUREMENT_TYPES.map(pt => (
+            <label key={pt} className="flex cursor-pointer items-center gap-2.5">
+              <input
+                type="radio"
+                name="procType"
+                checked={filters.procurementType === pt}
+                onChange={() => setFilters(f => ({ ...f, procurementType: f.procurementType === pt ? '' : pt }))}
+                className="h-3.5 w-3.5 accent-blue-500"
+              />
+              <span className="text-xs text-gray-700 dark:text-white/70">{pt}</span>
+            </label>
+          ))}
+        </div>
+      </AccordionSection>
+
+      {/* Tender Amount */}
+      <AccordionSection title="Tender Amount">
+        <div className="space-y-3">
+          {/* Min */}
+          <div>
+            <p className="mb-1.5 text-[11px] font-medium text-gray-500 dark:text-white/40">Minimum</p>
+            <div className="flex overflow-hidden rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20">
+              <span className="flex items-center border-r border-gray-200 dark:border-white/[0.10] px-2.5 text-sm text-gray-400 dark:text-white/30">₹</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={filters.minAmount}
+                onChange={e => setFilters(f => ({ ...f, minAmount: e.target.value.replace(/[^0-9]/g, '') }))}
+                placeholder="Enter Or Select Amount"
+                className="flex-1 bg-transparent px-3 py-2 text-xs text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
             </div>
           </div>
-          <p className="text-sm lg:text-base text-gray-600 dark:text-white/70 font-medium mb-1">Loading tenders...</p>
-          <p className="text-xs text-gray-500 dark:text-white/50">Searching database...</p>
-        </div>
-      )}
 
-      {/* Empty state */}
-      {!loading && !error && tenders.length === 0 && (
-        <div className="text-center py-8 lg:py-12">
-          <Search className="h-12 w-12 lg:h-16 lg:w-16 text-gray-300 dark:text-white/[0.15] mx-auto mb-3" />
-          <p className="text-sm lg:text-base text-gray-500 dark:text-white/60 mb-1.5 font-medium">
-            {hasActiveFilters ? 'No tenders match your search' : 'Search for tenders to get started'}
-          </p>
-          <p className="text-xs lg:text-sm text-gray-400 dark:text-white/40">
-            {hasActiveFilters ? 'Try adjusting your filters or search terms' : 'Enter keywords, organisation name, or reference number'}
-          </p>
-        </div>
-      )}
-
-      {/* Results */}
-      {!loading && !error && tenders.length > 0 && (
-        <div className="space-y-2 lg:space-y-3">
-          {tenders.map((tender, index) => {
-            const matchScore   = getMatchScore(tender.ref_no);
-            const colorScheme  = getMatchColorScheme(matchScore);
-            const tenderValue  = formatCurrency(tender.tender_value);
-            const emdAmount    = formatCurrency(tender.emd_amount);
-            const saved        = isSaved(tender.ref_no);
-
-            return (
-              <div
-                key={`${tender.ref_no}-${index}`}
-                className="bg-white dark:bg-[#18181b] rounded-lg border border-gray-200 dark:border-white/[0.08] p-3 lg:p-5 hover:shadow-md dark:hover:border-white/[0.12] transition-all duration-200"
-              >
-                {/* Title + Match Score */}
-                <div className="flex items-start justify-between mb-2 lg:mb-3">
-                  <div className="flex-1 min-w-0 pr-3">
-                    <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white/90 mb-1.5 leading-snug">
-                      <TenderTitle title={tender.title} />
-                    </h3>
-                    <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-white/50">
-                      {tender.organisation && (
-                        <span className="flex items-center gap-1">
-                          <Building className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate max-w-[200px] lg:max-w-xs">{tender.organisation}</span>
-                        </span>
-                      )}
-                      {tender.location && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          <span>{tender.location}{tender.pincode ? ` – ${tender.pincode}` : ''}</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {/* AI Match */}
-                  <div className={`${colorScheme.bg} ${colorScheme.border} ${colorScheme.glow} border rounded-lg px-1.5 lg:px-2 py-1 lg:py-1.5 flex flex-col items-center justify-center min-w-[40px] lg:min-w-[48px] flex-shrink-0 transition-all duration-300`}>
-                    <span className={`text-base lg:text-lg font-bold ${colorScheme.text}`}>{matchScore}%</span>
-                    <span className={`text-[7px] lg:text-[8px] ${colorScheme.text} font-medium uppercase tracking-wide`}>Match</span>
-                  </div>
-                </div>
-
-                {/* Key Details Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3 mb-2.5 lg:mb-3">
-                  <div className="flex items-start gap-1.5">
-                    <FileText className="h-3 w-3 lg:h-3.5 lg:w-3.5 text-gray-400 dark:text-white/30 mt-0.5 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[10px] lg:text-xs text-gray-400 dark:text-white/40 mb-0.5">Ref No.</p>
-                      <p className="text-xs lg:text-sm font-medium text-gray-800 dark:text-white/80 truncate">{tender.ref_no}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-1.5">
-                    <Calendar className="h-3 w-3 lg:h-3.5 lg:w-3.5 text-gray-400 dark:text-white/30 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-[10px] lg:text-xs text-gray-400 dark:text-white/40 mb-0.5">Published</p>
-                      <p className="text-xs lg:text-sm font-medium text-gray-800 dark:text-white/80">{formatDate(tender.published_date)}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-1.5">
-                    <Calendar className="h-3 w-3 lg:h-3.5 lg:w-3.5 text-gray-400 dark:text-white/30 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-[10px] lg:text-xs text-gray-400 dark:text-white/40 mb-0.5">Opening</p>
-                      <p className="text-xs lg:text-sm font-medium text-gray-800 dark:text-white/80">{formatDate(tender.opening_date)}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-1.5">
-                    <Calendar className="h-3 w-3 lg:h-3.5 lg:w-3.5 text-red-400 dark:text-red-400/60 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-[10px] lg:text-xs text-gray-400 dark:text-white/40 mb-0.5">Closing</p>
-                      <p className="text-xs lg:text-sm font-medium text-red-600 dark:text-red-400">{formatDate(tender.closing_date)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Financial + Period Row */}
-                {(tenderValue || emdAmount || tender.period_of_work_days) && (
-                  <div className="flex items-center flex-wrap gap-3 lg:gap-5 mb-2.5 lg:mb-3 py-2 px-2.5 bg-gray-50 dark:bg-white/[0.03] rounded-md">
-                    {tenderValue && (
-                      <div className="flex items-center gap-1.5">
-                        <IndianRupee className="h-3 w-3 text-gray-400 dark:text-white/30 flex-shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-gray-400 dark:text-white/40">Tender Value</p>
-                          <p className="text-xs font-semibold text-gray-800 dark:text-white/80">{tenderValue}</p>
-                        </div>
-                      </div>
-                    )}
-                    {emdAmount && (
-                      <div className="flex items-center gap-1.5">
-                        <IndianRupee className="h-3 w-3 text-gray-400 dark:text-white/30 flex-shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-gray-400 dark:text-white/40">EMD</p>
-                          <p className="text-xs font-semibold text-gray-800 dark:text-white/80">{emdAmount}</p>
-                        </div>
-                      </div>
-                    )}
-                    {tender.period_of_work_days && (
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="h-3 w-3 text-gray-400 dark:text-white/30 flex-shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-gray-400 dark:text-white/40">Period</p>
-                          <p className="text-xs font-semibold text-gray-800 dark:text-white/80">{tender.period_of_work_days} days</p>
-                        </div>
-                      </div>
-                    )}
-                    {tender.bid_validity_days && (
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="h-3 w-3 text-gray-400 dark:text-white/30 flex-shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-gray-400 dark:text-white/40">Bid Validity</p>
-                          <p className="text-xs font-semibold text-gray-800 dark:text-white/80">{tender.bid_validity_days} days</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Work Description */}
-                {tender.work_description && (
-                  <p className="text-xs text-gray-500 dark:text-white/40 line-clamp-2 mb-2.5 leading-relaxed">
-                    {tender.work_description}
-                  </p>
-                )}
-
-                {/* Footer */}
-                <div className="flex items-center justify-between pt-2.5 border-t border-gray-100 dark:border-white/[0.06]">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/[0.08] text-gray-700 dark:text-white/70 text-[10px] lg:text-xs rounded font-medium">
-                      Active
-                    </span>
-                    {tender.product_category && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-[10px] lg:text-xs rounded font-medium">
-                        <Tag className="h-2.5 w-2.5" />
-                        {tender.product_category}
-                      </span>
-                    )}
-                    {tender.sub_category && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-50/60 dark:bg-blue-500/[0.07] text-blue-600 dark:text-blue-300/80 text-[10px] lg:text-xs rounded font-medium">
-                        <Tag className="h-2.5 w-2.5" />
-                        {tender.sub_category}
-                      </span>
-                    )}
-                    {tender.tender_category && (
-                      <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 text-[10px] lg:text-xs rounded font-medium">
-                        {tender.tender_category}
-                      </span>
-                    )}
-                    {tender.tender_type && (
-                      <span className="px-2 py-0.5 bg-gray-50 dark:bg-white/[0.04] text-gray-600 dark:text-white/50 text-[10px] lg:text-xs rounded font-medium">
-                        {tender.tender_type}
-                      </span>
-                    )}
-                    {tender.contract_type && (
-                      <span className="px-2 py-0.5 bg-gray-50 dark:bg-white/[0.04] text-gray-600 dark:text-white/50 text-[10px] lg:text-xs rounded font-medium">
-                        {tender.contract_type}
-                      </span>
-                    )}
-                    {tender.source && (
-                      <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/[0.05] text-gray-500 dark:text-white/40 text-[10px] lg:text-xs rounded font-medium">
-                        {tender.source}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleToggleSave(tender)}
-                      className={`text-[10px] lg:text-xs px-2 lg:px-3 py-1 lg:py-1.5 h-6 lg:h-7 transition-all duration-200 ${
-                        saved
-                          ? 'border-red-300 dark:border-red-500/30 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20'
-                          : 'border-gray-300 dark:border-white/[0.12] dark:text-white/70 dark:hover:bg-white/[0.06]'
-                      }`}
-                    >
-                      <Heart className={`h-2.5 w-2.5 lg:h-3 lg:w-3 mr-1 lg:mr-1.5 transition-all ${saved ? 'fill-current' : ''}`} />
-                      {saved ? 'Saved' : 'Save'}
-                    </Button>
-                    <a
-                      href={tender.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => trackTenderExternalClick({ tenderId: tender.ref_no, tenderTitle: tender.title, url: tender.url })}
-                    >
-                      <Button className="bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black text-[10px] lg:text-xs px-2 lg:px-3 py-1 lg:py-1.5 h-6 lg:h-7">
-                        <ExternalLink className="h-2.5 w-2.5 lg:h-3 lg:w-3 mr-1 lg:mr-1.5" />
-                        View
-                      </Button>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {!loading && !error && totalPages > 1 && (
-        <div className="mt-6 lg:mt-8">
-          <div className="flex items-center justify-center mb-3">
-            <span className="text-[10px] lg:text-xs text-gray-500 dark:text-white/50">
-              {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, totalCount)}–{Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount.toLocaleString()}
-            </span>
+          {/* Max */}
+          <div>
+            <p className="mb-1.5 text-[11px] font-medium text-gray-500 dark:text-white/40">Maximum</p>
+            <div className="flex overflow-hidden rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20">
+              <span className="flex items-center border-r border-gray-200 dark:border-white/[0.10] px-2.5 text-sm text-gray-400 dark:text-white/30">₹</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={filters.maxAmount}
+                onChange={e => setFilters(f => ({ ...f, maxAmount: e.target.value.replace(/[^0-9]/g, '') }))}
+                placeholder="Enter Or Select Amount"
+                className="flex-1 bg-transparent px-3 py-2 text-xs text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+            </div>
           </div>
 
-          <div className="flex items-center justify-center gap-0.5 lg:gap-1">
+          {/* Quick picks */}
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { label: '50K', value: '50000' },
+              { label: '1L',  value: '100000' },
+              { label: '5L',  value: '500000' },
+              { label: '10L', value: '1000000' },
+              { label: '50L', value: '5000000' },
+            ].map(({ label, value }) => (
+              <button
+                key={label}
+                onClick={() => setFilters(f => ({
+                  ...f,
+                  ...(f.minAmount ? { maxAmount: value } : { minAmount: value }),
+                }))}
+                className="rounded-full border border-gray-200 dark:border-white/[0.10] px-3 py-0.5 text-[11px] font-medium text-gray-600 dark:text-white/55 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:hover:border-blue-500/50 dark:hover:bg-blue-500/10 dark:hover:text-blue-400 transition-colors"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Reset / Apply */}
+          <div className="flex items-center justify-end gap-2 pt-1">
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-1.5 lg:p-2 rounded-md text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              aria-label="Previous page"
+              onClick={() => setFilters(f => ({ ...f, minAmount: '', maxAmount: '' }))}
+              className="px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/70 transition-colors"
             >
-              <ChevronLeft className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+              Reset
+            </button>
+            <button
+              onClick={handleApply}
+              className="rounded-lg bg-gray-900 dark:bg-white px-4 py-1.5 text-xs font-semibold text-white dark:text-black hover:bg-gray-700 dark:hover:bg-white/90 transition-colors"
+            >
+              Apply Now
+            </button>
+          </div>
+        </div>
+      </AccordionSection>
+
+      {/* Organisation */}
+      <AccordionSection title="Organisation">
+        <input
+          type="text"
+          value={filters.organisation}
+          onChange={e => setFilters(f => ({ ...f, organisation: e.target.value }))}
+          placeholder="Search organisation..."
+          className="w-full rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20 px-3 py-2 text-xs text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none"
+        />
+      </AccordionSection>
+
+      {/* Fee preferences */}
+      <div className="border-b border-gray-100 px-4 py-3 dark:border-white/[0.06] space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/40 mb-2">Fee Preferences</p>
+        {[
+          { key: 'tenderFeeExempted' as const, label: 'Tender fee exempted' },
+          { key: 'emdExempted'       as const, label: 'EMD fee exempted'    },
+        ].map(({ key, label }) => (
+          <label key={key} className="flex cursor-pointer items-center gap-2.5">
+            <div
+              onClick={() => setFilters(f => ({ ...f, [key]: !f[key] }))}
+              className={`flex h-4 w-4 items-center justify-center rounded-full border transition-colors ${
+                filters[key]
+                  ? 'border-blue-500 bg-blue-500'
+                  : 'border-gray-300 dark:border-white/20'
+              }`}
+            >
+              {filters[key] && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+            </div>
+            <span className="text-xs text-gray-700 dark:text-white/70">{label}</span>
+          </label>
+        ))}
+      </div>
+
+      {/* Advanced Filters */}
+      <AccordionSection title="Advanced Filters">
+        <div className="space-y-2.5">
+          <div>
+            <p className="mb-1.5 text-[11px] font-medium text-gray-500 dark:text-white/40">Tender Type</p>
+            <select
+              value={filters.tenderType}
+              onChange={e => setFilters(f => ({ ...f, tenderType: e.target.value }))}
+              className="w-full rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20 px-3 py-2 text-xs text-gray-900 dark:text-white/90 focus:outline-none"
+            >
+              <option value="">All Types</option>
+              <option value="Open">Open</option>
+              <option value="Limited">Limited</option>
+              <option value="Single">Single</option>
+              <option value="EOI">EOI</option>
+              <option value="RFP">RFP</option>
+              <option value="RFQ">RFQ</option>
+            </select>
+          </div>
+        </div>
+      </AccordionSection>
+
+      {/* Apply button */}
+      <div className="sticky bottom-0 border-t border-gray-100 bg-white px-4 py-3 dark:border-white/[0.06] dark:bg-[#18181b]">
+        <button
+          onClick={handleApply}
+          className="w-full rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+        >
+          Apply Filters
+        </button>
+      </div>
+    </aside>
+  );
+
+  const SORT_OPTIONS = [
+    { value: 'newest',     label: 'Newest first'       },
+    { value: 'oldest',     label: 'Oldest first'       },
+    { value: 'value_desc', label: 'Value: High to Low' },
+    { value: 'value_asc',  label: 'Value: Low to High' },
+  ] as const;
+
+  /* ── Render ── */
+  return (
+    <div className="flex h-full min-h-0 flex-col overflow-hidden px-2 py-0 lg:px-4 lg:py-2">
+      {showExportPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+          <div
+            className="absolute inset-0"
+            onClick={() => setShowExportPopup(false)}
+            aria-hidden="true"
+          />
+          <div className="relative w-full max-w-md rounded-3xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-white/[0.10] dark:bg-[#18181b]">
+            <button
+              type="button"
+              onClick={() => setShowExportPopup(false)}
+              className="absolute right-4 top-4 text-gray-400 transition-colors hover:text-gray-600 dark:text-white/30 dark:hover:text-white/60"
+              aria-label="Close subscription popup"
+            >
+              <CloseIcon className="h-4 w-4" />
             </button>
 
-            {(() => {
-              const maxVisible = 7;
-              let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-              let end = Math.min(totalPages, start + maxVisible - 1);
-              if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible + 1);
-              const pages = [];
-              for (let i = start; i <= end; i++) pages.push(i);
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-500/10">
+              <Crown className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+            </div>
 
-              return (
-                <>
-                  {start > 1 && (
-                    <>
-                      <button onClick={() => handlePageChange(1)} className="px-2 lg:px-2.5 py-1 lg:py-1.5 text-[11px] lg:text-xs font-medium text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-md transition-colors min-w-[1.75rem] lg:min-w-[2rem]">1</button>
-                      {start > 2 && <span className="px-1 text-[10px] text-gray-400 dark:text-white/30">⋯</span>}
-                    </>
-                  )}
-                  {pages.map(p => (
+            <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+              Subscribe To Export Results
+            </h3>
+            <p className="mb-5 text-sm leading-6 text-gray-600 dark:text-white/60">
+              Exporting tender results to Excel is available on paid plans. Upgrade to unlock spreadsheet downloads for the current search results.
+            </p>
+
+            <div className="mb-5 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-white/[0.08] dark:bg-white/[0.03]">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-gray-400 dark:text-white/30">
+                Current plan
+              </p>
+              <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-white/80">
+                {plan?.display_name || 'Free'}
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowExportPopup(false)}
+                className="flex-1 rounded-xl border-gray-200 dark:border-white/[0.12]"
+              >
+                Maybe later
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  setShowExportPopup(false);
+                  router.push('/pricing');
+                }}
+                className="flex-1 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                View plans
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full-width title row */}
+      <div className="mb-3 flex items-end justify-between lg:mb-4">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white lg:text-3xl">Search Active Tenders</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 lg:text-sm">
+            live tenders across India
+            {totalCount > 0 && !loading && (
+              <span className="ml-2 font-medium text-gray-700 dark:text-gray-300">
+                — {totalCount.toLocaleString()} results
+              </span>
+            )}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Sort dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSortMenu(v => !v)}
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/[0.10] dark:bg-[#18181b] dark:text-white/70 dark:hover:bg-white/[0.05]"
+            >
+              <ArrowUpDown className="h-3.5 w-3.5 text-gray-400 dark:text-white/30" />
+              {SORT_OPTIONS.find(o => o.value === sortOrder)?.label}
+              <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform dark:text-white/30 ${showSortMenu ? 'rotate-180' : ''}`} />
+            </button>
+            {showSortMenu && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
+                <div className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-white/[0.10] dark:bg-[#18181b]">
+                  {SORT_OPTIONS.map(opt => (
                     <button
-                      key={p}
-                      onClick={() => handlePageChange(p)}
-                      className={`px-2 lg:px-2.5 py-1 lg:py-1.5 text-[11px] lg:text-xs font-medium rounded-md transition-colors min-w-[1.75rem] lg:min-w-[2rem] ${
-                        p === currentPage
-                          ? 'bg-gray-900 dark:bg-white text-white dark:text-black'
-                          : 'text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
+                      key={opt.value}
+                      onClick={() => { setSortOrder(opt.value); setShowSortMenu(false); }}
+                      className={`flex w-full items-center px-3 py-2 text-xs transition-colors ${
+                        sortOrder === opt.value
+                          ? 'bg-blue-50 font-semibold text-blue-600 dark:bg-blue-500/10 dark:text-blue-400'
+                          : 'text-gray-700 hover:bg-gray-50 dark:text-white/70 dark:hover:bg-white/[0.04]'
                       }`}
                     >
-                      {p}
+                      {opt.label}
                     </button>
                   ))}
-                  {end < totalPages && (
-                    <>
-                      {end < totalPages - 1 && <span className="px-1 text-[10px] text-gray-400 dark:text-white/30">⋯</span>}
-                      <button onClick={() => handlePageChange(totalPages)} className="px-2 lg:px-2.5 py-1 lg:py-1.5 text-[11px] lg:text-xs font-medium text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-md transition-colors min-w-[1.75rem] lg:min-w-[2rem]">{totalPages}</button>
-                    </>
-                  )}
-                </>
-              );
-            })()}
+                </div>
+              </>
+            )}
+          </div>
 
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage >= totalPages}
-              className="p-1.5 lg:p-2 rounded-md text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              aria-label="Next page"
-            >
-              <ChevronRight className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
-            </button>
+          <Link href="/dashboard/tenders">
+            <Button variant="outline" className="h-8 gap-1.5 px-3 text-xs 
+border-green-400 dark:border-green-500/40 
+text-green-700 dark:text-green-300 
+hover:bg-green-100 dark:hover:bg-green-500/15">
+              <Bookmark className="h-3.5 w-3.5" />
+              Saved
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Mobile sidebar overlay */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileSidebarOpen(false)} />
+          <div className="absolute bottom-0 left-0 top-0 w-[300px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <Sidebar />
           </div>
         </div>
       )}
+
+      {/* Two-column body */}
+      <div className="flex min-h-0 flex-1 overflow-hidden gap-3 lg:gap-4">
+
+        {/* Left sidebar — desktop only */}
+        <div className="hidden min-h-0 w-64 flex-shrink-0 overflow-hidden lg:flex lg:flex-col">
+          <Sidebar />
+        </div>
+
+        {/* Right: header + search + results */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+
+          {/* Search bar */}
+          <div className="mb-3 lg:mb-4">
+            <form onSubmit={handleSearch} className="flex gap-2">
+              {/* Mobile filter toggle */}
+              <button
+                type="button"
+                onClick={() => setMobileSidebarOpen(v => !v)}
+                className="flex h-[42px] items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 dark:border-white/[0.10] dark:bg-[#18181b] dark:text-white/70 lg:hidden"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                {activeFilterCount > 0 && (
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              <div className="flex flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.10] dark:bg-[#18181b]">
+                <Search className="my-auto ml-3 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-white/30" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search by title, organisation, reference no..."
+                  className="flex-1 bg-transparent px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none dark:text-white/90 dark:placeholder:text-white/40"
+                />
+                {(searchQuery || hasActiveFilters) && (
+                  <button type="button" onClick={handleClearAll} className="mr-1 flex h-full items-center px-1 text-gray-400 hover:text-gray-600 dark:text-white/30 dark:hover:text-white/60">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-[42px] w-[42px] rounded-xl border-none bg-blue-500 p-0 text-white shadow-none hover:bg-blue-600"
+                aria-label="Search tenders"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              </Button>
+              <button
+                type="button"
+                onClick={handleExportExcel}
+                disabled={tenders.length === 0}
+                className="flex h-[42px] w-[42px] items-center justify-center bg-transparent p-0 opacity-100 transition-transform duration-150 hover:scale-[1.06] disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Export search results"
+              >
+                <Image
+                  src="/excel2.png"
+                  alt="Export to Excel"
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 object-contain opacity-100"
+                />
+              </button>
+            </form>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mb-3 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-500/20 dark:bg-red-500/10">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-red-900 dark:text-red-300 mb-1">Error loading tenders</p>
+                <p className="text-sm text-red-700 dark:text-red-400/80">{error}</p>
+                <Button onClick={() => fetchTenders(currentPage)} className="mt-2 text-xs px-4 py-1.5 h-8 bg-red-600 hover:bg-red-700 text-white">
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Loading */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="relative mb-4 h-20 w-20">
+                <svg className="-rotate-90 h-20 w-20" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="5" fill="transparent" className="text-gray-100 dark:text-white/[0.06]" />
+                  <circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="5" fill="transparent"
+                    strokeDasharray={2 * Math.PI * 34}
+                    strokeDashoffset={2 * Math.PI * 34 * (1 - loadingProgress / 100)}
+                    className="text-blue-500 transition-all duration-200" strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-base font-bold text-gray-900 dark:text-white">{Math.round(loadingProgress)}%</span>
+                </div>
+              </div>
+              <p className="text-sm font-medium text-gray-600 dark:text-white/70 mb-1">Loading tenders...</p>
+              <p className="text-xs text-gray-400 dark:text-white/40">Searching database...</p>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!loading && !error && tenders.length === 0 && (
+            <div className="py-12 text-center">
+              <Search className="mx-auto mb-3 h-12 w-12 text-gray-200 dark:text-white/[0.10]" />
+              <p className="text-sm font-medium text-gray-500 dark:text-white/60 mb-1">
+                {hasActiveFilters ? 'No tenders match your search' : 'Search for tenders to get started'}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-white/40">
+                {hasActiveFilters ? 'Try adjusting your filters or search terms' : 'Enter keywords, organisation name, or reference number'}
+              </p>
+            </div>
+          )}
+
+          {/* Results */}
+          {!loading && !error && tenders.length > 0 && (
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-white/[0.08] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {tenders.map((tender, index) => {
+                  const matchScore   = getMatchScore(tender.ref_no);
+                  const colorScheme  = getMatchColorScheme(matchScore);
+                  const tenderValue  = formatCurrency(tender.tender_value);
+                  const emdAmount    = formatCurrency(tender.emd_amount);
+                  const saved        = isSaved(tender.ref_no);
+                  const isEven       = index % 2 === 0;
+
+                  return (
+                    <div
+                      key={`${tender.ref_no}-${index}`}
+                      className={`p-3 lg:p-5 transition-colors duration-150 ${
+                        index < tenders.length - 1 ? 'border-b border-gray-200 dark:border-white/[0.06]' : ''
+                      } ${
+                        isEven ? 'bg-white dark:bg-[#18181b]' : 'bg-gray-50 dark:bg-[#111113]'
+                      } hover:bg-sky-50/40 dark:hover:bg-white/[0.03]`}
+                    >
+                      {/* Title + Match */}
+                      <div className="flex items-start justify-between mb-2 lg:mb-3">
+                        <div className="flex-1 min-w-0 pr-3">
+                          <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white/90 mb-1.5 leading-snug">
+                            <TenderTitle title={tender.title} />
+                          </h3>
+                          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-white/50">
+                            {tender.organisation && (
+                              <span className="flex items-center gap-1">
+                                <Building className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate max-w-[200px]">{tender.organisation}</span>
+                              </span>
+                            )}
+                            {tender.location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3 flex-shrink-0" />
+                                <span>{tender.location}{tender.pincode ? ` – ${tender.pincode}` : ''}</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className={`${colorScheme.bg} ${colorScheme.border} ${colorScheme.glow} border rounded-lg px-1.5 py-1 flex flex-col items-center min-w-[40px] flex-shrink-0`}>
+                          <span className={`text-sm font-bold ${colorScheme.text}`}>{matchScore}%</span>
+                          <span className={`text-[7px] ${colorScheme.text} font-medium uppercase tracking-wide`}>Match</span>
+                        </div>
+                      </div>
+
+                      {/* Key Details Grid */}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2.5">
+                        {[
+                          { icon: <FileText className="h-3 w-3 text-gray-400 dark:text-white/30 mt-0.5 flex-shrink-0" />, label: 'Ref No.', value: tender.ref_no, mono: true },
+                          { icon: <Calendar className="h-3 w-3 text-gray-400 dark:text-white/30 mt-0.5 flex-shrink-0" />, label: 'Published', value: formatDate(tender.published_date) },
+                          { icon: <Calendar className="h-3 w-3 text-gray-400 dark:text-white/30 mt-0.5 flex-shrink-0" />, label: 'Opening',   value: formatDate(tender.opening_date) },
+                          { icon: <Calendar className="h-3 w-3 text-red-400/60 mt-0.5 flex-shrink-0" />,                 label: 'Closing',   value: formatDate(tender.closing_date), red: true },
+                        ].map(item => (
+                          <div key={item.label} className="flex items-start gap-1.5">
+                            {item.icon}
+                            <div className="min-w-0">
+                              <p className="text-[10px] text-gray-400 dark:text-white/40 mb-0.5">{item.label}</p>
+                              <p className={`text-xs font-medium truncate ${item.red ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-white/80'} ${item.mono ? 'font-mono' : ''}`}>
+                                {item.value}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Financial Row */}
+                      <div className="flex flex-wrap gap-3 lg:gap-5 mb-2.5 py-2 px-2.5 bg-gray-50 dark:bg-white/[0.03] rounded-md">
+                        {[
+                          { icon: <IndianRupee className="h-3 w-3" />, label: 'Tender Value',  value: tenderValue },
+                          { icon: <IndianRupee className="h-3 w-3" />, label: 'EMD',            value: emdAmount },
+                          { icon: <Clock       className="h-3 w-3" />, label: 'Period',         value: tender.period_of_work_days ? `${tender.period_of_work_days} days` : null },
+                          { icon: <Clock       className="h-3 w-3" />, label: 'Bid Validity',   value: tender.bid_validity_days   ? `${tender.bid_validity_days} days`   : null },
+                        ].map(item => (
+                          <div key={item.label} className="flex items-center gap-1.5">
+                            <span className="text-gray-400 dark:text-white/30">{item.icon}</span>
+                            <div>
+                              <p className="text-[10px] text-gray-400 dark:text-white/40">{item.label}</p>
+                              <p className={`text-xs font-semibold ${item.value ? 'text-gray-800 dark:text-white/80' : 'italic text-gray-400 dark:text-white/30'}`}>
+                                {item.value ?? 'Refer to docs'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Work Description */}
+                      {tender.work_description && (
+                        <p className="text-xs text-gray-500 dark:text-white/40 line-clamp-2 mb-2.5 leading-relaxed">
+                          {tender.work_description}
+                        </p>
+                      )}
+
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-2.5 border-t border-gray-100 dark:border-white/[0.06]">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {tender.source && (
+                            <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/[0.08] text-gray-700 dark:text-white/70 text-[10px] rounded font-medium">
+                              {tender.source}
+                            </span>
+                          )}
+                          {tender.product_category && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-[10px] rounded font-medium">
+                              <Tag className="h-2.5 w-2.5" />{tender.product_category}
+                            </span>
+                          )}
+                          {tender.sub_category && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-50/60 dark:bg-blue-500/[0.07] text-blue-600 dark:text-blue-300/80 text-[10px] rounded font-medium">
+                              <Tag className="h-2.5 w-2.5" />{tender.sub_category}
+                            </span>
+                          )}
+                          {tender.tender_type && (
+                            <span className="px-2 py-0.5 bg-gray-50 dark:bg-white/[0.04] text-gray-600 dark:text-white/50 text-[10px] rounded font-medium">
+                              {tender.tender_type}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Button variant="outline" onClick={() => handleToggleSave(tender)}
+                            className={`text-[10px] px-2.5 py-1 h-7 transition-all ${saved ? 'border-red-300 dark:border-red-500/30 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10' : 'border-gray-300 dark:border-white/[0.12] dark:text-white/70'}`}>
+                            <Heart className={`h-3 w-3 mr-1 ${saved ? 'fill-current' : ''}`} />
+                            {saved ? 'Saved' : 'Save'}
+                          </Button>
+                          <a href={tender.url} target="_blank" rel="noopener noreferrer"
+                            onClick={() => trackTenderExternalClick({ tenderId: tender.ref_no, tenderTitle: tender.title, url: tender.url })}>
+                            <Button className="bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black text-[10px] px-2.5 py-1 h-7">
+                              <ExternalLink className="h-3 w-3 mr-1" />View
+                            </Button>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-4 flex-shrink-0 lg:mt-6">
+                  <div className="flex items-center justify-center gap-1">
+                    <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}
+                      className="p-2 rounded-md text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    {(() => {
+                      const maxV = 7;
+                      let start = Math.max(1, currentPage - Math.floor(maxV / 2));
+                      let end   = Math.min(totalPages, start + maxV - 1);
+                      if (end - start < maxV - 1) start = Math.max(1, end - maxV + 1);
+                      const pages: number[] = [];
+                      for (let i = start; i <= end; i++) pages.push(i);
+                      return (
+                        <>
+                          {start > 1 && (<><button onClick={() => handlePageChange(1)} className="px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5 rounded-md">1</button>{start > 2 && <span className="px-1 text-xs text-gray-400">⋯</span>}</>)}
+                          {pages.map(p => (
+                            <button key={p} onClick={() => handlePageChange(p)}
+                              className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors min-w-[2rem] ${p === currentPage ? 'bg-gray-900 dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5'}`}>
+                              {p}
+                            </button>
+                          ))}
+                          {end < totalPages && (<>{end < totalPages - 1 && <span className="px-1 text-xs text-gray-400">⋯</span>}<button onClick={() => handlePageChange(totalPages)} className="px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5 rounded-md">{totalPages}</button></>)}
+                        </>
+                      );
+                    })()}
+                    <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= totalPages}
+                      className="p-2 rounded-md text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
