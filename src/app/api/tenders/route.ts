@@ -14,13 +14,21 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const query      = searchParams.get('query') || '';
-    const page       = Math.max(1, parseInt(searchParams.get('page') || '1'));
-    const limit      = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')));
-    const category   = searchParams.get('category') || '';
-    const location   = searchParams.get('location') || '';
-    const dateFilter = searchParams.get('date_filter') || '';
-    const tenderType = searchParams.get('tender_type') || '';
+    const query        = searchParams.get('query') || '';
+    const page         = Math.max(1, parseInt(searchParams.get('page') || '1'));
+    const limit        = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')));
+    const category     = searchParams.get('category') || '';
+    const location     = searchParams.get('location') || '';
+    const city         = searchParams.get('city') || '';
+    const dateFilter   = searchParams.get('date_filter') || '';
+    const dateType     = searchParams.get('date_type') || 'published';
+    const tenderType   = searchParams.get('tender_type') || '';
+    const source       = searchParams.get('source') || '';
+    const minAmount    = searchParams.get('min_amount') || '';
+    const maxAmount    = searchParams.get('max_amount') || '';
+    const organisation = searchParams.get('organisation') || '';
+    const exclude      = searchParams.get('exclude') || '';
+    const emdExempted  = searchParams.get('emd_exempted') === 'true';
 
     const supabase = await createClient();
 
@@ -32,18 +40,45 @@ export async function GET(request: NextRequest) {
 
     if (query) {
       qb = qb.or(
-        `title.ilike.%${query}%,organisation.ilike.%${query}%,ref_no.ilike.%${query}%`
+        `title.ilike.%${query}%,organisation.ilike.%${query}%,ref_no.ilike.%${query}%,work_description.ilike.%${query}%`
       );
     }
-    if (category)   qb = qb.ilike('product_category', `%${category}%`);
-    if (location)   qb = qb.ilike('location', `%${location}%`);
-    if (tenderType) qb = qb.ilike('tender_type', `%${tenderType}%`);
+
+    if (exclude) {
+      const excludeTerms = exclude.split(',').map(t => t.trim()).filter(Boolean);
+      for (const term of excludeTerms) {
+        qb = qb.not('title', 'ilike', `%${term}%`);
+      }
+    }
+
+    if (category)      qb = qb.ilike('product_category', `%${category}%`);
+    if (location)      qb = qb.ilike('location', `%${location}%`);
+    if (city)          qb = qb.ilike('location', `%${city}%`);
+    if (tenderType)    qb = qb.ilike('tender_type', `%${tenderType}%`);
+    if (source)        qb = qb.ilike('source', `%${source}%`);
+    if (organisation)  qb = qb.ilike('organisation', `%${organisation}%`);
+
+    if (minAmount) {
+      const min = parseFloat(minAmount);
+      if (!isNaN(min)) qb = qb.gte('tender_value', min);
+    }
+    if (maxAmount) {
+      const max = parseFloat(maxAmount);
+      if (!isNaN(max)) qb = qb.lte('tender_value', max);
+    }
+
+    if (emdExempted) {
+      qb = qb.or('emd_amount.is.null,emd_amount.eq.0');
+    }
 
     if (dateFilter) {
+      const dateCol = dateType === 'closing' ? 'closing_date' : 'published_date';
       const days = parseInt(dateFilter);
       if (!isNaN(days)) {
         const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-        qb = qb.gte('published_date', cutoff);
+        qb = qb.gte(dateCol, cutoff);
+      } else if (/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
+        qb = qb.gte(dateCol, dateFilter);
       }
     }
 

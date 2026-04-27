@@ -471,8 +471,8 @@ export default function DashboardShell({
                             href={item.href}
                             className={`flex items-center space-x-2.5 px-3 py-1.5 text-sm rounded-lg transition-all duration-150 ${
                               isActive
-                                ? 'bg-orange-200/60 dark:bg-orange-900/20 text-gray-800 dark:text-orange-400 font-medium'
-                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-orange-100/50 dark:hover:bg-white/5'
+                                ? 'bg-[#d5c9bc]/70 dark:bg-orange-900/20 text-gray-800 dark:text-orange-400 font-medium'
+                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-[#d5c9bc]/50 dark:hover:bg-white/5'
                             }`}
                           >
                             <item.icon className="h-3.5 w-3.5" />
@@ -486,7 +486,7 @@ export default function DashboardShell({
               );
             })}
 
-            <div className="h-px bg-orange-200/50 dark:bg-gray-700/50 my-3" />
+            <div className="h-px bg-[#c4b5a8]/50 dark:bg-gray-700/50 my-3" />
 
             {isDirector && (
               <Link
@@ -538,10 +538,10 @@ export default function DashboardShell({
                   alt={user.user_metadata?.full_name || 'User'}
                   width={36}
                   height={36}
-                  className="w-9 h-9 rounded-full object-cover ring-2 ring-orange-100"
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-[#d5c9bc]"
                 />
               ) : (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-amber-600 flex items-center justify-center text-white text-sm font-semibold ring-2 ring-orange-100">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#9a8878] to-[#6b5a4a] flex items-center justify-center text-white text-sm font-semibold ring-2 ring-[#d5c9bc]">
                   {user.email?.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -565,12 +565,12 @@ export default function DashboardShell({
                     setUserMenuOpen(false);
                     router.push('/dashboard/settings');
                   }}
-                  className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-100/50 transition-colors first:rounded-t-lg"
+                  className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#e8dcd0]/60 transition-colors first:rounded-t-lg"
                 >
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
                 </button>
-                <div className="h-px bg-orange-200/60 my-1 mx-2" />
+                <div className="h-px bg-[#c4b5a8]/50 my-1 mx-2" />
                 <button
                   onClick={() => {
                     setUserMenuOpen(false);

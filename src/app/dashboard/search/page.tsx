@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -26,6 +26,7 @@ import {
   SlidersHorizontal,
   ArrowUpDown,
   Crown,
+  Lock,
   X as CloseIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -110,6 +111,14 @@ const DATE_QUICK = [
   { label: 'Last 1 Month',  value: '30' },
   { label: 'Last 3 Months', value: '90' },
   { label: 'All',           value: '' },
+];
+
+const DATE_QUICK_CLOSING = [
+  { label: 'Next 3 Days',   value: 'next_3'  },
+  { label: 'Next 7 Days',   value: 'next_7'  },
+  { label: 'Next 1 Month',  value: 'next_30' },
+  { label: 'Next 3 Months', value: 'next_90' },
+  { label: 'All',           value: ''        },
 ];
 
 const PORTALS = ['GeM', 'CPPP', 'State Portal', 'Defence', 'Railways', 'NHIDCL'];
@@ -212,6 +221,10 @@ export default function SearchPage() {
   const { hasFeature, plan } = useSubscription();
   const [showExportPopup, setShowExportPopup] = useState(false);
 
+  const isMounted       = useRef(false);
+  const filterDebounce  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suppressFetch   = useRef(false);
+
   useEffect(() => {
     let mounted = true;
     const init = async () => {
@@ -225,6 +238,37 @@ export default function SearchPage() {
     return () => { mounted = false; };
   }, []);
 
+  const prevFilters = useRef(filters);
+
+  // Auto-trigger search whenever filters change (with debounce)
+  useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      prevFilters.current = filters;
+      return;
+    }
+    if (suppressFetch.current) {
+      suppressFetch.current = false;
+      prevFilters.current = filters;
+      return;
+    }
+    const prev = prevFilters.current;
+    prevFilters.current = filters;
+    // dateType alone has no effect without a dateRange — skip fetch
+    if (prev.dateType !== filters.dateType && !filters.dateRange &&
+        JSON.stringify({ ...prev, dateType: filters.dateType }) === JSON.stringify(filters)) {
+      return;
+    }
+    if (filterDebounce.current) clearTimeout(filterDebounce.current);
+    filterDebounce.current = setTimeout(() => {
+      fetchTenders(1, searchQuery, filters);
+    }, 400);
+    return () => {
+      if (filterDebounce.current) clearTimeout(filterDebounce.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
+
   const fetchTenders = async (page = 1, query = searchQuery, f: SidebarFilters = filters) => {
     setLoading(true);
     setLoadingProgress(0);
@@ -237,18 +281,21 @@ export default function SearchPage() {
     try {
       const allKeywords = [...f.keywords, ...(query.trim() ? [query.trim()] : [])];
       const params = new URLSearchParams({ page: String(page), limit: String(ITEMS_PER_PAGE) });
-      if (allKeywords.length)        params.set('query', allKeywords.join(' '));
-      if (f.excludeKeywords.length)  params.set('exclude', f.excludeKeywords.join(','));
-      if (f.dateRange)               params.set('date_filter', f.dateRange);
-      if (f.portal)                  params.set('source', f.portal);
-      if (f.state)                   params.set('location', f.state);
-      if (f.city)                    params.set('city', f.city);
-      if (f.procurementType)         params.set('tender_type', f.procurementType);
-      if (f.minAmount)               params.set('min_amount', f.minAmount);
-      if (f.maxAmount)               params.set('max_amount', f.maxAmount);
-      if (f.organisation)            params.set('organisation', f.organisation);
-      if (f.tenderFeeExempted)       params.set('tender_fee_exempted', 'true');
-      if (f.emdExempted)             params.set('emd_exempted', 'true');
+      if (allKeywords.length)                          params.set('query', allKeywords.join(' '));
+      if (f.excludeKeywords.length)                    params.set('exclude', f.excludeKeywords.join(','));
+      if (f.dateRange && f.dateRange !== 'pick')       params.set('date_filter', f.dateRange);
+      if (f.dateRange === 'pick' && f.customDate)      params.set('date_filter', f.customDate);
+      if (f.dateType)                                  params.set('date_type', f.dateType);
+      if (f.portal)                                    params.set('source', f.portal);
+      if (f.state)                                     params.set('location', f.state);
+      if (f.city)                                      params.set('city', f.city);
+      if (f.procurementType)                           params.set('tender_type', f.procurementType);
+      if (f.minAmount)                                 params.set('min_amount', f.minAmount);
+      if (f.maxAmount)                                 params.set('max_amount', f.maxAmount);
+      if (f.organisation)                              params.set('organisation', f.organisation);
+      if (f.tenderFeeExempted)                         params.set('tender_fee_exempted', 'true');
+      if (f.emdExempted)                               params.set('emd_exempted', 'true');
+      if (f.tenderType)                                params.set('tender_type', f.tenderType);
 
       const response = await fetch(`/api/tenders?${params}`, { cache: 'no-store' });
       clearInterval(progressInterval);
@@ -271,6 +318,7 @@ export default function SearchPage() {
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); fetchTenders(1); };
   const handleApply  = () => { fetchTenders(1); setMobileSidebarOpen(false); };
   const handleClearAll = () => {
+    suppressFetch.current = true;
     setSearchQuery('');
     setFilters({ keywords: [], excludeKeywords: [], dateType: 'published', dateRange: '', customDate: '', portal: '', state: '', city: '', procurementType: '', minAmount: '', maxAmount: '', organisation: '', tenderFeeExempted: false, emdExempted: false, tenderType: '' });
     setTenders([]); setTotalCount(0); setCurrentPage(1);
@@ -375,11 +423,11 @@ export default function SearchPage() {
   };
 
   const getMatchColorScheme = (score: number) => {
-    if (score >= 90) return { bg: 'bg-gray-100 dark:bg-gray-800/50', border: 'border-green-400/50 dark:border-green-500/40', text: 'text-green-600 dark:text-green-400', glow: 'shadow-[0_0_8px_rgba(34,197,94,0.2)]' };
-    if (score >= 80) return { bg: 'bg-gray-100 dark:bg-gray-800/50', border: 'border-lime-400/50 dark:border-lime-500/40', text: 'text-lime-600 dark:text-lime-400', glow: 'shadow-[0_0_8px_rgba(132,204,22,0.2)]' };
-    if (score >= 70) return { bg: 'bg-gray-100 dark:bg-gray-800/50', border: 'border-yellow-400/50 dark:border-yellow-500/40', text: 'text-yellow-600 dark:text-yellow-400', glow: 'shadow-[0_0_8px_rgba(234,179,8,0.2)]' };
-    if (score >= 60) return { bg: 'bg-gray-100 dark:bg-gray-800/50', border: 'border-orange-400/50 dark:border-orange-500/40', text: 'text-orange-600 dark:text-orange-400', glow: 'shadow-[0_0_8px_rgba(249,115,22,0.2)]' };
-    return { bg: 'bg-gray-100 dark:bg-gray-800/50', border: 'border-red-400/50 dark:border-red-500/40', text: 'text-red-600 dark:text-red-400', glow: 'shadow-[0_0_8px_rgba(239,68,68,0.2)]' };
+    if (score >= 90) return { text: 'text-green-600 dark:text-green-400',   bottomColor: 'rgba(34,197,94,0.75)'  };
+    if (score >= 80) return { text: 'text-lime-600 dark:text-lime-400',     bottomColor: 'rgba(132,204,22,0.75)' };
+    if (score >= 70) return { text: 'text-yellow-500 dark:text-yellow-400', bottomColor: 'rgba(234,179,8,0.75)'  };
+    if (score >= 60) return { text: 'text-orange-600 dark:text-orange-400', bottomColor: 'rgba(249,115,22,0.75)' };
+    return            { text: 'text-red-600 dark:text-red-400',             bottomColor: 'rgba(239,68,68,0.75)'  };
   };
   const getMatchScore = (refNo: string) => {
     let hash = 0;
@@ -425,6 +473,37 @@ export default function SearchPage() {
     );
   };
 
+  const activeFilterTags = useMemo(() => {
+    const tags: { key: string; label: string; onRemove: () => void }[] = [];
+    filters.keywords.forEach(k =>
+      tags.push({ key: `kw-${k}`, label: k, onRemove: () => setFilters(f => ({ ...f, keywords: f.keywords.filter(x => x !== k) })) })
+    );
+    filters.excludeKeywords.forEach(k =>
+      tags.push({ key: `ex-${k}`, label: `NOT: ${k}`, onRemove: () => setFilters(f => ({ ...f, excludeKeywords: f.excludeKeywords.filter(x => x !== k) })) })
+    );
+    if (filters.dateRange) {
+      const dateLabel = DATE_QUICK.find(d => d.value === filters.dateRange)?.label
+        ?? (filters.dateRange === 'pick' ? (filters.customDate || 'Custom Date') : filters.dateRange);
+      tags.push({ key: 'date', label: `${filters.dateType === 'closing' ? 'Closing' : 'Published'}: ${dateLabel}`, onRemove: () => setFilters(f => ({ ...f, dateRange: '', customDate: '' })) });
+    }
+    if (filters.portal)          tags.push({ key: 'portal', label: `Portal: ${filters.portal}`, onRemove: () => setFilters(f => ({ ...f, portal: '' })) });
+    if (filters.state)           tags.push({ key: 'state',  label: `State: ${filters.state}`,   onRemove: () => setFilters(f => ({ ...f, state: '' })) });
+    if (filters.city)            tags.push({ key: 'city',   label: `City: ${filters.city}`,     onRemove: () => setFilters(f => ({ ...f, city: '' })) });
+    if (filters.procurementType) tags.push({ key: 'proc',   label: `Type: ${filters.procurementType}`, onRemove: () => setFilters(f => ({ ...f, procurementType: '' })) });
+    if (filters.tenderType)      tags.push({ key: 'ttype',  label: `Tender: ${filters.tenderType}`,    onRemove: () => setFilters(f => ({ ...f, tenderType: '' })) });
+    if (filters.minAmount || filters.maxAmount) {
+      const label = filters.minAmount && filters.maxAmount
+        ? `₹${Number(filters.minAmount).toLocaleString('en-IN')} – ₹${Number(filters.maxAmount).toLocaleString('en-IN')}`
+        : filters.minAmount ? `Min ₹${Number(filters.minAmount).toLocaleString('en-IN')}`
+        : `Max ₹${Number(filters.maxAmount).toLocaleString('en-IN')}`;
+      tags.push({ key: 'amount', label, onRemove: () => setFilters(f => ({ ...f, minAmount: '', maxAmount: '' })) });
+    }
+    if (filters.organisation)    tags.push({ key: 'org',  label: `Org: ${filters.organisation}`,  onRemove: () => setFilters(f => ({ ...f, organisation: '' })) });
+    if (filters.tenderFeeExempted) tags.push({ key: 'fee', label: 'Fee Exempt',  onRemove: () => setFilters(f => ({ ...f, tenderFeeExempted: false })) });
+    if (filters.emdExempted)       tags.push({ key: 'emd', label: 'EMD Exempt',  onRemove: () => setFilters(f => ({ ...f, emdExempted: false })) });
+    return tags;
+  }, [filters]);
+
   if (!user) return null;
 
   const totalPages       = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -458,7 +537,7 @@ export default function SearchPage() {
           <Bookmark className="h-3.5 w-3.5 text-blue-500" />
           Saved Filters
           {activeFilterCount > 0 && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-700 text-[10px] font-bold text-white">
               {activeFilterCount}
             </span>
           )}
@@ -487,15 +566,15 @@ export default function SearchPage() {
       {/* Date filter */}
       <div className="border-b border-gray-100 px-4 py-3 dark:border-white/[0.06] space-y-3">
         {/* Tabs */}
-        <div className="flex gap-1 rounded-lg border border-gray-200 dark:border-white/[0.10] p-0.5">
+        <div className="flex border-b border-gray-200 dark:border-white/[0.08]">
           {(['published', 'closing'] as const).map(t => (
             <button
               key={t}
-              onClick={() => setFilters(f => ({ ...f, dateType: t }))}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-colors capitalize ${
+              onClick={() => setFilters(f => ({ ...f, dateType: t, dateRange: '', customDate: '' }))}
+              className={`flex flex-1 items-center justify-center gap-1.5 pb-2 pt-0.5 text-xs font-medium transition-colors capitalize border-b-2 -mb-px ${
                 filters.dateType === t
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/70'
+                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/70'
               }`}
             >
               <Calendar className="h-3 w-3" />
@@ -506,13 +585,13 @@ export default function SearchPage() {
 
         {/* Quick picks */}
         <div className="flex flex-wrap gap-1.5">
-          {DATE_QUICK.map(d => (
+          {(filters.dateType === 'closing' ? DATE_QUICK_CLOSING : DATE_QUICK).map(d => (
             <button
               key={d.label}
               onClick={() => setFilters(f => ({ ...f, dateRange: d.value }))}
               className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
                 filters.dateRange === d.value
-                  ? 'bg-blue-500 text-white'
+                  ? 'bg-blue-700 text-white'
                   : 'border border-gray-200 dark:border-white/[0.10] text-gray-600 dark:text-white/55 hover:border-gray-300 dark:hover:border-white/20'
               }`}
             >
@@ -523,7 +602,7 @@ export default function SearchPage() {
             onClick={() => setFilters(f => ({ ...f, dateRange: 'pick' }))}
             className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
               filters.dateRange === 'pick'
-                ? 'bg-blue-500 text-white'
+                ? 'bg-blue-700 text-white'
                 : 'border border-gray-200 dark:border-white/[0.10] text-gray-600 dark:text-white/55 hover:border-gray-300 dark:hover:border-white/20'
             }`}
           >
@@ -698,7 +777,7 @@ export default function SearchPage() {
               onClick={() => setFilters(f => ({ ...f, [key]: !f[key] }))}
               className={`flex h-4 w-4 items-center justify-center rounded-full border transition-colors ${
                 filters[key]
-                  ? 'border-blue-500 bg-blue-500'
+                  ? 'border-blue-700 bg-blue-700'
                   : 'border-gray-300 dark:border-white/20'
               }`}
             >
@@ -735,7 +814,7 @@ export default function SearchPage() {
       <div className="sticky bottom-0 border-t border-gray-100 bg-white px-4 py-3 dark:border-white/[0.06] dark:bg-[#18181b]">
         <button
           onClick={handleApply}
-          className="w-full rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+          className="w-full rounded-xl bg-blue-700 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800"
         >
           Apply Filters
         </button>
@@ -815,28 +894,25 @@ export default function SearchPage() {
       )}
 
       {/* Full-width title row */}
-      <div className="mb-3 flex items-end justify-between lg:mb-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white lg:text-3xl">Search Active Tenders</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400 lg:text-sm">
-            live tenders across India
-            {totalCount > 0 && !loading && (
-              <span className="ml-2 font-medium text-gray-700 dark:text-gray-300">
-                — {totalCount.toLocaleString()} results
-              </span>
-            )}
-          </p>
+      <div className="mb-3 flex items-center justify-between lg:mb-4">
+        <div className="flex items-baseline gap-2.5 min-w-0">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white lg:text-3xl whitespace-nowrap">Search Live Tenders</h1>
+          {totalCount > 0 && !loading && (
+            <span className="hidden lg:inline text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              — {totalCount.toLocaleString()} results
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Sort dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowSortMenu(v => !v)}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/[0.10] dark:bg-[#18181b] dark:text-white/70 dark:hover:bg-white/[0.05]"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/[0.10] dark:bg-[#18181b] dark:text-white/70 dark:hover:bg-white/[0.05]"
             >
               <ArrowUpDown className="h-3.5 w-3.5 text-gray-400 dark:text-white/30" />
-              {SORT_OPTIONS.find(o => o.value === sortOrder)?.label}
+              <span className="hidden sm:inline">{SORT_OPTIONS.find(o => o.value === sortOrder)?.label}</span>
               <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform dark:text-white/30 ${showSortMenu ? 'rotate-180' : ''}`} />
             </button>
             {showSortMenu && (
@@ -849,7 +925,7 @@ export default function SearchPage() {
                       onClick={() => { setSortOrder(opt.value); setShowSortMenu(false); }}
                       className={`flex w-full items-center px-3 py-2 text-xs transition-colors ${
                         sortOrder === opt.value
-                          ? 'bg-blue-50 font-semibold text-blue-600 dark:bg-blue-500/10 dark:text-blue-400'
+                          ? 'bg-blue-50 font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400'
                           : 'text-gray-700 hover:bg-gray-50 dark:text-white/70 dark:hover:bg-white/[0.04]'
                       }`}
                     >
@@ -862,10 +938,7 @@ export default function SearchPage() {
           </div>
 
           <Link href="/dashboard/tenders">
-            <Button variant="outline" className="h-8 gap-1.5 px-3 text-xs 
-border-green-400 dark:border-green-500/40 
-text-green-700 dark:text-green-300 
-hover:bg-green-100 dark:hover:bg-green-500/15">
+            <Button variant="outline" className="h-8 gap-1.5 px-2.5 text-xs rounded-lg border-green-400 dark:border-green-500/40 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-500/15">
               <Bookmark className="h-3.5 w-3.5" />
               Saved
             </Button>
@@ -905,7 +978,7 @@ hover:bg-green-100 dark:hover:bg-green-500/15">
               >
                 <SlidersHorizontal className="h-4 w-4" />
                 {activeFilterCount > 0 && (
-                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-700 text-[10px] font-bold text-white">
                     {activeFilterCount}
                   </span>
                 )}
@@ -929,7 +1002,7 @@ hover:bg-green-100 dark:hover:bg-green-500/15">
               <Button
                 type="submit"
                 disabled={loading}
-                className="h-[42px] w-[42px] rounded-xl border-none bg-blue-500 p-0 text-white shadow-none hover:bg-blue-600"
+                className="h-[42px] w-[42px] rounded-xl border-none bg-blue-700 p-0 text-white shadow-none hover:bg-blue-800"
                 aria-label="Search tenders"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
@@ -951,6 +1024,34 @@ hover:bg-green-100 dark:hover:bg-green-500/15">
               </button>
             </form>
           </div>
+
+          {/* Active filter tags */}
+          {activeFilterTags.length > 0 && (
+            <div className="mb-3 flex flex-wrap items-center gap-1.5">
+              {activeFilterTags.map(tag => (
+                <span
+                  key={tag.key}
+                  className="flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400"
+                >
+                  {tag.label}
+                  <button
+                    onClick={tag.onRemove}
+                    className="ml-0.5 text-blue-400 transition-colors hover:text-blue-600 dark:hover:text-blue-300"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              {activeFilterTags.length > 1 && (
+                <button
+                  onClick={handleClearAll}
+                  className="rounded-full px-2 py-1 text-[11px] font-medium text-gray-400 transition-colors hover:text-gray-600 dark:text-white/30 dark:hover:text-white/60"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Error */}
           {error && (
@@ -975,7 +1076,7 @@ hover:bg-green-100 dark:hover:bg-green-500/15">
                   <circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="5" fill="transparent"
                     strokeDasharray={2 * Math.PI * 34}
                     strokeDashoffset={2 * Math.PI * 34 * (1 - loadingProgress / 100)}
-                    className="text-blue-500 transition-all duration-200" strokeLinecap="round"
+                    className="text-blue-700 transition-all duration-200" strokeLinecap="round"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -1011,6 +1112,8 @@ hover:bg-green-100 dark:hover:bg-green-500/15">
                   const emdAmount    = formatCurrency(tender.emd_amount);
                   const saved        = isSaved(tender.ref_no);
                   const isEven       = index % 2 === 0;
+                  const isFreePlan   = !plan || plan.plan_id?.toLowerCase().includes('free');
+                  const isLocked     = isFreePlan && index > 0;
 
                   return (
                     <div
@@ -1042,9 +1145,22 @@ hover:bg-green-100 dark:hover:bg-green-500/15">
                             )}
                           </div>
                         </div>
-                        <div className={`${colorScheme.bg} ${colorScheme.border} ${colorScheme.glow} border rounded-lg px-1.5 py-1 flex flex-col items-center min-w-[40px] flex-shrink-0`}>
-                          <span className={`text-sm font-bold ${colorScheme.text}`}>{matchScore}%</span>
-                          <span className={`text-[7px] ${colorScheme.text} font-medium uppercase tracking-wide`}>Match</span>
+                        {/* AI Match badge */}
+                        <div
+                          className="flex-shrink-0 min-w-[44px] rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-black/20 px-1.5 py-1.5 flex flex-col items-center gap-0.5"
+                          style={!isLocked ? { boxShadow: `inset 0 -2px 0 ${colorScheme.bottomColor}, inset 0 -8px 12px -4px ${colorScheme.bottomColor.replace('0.75', '0.25')}` } : undefined}
+                        >
+                          {isLocked ? (
+                            <>
+                              <Lock className="h-3.5 w-3.5 text-gray-300 dark:text-white/20" />
+                              <span className="text-[7px] font-medium uppercase tracking-wide text-gray-400 dark:text-white/30">AI Match</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className={`text-sm font-bold leading-none ${colorScheme.text}`}>{matchScore}%</span>
+                              <span className="text-[7px] font-medium uppercase tracking-wide text-gray-400 dark:text-white/40">AI Match</span>
+                            </>
+                          )}
                         </div>
                       </div>
 
