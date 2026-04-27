@@ -898,8 +898,8 @@ export default function SearchPage() {
         <div className="flex items-baseline gap-2.5 min-w-0">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white lg:text-3xl whitespace-nowrap">Search Live Tenders</h1>
           {totalCount > 0 && !loading && (
-            <span className="hidden lg:inline text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-              — {totalCount.toLocaleString()} results
+            <span className="hidden lg:inline text-sm font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">
+               {totalCount.toLocaleString()} results
             </span>
           )}
         </div>
