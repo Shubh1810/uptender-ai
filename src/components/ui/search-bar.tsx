@@ -39,7 +39,7 @@ export function SearchBar({
           <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 rounded-full opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-500 animate-pulse"></div>
           
           {/* Main search container */}
-          <div className="relative bg-white/90 backdrop-blur-xl rounded-full border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:shadow-2xl focus-within:bg-white/95 group-hover:border-blue-300/30 group-focus-within:border-blue-400/50">
+          <div className="relative bg-[#fefcf3]/90 backdrop-blur-xl rounded-full border border-[#dddac8]/40 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:shadow-2xl focus-within:bg-[#fefcf3]/98 group-hover:border-blue-300/30 group-focus-within:border-blue-400/50">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none group-focus-within:text-blue-500 transition-colors duration-300" />
             <input
               type="text"

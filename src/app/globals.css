@@ -322,7 +322,7 @@ optgroup option {
 
 /* Outer container background - light monochromatic cream-stone */
 .dashboard-outer-bg {
-  background: #e7e0cd;
+  background: #eeeddf;
   min-height: 100vh;
   position: relative;
   z-index: 1;
@@ -330,7 +330,7 @@ optgroup option {
 
 /* Frosted glass sidebar - light monochromatic cream-stone */
 .glass-sidebar {
-  background: #e7e0cd;
+  background: #eeeddf;
   z-index: 40;
 }
 
@@ -530,7 +530,7 @@ optgroup option {
 .tab-bump-icon {
   width: 14px;
   height: 14px;
-  color: rgba(217, 119, 6, 0.8);
+  color: rgba(55, 65, 81, 0.85);
   flex-shrink: 0;
   stroke-width: 2;
 }
@@ -553,14 +553,23 @@ optgroup option {
 
 /* Sidebar active item */
 .glass-sidebar-item-active {
-  background: rgba(247, 229, 207, 0.6);
+  background: rgba(254, 252, 243, 0.9);
   border-radius: 6px;
 }
 
 /* Sidebar hover item */
 .glass-sidebar-item:hover {
-  background: rgba(249, 239, 226, 0.45);
+  background: rgba(254, 252, 243, 0.6);
   border-radius: 6px;
+}
+
+/* Light mode sidebar text - slightly darker than default gray-600 */
+.glass-sidebar .text-gray-600 {
+  color: #374151;
+}
+
+.glass-sidebar .text-gray-400 {
+  color: #6b7280;
 }
 
 /* Section headers in sidebar */
@@ -579,13 +588,13 @@ optgroup option {
 
 /* User profile card in sidebar */
 .glass-user-card {
-  background: rgba(238, 218, 190, 0.5);
+  background: rgba(254, 252, 243, 0.6);
   border-radius: 10px;
-  border: 1px solid rgba(218, 195, 160, 0.6);
+  border: 1px solid rgba(210, 205, 185, 0.6);
 }
 
 .glass-user-card:hover {
-  background: rgba(232, 210, 178, 0.7);
+  background: rgba(254, 252, 243, 0.92);
 }
 
 /* Dropdown menu glass effect */
