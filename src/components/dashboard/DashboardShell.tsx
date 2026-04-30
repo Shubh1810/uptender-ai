@@ -75,6 +75,8 @@ export default function DashboardShell({
   });
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState('');
+  const tabsRef = useRef<Tab[]>([]);
+  const tabHistoryRef = useRef<string[]>([]); // stack of previously active tab IDs
   const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -123,8 +125,29 @@ export default function DashboardShell({
     return LayoutDashboard;
   };
 
+  // Keep ref in sync so the pathname effect can read current tabs without depending on them
   useEffect(() => {
-    if (pathname && tabs.length === 0) {
+    tabsRef.current = tabs;
+  }, [tabs]);
+
+  // Record previously active tab in history whenever active tab changes
+  const prevActiveTabIdRef = useRef('');
+  useEffect(() => {
+    if (prevActiveTabIdRef.current && prevActiveTabIdRef.current !== activeTabId) {
+      tabHistoryRef.current = [
+        ...tabHistoryRef.current.filter((id) => id !== prevActiveTabIdRef.current),
+        prevActiveTabIdRef.current,
+      ];
+    }
+    prevActiveTabIdRef.current = activeTabId;
+  }, [activeTabId]);
+
+  useEffect(() => {
+    if (!pathname) return;
+    setSidebarOpen(false);
+
+    const current = tabsRef.current;
+    if (current.length === 0) {
       const initialTab: Tab = {
         id: `tab-${Date.now()}`,
         title: getPageName(pathname),
@@ -133,28 +156,23 @@ export default function DashboardShell({
       };
       setTabs([initialTab]);
       setActiveTabId(initialTab.id);
-    }
-  }, [pathname, tabs.length]);
-
-  useEffect(() => {
-    if (pathname && tabs.length > 0) {
-      const existingTab = tabs.find((tab) => tab.path === pathname);
-      if (existingTab) {
-        setActiveTabId(existingTab.id);
-      } else {
-        const newTab: Tab = {
-          id: `tab-${Date.now()}`,
-          title: getPageName(pathname),
-          path: pathname,
-          icon: getPageIcon(pathname),
-        };
-        setTabs((prev) => [...prev, newTab]);
-        setActiveTabId(newTab.id);
-      }
+      return;
     }
 
-    setSidebarOpen(false);
-  }, [pathname, tabs]);
+    const existingTab = current.find((tab) => tab.path === pathname);
+    if (existingTab) {
+      setActiveTabId(existingTab.id);
+    } else {
+      const newTab: Tab = {
+        id: `tab-${Date.now()}`,
+        title: getPageName(pathname),
+        path: pathname,
+        icon: getPageIcon(pathname),
+      };
+      setTabs((prev) => [...prev, newTab]);
+      setActiveTabId(newTab.id);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     setThemeMounted(true);
@@ -256,11 +274,26 @@ export default function DashboardShell({
     const newTabs = tabs.filter((tab) => tab.id !== tabId);
 
     if (tabId === activeTabId && newTabs.length > 0) {
-      const newActiveTab = newTabs[Math.max(0, tabIndex - 1)];
-      setActiveTabId(newActiveTab.id);
-      if (pathname !== newActiveTab.path) {
-        router.push(newActiveTab.path);
+      // Walk back through history to find the most recently active tab still open
+      const history = tabHistoryRef.current;
+      let nextTab: Tab | undefined;
+      for (let i = history.length - 1; i >= 0; i--) {
+        nextTab = newTabs.find((t) => t.id === history[i]);
+        if (nextTab) break;
       }
+      // Fallback: right neighbor, then left neighbor
+      if (!nextTab) {
+        nextTab = newTabs[tabIndex] ?? newTabs[tabIndex - 1];
+      }
+      if (nextTab) {
+        tabHistoryRef.current = tabHistoryRef.current.filter((id) => id !== tabId);
+        setActiveTabId(nextTab.id);
+        if (pathname !== nextTab.path) {
+          router.push(nextTab.path);
+        }
+      }
+    } else {
+      tabHistoryRef.current = tabHistoryRef.current.filter((id) => id !== tabId);
     }
 
     setTabs(newTabs);
@@ -393,7 +426,7 @@ export default function DashboardShell({
       >
         <div className="flex flex-col h-full">
           <div className="p-4 flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-1 px-2 py-1.5">
+            <Link href="/" className="flex items-center px-2 py-1.5">
               <Image
                 src={themeMounted && theme === 'dark' ? '/tpllogo-wite.PNG' : '/tplogo.png'}
                 alt="TenderPost"
@@ -401,7 +434,7 @@ export default function DashboardShell({
                 height={26}
                 className="rounded-lg"
               />
-              <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
+              <span className="text-lg font-bold text-gray-800 dark:text-gray-100 -ml-0.5">
                 <span className="font-inter">Tender</span>
                 <span className="font-kings -ml-0.5">Post</span>
               </span>
@@ -597,7 +630,7 @@ export default function DashboardShell({
             <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </button>
 
-          <Link href="/dashboard" className="flex items-center space-x-1.5">
+          <Link href="/dashboard" className="flex items-center">
             <Image
               src={themeMounted && theme === 'dark' ? '/tpllogo-wite.PNG' : '/tplogo.png'}
               alt="TenderPost"
@@ -605,9 +638,9 @@ export default function DashboardShell({
               height={24}
               className="rounded-lg"
             />
-            <span className="text-base font-bold text-gray-800 dark:text-gray-100">
+            <span className="text-base font-bold text-gray-800 dark:text-gray-100 -ml-0.5">
               <span className="font-inter">Tender</span>
-              <span className="font-kings -ml-0.5">Post</span>
+              <span className="font-kings ml-0">Post</span>
             </span>
           </Link>
 

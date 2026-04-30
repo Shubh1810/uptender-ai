@@ -521,6 +521,11 @@ optgroup option {
   display: block;
 }
 
+/* First tab has no predecessor to overlap, so don't pull it off-screen */
+.tab-bump:first-child {
+  margin-left: 0;
+}
+
 /* Hide curves for inactive tabs */
 .tab-inactive::before,
 .tab-inactive::after {
@@ -705,12 +710,12 @@ optgroup option {
 
 /* Outer container - true black in dark mode */
 .dark .dashboard-outer-bg {
-  background: #000000;
+  background: #0f0f11;
 }
 
-/* Sidebar - TRUE JET BLACK in dark mode */
+/* Sidebar - super dark gray in dark mode */
 .dark .glass-sidebar {
-  background: #000000;
+  background: #0f0f11;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }

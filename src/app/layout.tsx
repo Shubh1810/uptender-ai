@@ -213,6 +213,9 @@ export default function RootLayout({
         
         {/* Google Fonts - Funnel Display */}
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet" />
+
+        {/* Google Sans */}
+        <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
         
         {/* Comprehensive Favicon and Icon Links */}
         <link rel="icon" href="/uptenderlogo.png" type="image/png" sizes="16x16" />
