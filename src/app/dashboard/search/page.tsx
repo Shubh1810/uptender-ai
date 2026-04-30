@@ -189,7 +189,6 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [tenders, setTenders]     = useState<Tender[]>([]);
   const [loading, setLoading]     = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError]         = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -271,12 +270,7 @@ export default function SearchPage() {
 
   const fetchTenders = async (page = 1, query = searchQuery, f: SidebarFilters = filters) => {
     setLoading(true);
-    setLoadingProgress(0);
     setError(null);
-
-    const progressInterval = setInterval(() => {
-      setLoadingProgress(prev => prev >= 90 ? prev : prev + 15);
-    }, 150);
 
     try {
       const allKeywords = [...f.keywords, ...(query.trim() ? [query.trim()] : [])];
@@ -298,8 +292,6 @@ export default function SearchPage() {
       if (f.tenderType)                                params.set('tender_type', f.tenderType);
 
       const response = await fetch(`/api/tenders?${params}`, { cache: 'no-store' });
-      clearInterval(progressInterval);
-      setLoadingProgress(100);
       if (!response.ok) throw new Error('Failed to fetch tenders');
       const data: TenderResponse = await response.json();
       setTenders(data.items || []);
@@ -308,10 +300,8 @@ export default function SearchPage() {
       setLoading(false);
       trackTenderSearch({ query: query || undefined, resultsCount: data.total_items || 0, page });
     } catch (err) {
-      clearInterval(progressInterval);
       setError(err instanceof Error ? err.message : 'Failed to load tenders');
       setLoading(false);
-      setLoadingProgress(0);
     }
   };
 
@@ -1067,24 +1057,37 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* Loading */}
-          {loading && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="relative mb-4 h-20 w-20">
-                <svg className="-rotate-90 h-20 w-20" viewBox="0 0 80 80">
-                  <circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="5" fill="transparent" className="text-gray-100 dark:text-white/[0.06]" />
-                  <circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="5" fill="transparent"
-                    strokeDasharray={2 * Math.PI * 34}
-                    strokeDashoffset={2 * Math.PI * 34 * (1 - loadingProgress / 100)}
-                    className="text-blue-700 transition-all duration-200" strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-base font-bold text-gray-900 dark:text-white">{Math.round(loadingProgress)}%</span>
-                </div>
+          {/* Skeleton loading — only shown on initial load with no existing results */}
+          {loading && tenders.length === 0 && (
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-white/[0.08] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className={`p-3 lg:p-5 animate-pulse ${i < 4 ? 'border-b border-gray-200 dark:border-white/[0.06]' : ''} ${i % 2 === 0 ? 'bg-white dark:bg-[#18181b]' : 'bg-gray-50 dark:bg-[#111113]'}`}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0 pr-3 space-y-2">
+                        <div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-3/4" />
+                        <div className="h-3 bg-gray-100 dark:bg-white/[0.05] rounded w-1/2" />
+                      </div>
+                      <div className="h-12 w-11 bg-gray-100 dark:bg-white/[0.05] rounded-lg flex-shrink-0" />
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2.5">
+                      {[...Array(4)].map((_, j) => <div key={j} className="h-8 bg-gray-100 dark:bg-white/[0.04] rounded" />)}
+                    </div>
+                    <div className="h-10 bg-gray-50 dark:bg-white/[0.03] rounded-md mb-2.5" />
+                    <div className="h-3 bg-gray-100 dark:bg-white/[0.04] rounded w-full mb-2.5" />
+                    <div className="flex items-center justify-between pt-2.5 border-t border-gray-100 dark:border-white/[0.06]">
+                      <div className="flex gap-1.5">
+                        <div className="h-5 w-14 bg-gray-100 dark:bg-white/[0.05] rounded" />
+                        <div className="h-5 w-20 bg-gray-100 dark:bg-white/[0.05] rounded" />
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="h-7 w-14 bg-gray-100 dark:bg-white/[0.05] rounded" />
+                        <div className="h-7 w-14 bg-gray-100 dark:bg-white/[0.05] rounded" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-sm font-medium text-gray-600 dark:text-white/70 mb-1">Loading tenders...</p>
-              <p className="text-xs text-gray-400 dark:text-white/40">Searching database...</p>
             </div>
           )}
 
@@ -1102,8 +1105,8 @@ export default function SearchPage() {
           )}
 
           {/* Results */}
-          {!loading && !error && tenders.length > 0 && (
-            <div className="flex min-h-0 flex-1 flex-col">
+          {!error && tenders.length > 0 && (
+            <div className={`flex min-h-0 flex-1 flex-col transition-opacity duration-300 ${loading ? 'opacity-40 pointer-events-none select-none' : 'opacity-100'}`}>
               <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-white/[0.08] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {tenders.map((tender, index) => {
                   const matchScore   = getMatchScore(tender.ref_no);

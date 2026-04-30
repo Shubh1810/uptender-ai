@@ -66,7 +66,7 @@ export default function DashboardHome() {
   ];
 
   const analyticsItems: NavItem[] = [
-    { icon: TrendingUp, label: 'Tender Analytics', href: '/dashboard/tender-analytics', requiredPlan: 'basic' },
+    { icon: TrendingUp, label: 'Competitor Analytics', href: '/dashboard/competitor-analytics', requiredPlan: 'basic' },
     { icon: Target, label: 'Bid Analytics', href: '/dashboard/bid-analytics', requiredPlan: 'basic' },
     { icon: LineChart, label: 'IntelliGraph™', href: '/dashboard/intelligraph', requiredPlan: 'pro' },
   ];
@@ -112,7 +112,7 @@ export default function DashboardHome() {
             <SearchIcon className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search tenders, documents, analytics..."
+              placeholder="Search tenders, results, competitor analysis..."
               className="w-full pl-11 pr-4 py-2.5 text-sm text-gray-900 dark:text-white bg-orange-500/[0.04] dark:bg-white/[0.05] border-0 rounded-lg placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400/20 focus:bg-orange-50/60 dark:focus:bg-white/[0.08] transition-all"
             />
           </div>

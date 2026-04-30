@@ -739,6 +739,10 @@ optgroup option {
   border-bottom: none;
 }
 
+.dark .tab-bump-container {
+  left: -1px;
+}
+
 .dark .tab-bump::before {
   box-shadow: 5px 1px 0 0 #1f1f23;
 }

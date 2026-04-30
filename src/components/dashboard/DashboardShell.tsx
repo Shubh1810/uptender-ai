@@ -420,7 +420,7 @@ export default function DashboardShell({
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen w-60 glass-sidebar transition-transform lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 h-screen w-56 glass-sidebar transition-transform lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -430,11 +430,11 @@ export default function DashboardShell({
               <Image
                 src={themeMounted && theme === 'dark' ? '/tpllogo-wite.PNG' : '/tplogo.png'}
                 alt="TenderPost"
-                width={26}
-                height={26}
+                width={34}
+                height={34}
                 className="rounded-lg"
               />
-              <span className="text-lg font-bold text-gray-800 dark:text-gray-100 -ml-0.5">
+              <span className="text-xl font-bold text-gray-800 dark:text-gray-100 -ml-0.5">
                 <span className="font-inter">Tender</span>
                 <span className="font-kings -ml-0.5">Post</span>
               </span>
@@ -648,7 +648,7 @@ export default function DashboardShell({
         </div>
       </div>
 
-      <div className="lg:pl-60 h-screen p-3 lg:p-4 pt-14 lg:pt-12 overflow-hidden">
+      <div className="lg:pl-56 h-screen p-3 lg:p-4 pt-14 lg:pt-12 overflow-hidden">
         <div
           className={`floating-content-panel h-full flex flex-col overflow-hidden ${
             tabs.length > 0 && activeTabId !== tabs[0]?.id ? 'rounded-top-left' : ''
