@@ -39,6 +39,7 @@ import { Footer } from '@/components/Footer';
 import { SearchBar } from '@/components/ui/search-bar';
 import { EmailSignup } from '@/components/ui/email-signup';
 import { WaitlistOverlay } from '@/components/ui/waitlist-overlay';
+import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
 import { WorkflowSection } from '@/components/WorkflowSection';
 
@@ -146,12 +147,19 @@ function FeaturesSection({ features }: { features: Feature[] }) {
                 ref={(el) => {
                   featureRefs.current[index] = el;
                 }}
-                className="bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg group"
+                className="relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg group"
                 style={{
                   transform: `translateY(${initialY}px)`,
                   boxShadow: '0 10px 15px -3px rgba(30, 58, 138, 0.2), 0 4px 6px -2px rgba(30, 58, 138, 0.15)',
                 }}
               >
+                <GlowingEffect
+                  spread={40}
+                  glow
+                  disabled={false}
+                  proximity={64}
+                  inactiveZone={0.01}
+                />
                 <div className="flex items-center mb-6">
                   <feature.icon className="h-8 w-8 text-blue-600" />
                   <h3 className="text-xl font-bold text-gray-900 ml-4">{feature.title}</h3>

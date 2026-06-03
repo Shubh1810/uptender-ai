@@ -9,6 +9,24 @@ const SELECT_FIELDS = [
   'tender_type', 'tender_category', 'contract_type', 'is_active',
 ].join(', ');
 
+function startOfToday() {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function endOfDay(date: Date) {
+  const next = new Date(date);
+  next.setHours(23, 59, 59, 999);
+  return next;
+}
+
+function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
 export async function GET(request: NextRequest) {
   const startTime = performance.now();
 
@@ -31,11 +49,13 @@ export async function GET(request: NextRequest) {
     const emdExempted  = searchParams.get('emd_exempted') === 'true';
 
     const supabase = await createClient();
+    const today = startOfToday();
 
     let qb = supabase
       .from('tenders')
       .select(SELECT_FIELDS, { count: 'exact' })
       .eq('is_active', true)
+      .gte('closing_date', today.toISOString())
       .order('closing_date', { ascending: true, nullsFirst: false });
 
     if (query) {
@@ -73,9 +93,20 @@ export async function GET(request: NextRequest) {
 
     if (dateFilter) {
       const dateCol = dateType === 'closing' ? 'closing_date' : 'published_date';
-      const days = parseInt(dateFilter);
-      if (!isNaN(days)) {
-        const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+      const nextMatch = dateFilter.match(/^next_(\d+)$/);
+      const numericDays = parseInt(dateFilter, 10);
+
+      if (dateType === 'closing') {
+        const days = nextMatch ? parseInt(nextMatch[1], 10) : numericDays;
+        if (!isNaN(days)) {
+          qb = qb
+            .gte(dateCol, today.toISOString())
+            .lte(dateCol, endOfDay(addDays(today, days)).toISOString());
+        } else if (/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
+          qb = qb.gte(dateCol, dateFilter);
+        }
+      } else if (!isNaN(numericDays)) {
+        const cutoff = addDays(today, -numericDays).toISOString();
         qb = qb.gte(dateCol, cutoff);
       } else if (/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
         qb = qb.gte(dateCol, dateFilter);

@@ -294,6 +294,16 @@ export default function SearchPage() {
       const response = await fetch(`/api/tenders?${params}`, { cache: 'no-store' });
       if (!response.ok) throw new Error('Failed to fetch tenders');
       const data: TenderResponse = await response.json();
+      console.log(
+        `🔎 Search fetched ${data.items?.length ?? 0} tenders from Supabase tenders table (${data.total_items ?? 0} total matches)`,
+        {
+          source: data.source,
+          page: data.page,
+          limit: data.limit,
+          query: query || null,
+          filters: f,
+        }
+      );
       setTenders(data.items || []);
       setTotalCount(data.total_items || 0);
       setCurrentPage(page);
@@ -472,7 +482,8 @@ export default function SearchPage() {
       tags.push({ key: `ex-${k}`, label: `NOT: ${k}`, onRemove: () => setFilters(f => ({ ...f, excludeKeywords: f.excludeKeywords.filter(x => x !== k) })) })
     );
     if (filters.dateRange) {
-      const dateLabel = DATE_QUICK.find(d => d.value === filters.dateRange)?.label
+      const dateOptions = filters.dateType === 'closing' ? DATE_QUICK_CLOSING : DATE_QUICK;
+      const dateLabel = dateOptions.find(d => d.value === filters.dateRange)?.label
         ?? (filters.dateRange === 'pick' ? (filters.customDate || 'Custom Date') : filters.dateRange);
       tags.push({ key: 'date', label: `${filters.dateType === 'closing' ? 'Closing' : 'Published'}: ${dateLabel}`, onRemove: () => setFilters(f => ({ ...f, dateRange: '', customDate: '' })) });
     }

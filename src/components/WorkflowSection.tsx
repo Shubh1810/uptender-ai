@@ -160,6 +160,24 @@ function AIScoreBar({ score, inView }: { score: number; inView: boolean }) {
   );
 }
 
+function CroppedScoringIcon() {
+  return (
+    <span
+      className="inline-flex h-7 w-7 overflow-hidden"
+      aria-hidden="true"
+      style={{
+        filter: 'brightness(0) saturate(100%) invert(55%) sepia(98%) saturate(1435%) hue-rotate(348deg) brightness(99%) contrast(97%)',
+      }}
+    >
+      <img
+        src="/noun-scoring-8390670.svg"
+        alt=""
+        className="h-[35px] w-7 object-cover object-top"
+      />
+    </span>
+  );
+}
+
 // Notify step — Apple-style unified card with sequenced animations
 function NotifyContent({ direction }: { direction: 'down' | 'up' }) {
   const [emailOn, setEmailOn] = useState(false);
@@ -242,18 +260,7 @@ function NotifyContent({ direction }: { direction: 'down' | 'up' }) {
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="relative inline-flex">
-              <svg width="0" height="0" style={{ position: 'absolute', overflow: 'hidden' }}>
-                <defs>
-                  <radialGradient id="sparkle-orange" cx="50%" cy="50%" r="55%">
-                    <stop offset="0%" stopColor="#fed7aa" />
-                    <stop offset="55%" stopColor="#fb923c" />
-                    <stop offset="100%" stopColor="#ea580c" />
-                  </radialGradient>
-                </defs>
-              </svg>
-              <Sparkles className="w-4 h-4" style={{ stroke: 'url(#sparkle-orange)' }} />
-            </span>
+            <CroppedScoringIcon />
             <span className="text-sm font-semibold text-gray-900"> Relevance Score</span>
           </div>
           <span className="text-[11px] text-gray-400 font-medium">this week</span>
@@ -740,4 +747,3 @@ export function WorkflowSection() {
     </section>
   );
 }
-

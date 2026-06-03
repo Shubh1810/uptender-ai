@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePostHog } from 'posthog-js/react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { GetStartedButton } from '@/components/ui/get-started-button';
 import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
-import { useAuth } from '@/hooks/useAuth';
+import { createClient } from '@/lib/supabase/client';
+import { resetAuthState, useAuth } from '@/hooks/useAuth';
 import { User } from '@supabase/supabase-js';
+import { LayoutDashboard, LogOut, Settings, UserCircle } from 'lucide-react';
 
 interface HeaderProps {
   variant?: 'main' | 'simple';
@@ -29,6 +30,132 @@ function getInitialsFromUser(user: User | null): string {
   const firstName = namePart.trim().split(/\s+/).filter(Boolean)[0] || '';
   const firstInitial = firstName.charAt(0);
   return firstInitial.toUpperCase();
+}
+
+function getDisplayNameFromUser(user: User | null): string {
+  const meta = (user?.user_metadata as Record<string, any>) || {};
+  return meta.full_name || meta.name || meta.display_name || user?.email?.split('@')[0] || 'Account';
+}
+
+function handleSignOut() {
+  const supabase = createClient();
+  resetAuthState();
+  supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('sb-') || key.startsWith('supabase'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+    localStorage.removeItem('saved_tender_ids');
+    localStorage.removeItem('tender_cache');
+    localStorage.removeItem('tender_cache_timestamp');
+    localStorage.removeItem('last_refresh_timestamp');
+  } catch {}
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/api/auth/signout?redirect=/';
+  document.body.appendChild(form);
+  form.submit();
+}
+
+function AccountMenu({ user, size = 'md' }: { user: User; size?: 'sm' | 'md' }) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const avatarSize = size === 'sm' ? 32 : 36;
+  const initialsClass = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-9 h-9 text-sm';
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [open]);
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="inline-flex rounded-full bg-gradient-to-br from-blue-500/80 via-sky-400/70 to-indigo-500/80 p-[2px] shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:ring-offset-2 focus:ring-offset-transparent"
+        aria-label="Open account menu"
+        aria-expanded={open}
+      >
+        {user.user_metadata?.avatar_url ? (
+          <Image
+            src={user.user_metadata.avatar_url}
+            alt="Profile"
+            width={avatarSize}
+            height={avatarSize}
+            className="rounded-full bg-white object-cover"
+          />
+        ) : (
+          <div className={`${initialsClass} rounded-full bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center font-semibold`}>
+            {getInitialsFromUser(user)}
+          </div>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-3 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl shadow-slate-900/10 z-[100]">
+          <div className="px-4 py-3 border-b border-gray-100">
+            <p className="truncate text-sm font-semibold text-gray-900">{getDisplayNameFromUser(user)}</p>
+            {user.email && <p className="truncate text-xs text-gray-500">{user.email}</p>}
+          </div>
+          <div className="py-1">
+            <Link
+              href="/dashboard"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Dashboard</span>
+            </Link>
+            <Link
+              href="/dashboard/profile"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              <UserCircle className="h-4 w-4" />
+              <span>Profile</span>
+            </Link>
+            <Link
+              href="/dashboard/settings"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </Link>
+          </div>
+          <div className="border-t border-gray-100 py-1">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                handleSignOut();
+              }}
+              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function Header({ 
@@ -129,7 +256,6 @@ export function Header({
 
 function MainNavigation() {
   const posthog = usePostHog();
-  const router = useRouter();
   const { user } = useAuth(); // Use shared auth hook - single listener for entire app
 
   const triggerWaitlist = () => {
@@ -182,20 +308,7 @@ function MainNavigation() {
       </div>
       
       {user ? (
-        // Logged in user - show clickable avatar linking to dashboard
-        <Link href="/dashboard" className="inline-flex items-center">
-          {user.user_metadata?.avatar_url ? (
-            <Image
-              src={user.user_metadata.avatar_url}
-              alt="Profile"
-              width={36}
-              height={36}
-              className="rounded-full border border-gray-300 shadow-sm"
-            />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center text-sm font-semibold border border-white/40 shadow-sm">{getInitialsFromUser(user)}</div>
-          )}
-        </Link>
+        <AccountMenu user={user} />
       ) : (
         // Not logged in - show Get started button
         <GetStartedButton hideIcon startOnboarding className="get-started-cta">
@@ -224,19 +337,7 @@ export function InternalPageNavigation() {
   return (
     <nav className="flex md:hidden items-center space-x-2">
       {user ? (
-        <Link href="/dashboard" className="inline-flex items-center">
-          {user.user_metadata?.avatar_url ? (
-            <Image
-              src={user.user_metadata.avatar_url}
-              alt="Profile"
-              width={32}
-              height={32}
-              className="rounded-full border border-gray-300 shadow-sm"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center text-xs font-semibold border border-white/40 shadow-sm">{getInitialsFromUser(user)}</div>
-          )}
-        </Link>
+        <AccountMenu user={user} size="sm" />
       ) : (
         <GetStartedButton hideIcon startOnboarding className="get-started-cta text-sm">
           <span>Get started</span>
@@ -284,19 +385,7 @@ export function InternalPageDesktopNav() {
         Pricing
       </Link>
       {user ? (
-        <Link href="/dashboard" className="inline-flex items-center">
-          {user.user_metadata?.avatar_url ? (
-            <Image
-              src={user.user_metadata.avatar_url}
-              alt="Profile"
-              width={36}
-              height={36}
-              className="rounded-full border border-gray-300 shadow-sm"
-            />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center text-sm font-semibold border border-white/40 shadow-sm">{getInitialsFromUser(user)}</div>
-          )}
-        </Link>
+        <AccountMenu user={user} />
       ) : (
         <GetStartedButton hideIcon startOnboarding className="get-started-cta text-base">
           <span>Get started</span>

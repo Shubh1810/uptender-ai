@@ -18,6 +18,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { WavyBackground } from '@/components/ui/wavy-background';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
 
 export function HeroSection() {
@@ -115,7 +116,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.18 }}
           className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-gray-500"
-          style={{ fontFamily: 'var(--font-ubuntu)' }}
+          style={{ fontFamily: 'var(--font-roboto)' }}
         >
           Instant tender alerts, intelligent filtering, and AI-powered bid support.
           Replaces manual tracking, risky bids, and expensive procurement consultants.
@@ -126,7 +127,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.26 }}
-          className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+          className="relative top-6 mt-7 flex flex-col items-center gap-3 sm:top-8 sm:flex-row sm:justify-center"
         >
           {/* Search input */}
           <div className="relative flex w-full max-w-md items-center rounded-full border border-gray-200 bg-white/90 shadow-sm backdrop-blur-sm focus-within:border-blue-300 focus-within:shadow-md transition-all duration-200">
@@ -143,14 +144,18 @@ export function HeroSection() {
           </div>
 
           {/* Get started button */}
-          <Link
-            href="/onboarding"
-            className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
-          >
-            Get started for free
-            <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
+          <Link href="/onboarding" className="inline-flex flex-shrink-0">
+            <HoverBorderGradient
+              as="span"
+              containerClassName="rounded-full shadow-md shadow-slate-900/20 transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5"
+              className="flex items-center gap-2 bg-slate-900 px-6 py-3 text-sm font-semibold text-white whitespace-nowrap"
+              duration={0.8}
+            >
+              Get started for free
+              <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 8h10M9 4l4 4-4 4" />
+              </svg>
+            </HoverBorderGradient>
           </Link>
         </motion.div>
 
@@ -159,7 +164,7 @@ export function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.38 }}
-          className="mt-3 flex justify-center"
+          className="relative top-6 mt-3 flex justify-center sm:top-8"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/60 px-3 py-1 text-xs shadow-sm backdrop-blur-sm">
             <span className={`h-1.5 w-1.5 rounded-full ${tenderStats.isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
