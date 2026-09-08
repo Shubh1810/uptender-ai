@@ -223,196 +223,256 @@ export function HeroSection() {
 
 /* ─────────────────────────────────────────────
    Dashboard Mockup — fills MacBook screen overlay
+   Modeled on the real /dashboard/search screen:
+   dark sidebar nav + "Search Live Tenders" results
+   with AI Match badges, key-details grid and the
+   financial info row.
    ───────────────────────────────────────────── */
+
+const MATCH_COLOR: Record<'green' | 'lime' | 'orange', string> = {
+  green: '#4ade80',
+  lime: '#a3e635',
+  orange: '#fb923c',
+};
+
+interface MockTender {
+  title: string;
+  org: string;
+  location: string;
+  match: number;
+  matchColor: 'green' | 'lime' | 'orange';
+  refNo: string;
+  published: string;
+  opening: string;
+  closing: string;
+  value: string;
+  emd: string;
+  period: string;
+  tags: string[];
+}
+
+const MOCK_TENDERS: MockTender[] = [
+  {
+    title: 'Medical Equipment Supply & Installation',
+    org: 'AIIMS New Delhi',
+    location: 'New Delhi',
+    match: 94,
+    matchColor: 'green',
+    refNo: 'GEM/2024/B/4521',
+    published: 'Nov 2, 2024',
+    opening: 'Dec 10, 2024',
+    closing: 'Dec 15, 2024',
+    value: '₹2.4Cr',
+    emd: '₹1.2L',
+    period: '90 days',
+    tags: ['GeM', 'Healthcare'],
+  },
+  {
+    title: 'Road Construction — National Highway NH-48',
+    org: 'NHAI',
+    location: 'Jaipur, Rajasthan',
+    match: 87,
+    matchColor: 'lime',
+    refNo: 'NHAI/2024/RC/0048',
+    published: 'Nov 5, 2024',
+    opening: 'Dec 18, 2024',
+    closing: 'Dec 20, 2024',
+    value: '₹18.6Cr',
+    emd: '₹9.3L',
+    period: '365 days',
+    tags: ['CPPP', 'Infrastructure'],
+  },
+];
+
 function DashboardMockup() {
   return (
     <div
       className="h-full w-full flex overflow-hidden"
-      style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif', background: '#f0f5f6' }}
+      style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif', background: '#111113' }}
     >
-      {/* Sidebar */}
+      {/* Sidebar — mirrors DashboardShell nav */}
       <div
         style={{
-          width: 176,
+          width: 168,
           flexShrink: 0,
           background: '#0a0a0a',
-          padding: '14px 10px',
+          padding: '12px 9px',
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
         }}
       >
         {/* Logo — brand logo + brand fonts (Inter/Geist + Kings) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, paddingLeft: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, paddingLeft: 4 }}>
           <Image
             src="/tpllogo-wite.PNG"
             alt="TenderPost"
-            width={20}
-            height={20}
+            width={18}
+            height={18}
             className="rounded-lg shrink-0 object-contain"
           />
-          <span style={{ color: '#fff', fontWeight: 700, fontSize: 12, letterSpacing: '-0.02em' }} className="inline-flex items-baseline">
+          <span style={{ color: '#fff', fontWeight: 700, fontSize: 11, letterSpacing: '-0.02em' }} className="inline-flex items-baseline">
             <span className="font-inter">Tender</span><span className="font-kings -ml-0.5">Post</span>
           </span>
         </div>
 
-        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 8, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', paddingLeft: 8, marginBottom: 4 }}>Main</div>
+        <div style={{ padding: '5px 8px', borderRadius: 5, color: 'rgba(255,255,255,0.45)', fontSize: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 8, height: 8, borderRadius: 2, background: 'rgba(255,255,255,0.2)', display: 'inline-block' }} />
+          Dashboard
+        </div>
+
+        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 7.5, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', paddingLeft: 8, marginTop: 8, marginBottom: 3 }}>Tenders</div>
 
         {[
-          { label: 'Dashboard', active: true },
+          { label: 'Search Tenders', active: true },
           { label: 'My Tenders' },
-          { label: 'Saved Tenders' },
-          { label: 'Bid Drafts' },
+          { label: 'Active Bids' },
+          { label: 'Watchlist' },
         ].map((item) => (
           <div
             key={item.label}
             style={{
-              padding: '6px 8px',
+              padding: '5px 8px',
+              marginLeft: 4,
               borderRadius: 5,
               background: item.active ? 'rgba(249,115,22,0.15)' : 'transparent',
-              color: item.active ? '#f97316' : 'rgba(255,255,255,0.45)',
-              fontSize: 11,
+              color: item.active ? '#f97316' : 'rgba(255,255,255,0.4)',
+              fontSize: 10,
               fontWeight: item.active ? 600 : 400,
+              borderLeft: item.active ? '2px solid #f97316' : '2px solid transparent',
             }}
           >
             {item.label}
           </div>
         ))}
 
-        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 8, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', paddingLeft: 8, marginTop: 10, marginBottom: 4 }}>Intelligence</div>
+        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 7.5, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', paddingLeft: 8, marginTop: 9, marginBottom: 3 }}>Analytics</div>
+        {['Tender Analytics', 'Bid Analytics'].map((label) => (
+          <div key={label} style={{ padding: '5px 8px', marginLeft: 4, borderRadius: 5, color: 'rgba(255,255,255,0.35)', fontSize: 10 }}>
+            {label}
+          </div>
+        ))}
 
-        {['Alerts', 'Analytics', 'Billing'].map((label) => (
-          <div key={label} style={{ padding: '6px 8px', borderRadius: 5, color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
+        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 7.5, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', paddingLeft: 8, marginTop: 9, marginBottom: 3 }}>AI Workspace</div>
+        {['AI Bid Draft', 'Compliance Checker'].map((label) => (
+          <div key={label} style={{ padding: '5px 8px', marginLeft: 4, borderRadius: 5, color: 'rgba(255,255,255,0.35)', fontSize: 10 }}>
             {label}
           </div>
         ))}
       </div>
 
       {/* Main */}
-      <div style={{ flex: 1, padding: '12px 14px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ flex: 1, padding: '11px 13px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8, background: '#111113' }}>
 
-        {/* Top bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#111', letterSpacing: '-0.02em' }}>Overview</span>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <div style={{ height: 24, width: 130, borderRadius: 5, background: '#fff', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', paddingLeft: 7, gap: 4 }}>
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <span style={{ fontSize: 8, color: '#9ca3af' }}>Search tenders...</span>
-            </div>
-            <div style={{ height: 24, borderRadius: 5, background: '#fff', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', paddingInline: 7, fontSize: 8, color: '#6b7280', gap: 3 }}>
-              📅 November 2024
-            </div>
-            <div style={{ height: 24, borderRadius: 5, background: '#f97316', display: 'flex', alignItems: 'center', paddingInline: 9, fontSize: 8, color: '#fff', fontWeight: 600, gap: 2 }}>
-              + Add Tender
-            </div>
+        {/* Title row */}
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <span style={{ fontSize: 14, fontWeight: 500, color: '#fff' }}>Search Live Tenders</span>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>2,433 results</span>
+          </div>
+          <div style={{ height: 20, borderRadius: 5, background: '#18181b', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', paddingInline: 7, fontSize: 8, color: 'rgba(255,255,255,0.6)', gap: 4 }}>
+            ↕ Newest first ▾
           </div>
         </div>
 
-        {/* Stat cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 7 }}>
-          {[
-            { label: 'Live Tenders', value: '2,433', delta: '+13%' },
-            { label: 'Bids Drafted', value: '48', delta: '+8%' },
-            { label: 'Win Rate', value: '34%', delta: '+2.1%' },
-            { label: 'Saved', value: '127', delta: '+4.2%' },
-          ].map((s) => (
-            <div key={s.label} style={{ background: '#fff', borderRadius: 7, padding: '7px 9px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-              <div style={{ fontSize: 8, color: '#6b7280', marginBottom: 2 }}>{s.label}</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#111', lineHeight: 1.2 }}>{s.value}</div>
-              <div style={{ fontSize: 8, color: '#16a34a', marginTop: 2 }}>↑ {s.delta} vs last month</div>
-            </div>
+        {/* Active filter chips */}
+        <div style={{ display: 'flex', gap: 5 }}>
+          {['GeM', 'Healthcare', 'Closing: Next 30 Days'].map((chip) => (
+            <span key={chip} style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 99, padding: '2px 7px' }}>
+              {chip} ✕
+            </span>
           ))}
         </div>
 
-        {/* Charts */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 7 }}>
-          {/* Line chart */}
-          <div style={{ background: '#fff', borderRadius: 7, padding: '9px 11px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, fontWeight: 600, color: '#111' }}>Tender Activity</span>
-              <span style={{ fontSize: 8, color: '#6b7280', background: '#f3f4f6', padding: '1px 5px', borderRadius: 3 }}>Monthly ▾</span>
-            </div>
-            <div style={{ fontSize: 8, color: '#6b7280', marginBottom: 3 }}>
-              Total: <strong style={{ color: '#111' }}>343,245</strong> <span style={{ color: '#16a34a' }}>↑ 13%</span>
-              &nbsp;&nbsp;On Delivery: <strong style={{ color: '#111' }}>2,162</strong> <span style={{ color: '#16a34a' }}>↑ 4.25%</span>
-            </div>
-            <svg width="100%" height="72" viewBox="0 0 260 72" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="tg3" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f97316" stopOpacity="0.22"/>
-                  <stop offset="100%" stopColor="#f97316" stopOpacity="0"/>
-                </linearGradient>
-              </defs>
-              {[18,36,54].map(y=><line key={y} x1={0} y1={y} x2={260} y2={y} stroke="#f3f4f6" strokeWidth="1"/>)}
-              <path d="M0,58 Q32,44 65,48 T130,28 T195,15 T260,22" stroke="#f97316" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              <path d="M0,58 Q32,44 65,48 T130,28 T195,15 T260,22 L260,72 L0,72Z" fill="url(#tg3)"/>
-              <path d="M0,64 Q32,60 65,57 T130,53 T195,50 T260,48" stroke="#94a3b8" strokeWidth="1.5" fill="none" strokeDasharray="3 3"/>
-              <circle cx="130" cy="28" r="3" fill="#f97316"/>
-              {['Nov 1','2','3','4','5','6','7'].map((l,i)=>(
-                <text key={l} x={i*42} y={71} fontSize="6" fill="#9ca3af">{l}</text>
-              ))}
-            </svg>
-          </div>
-
-          {/* Bar chart */}
-          <div style={{ background: '#fff', borderRadius: 7, padding: '9px 11px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, alignItems: 'center' }}>
-              <span style={{ fontSize: 9, fontWeight: 600, color: '#111' }}>Win Rate</span>
-              <span style={{ fontSize: 8, color: '#6b7280' }}>Export ↗</span>
-            </div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
-              {[['#f97316','Income'],['#e2e8f0','Target']].map(([c,l])=>(
-                <span key={l} style={{ fontSize: 7, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <span style={{ width: 5, height: 5, background: c, borderRadius: 1, display: 'inline-block' }}/>
-                  {l}
-                </span>
-              ))}
-            </div>
-            <svg width="100%" height="72" viewBox="0 0 170 72">
-              {[18,36,54].map(y=><line key={y} x1={0} y1={y} x2={170} y2={y} stroke="#f3f4f6" strokeWidth="1"/>)}
-              {[
-                {x:2,h1:46,h2:58},{x:26,h1:38,h2:50},{x:50,h1:54,h2:62},
-                {x:74,h1:34,h2:46},{x:98,h1:50,h2:58},{x:122,h1:40,h2:54},{x:146,h1:44,h2:56},
-              ].map((b,i)=>(
-                <g key={b.x}>
-                  <rect x={b.x} y={72-b.h2} width={8} height={b.h2} rx={2} fill="#e2e8f0"/>
-                  <rect x={b.x+9} y={72-b.h1} width={8} height={b.h1} rx={2} fill="#f97316"/>
-                  <text x={b.x+6} y={71} fontSize="6" fill="#9ca3af" textAnchor="middle">{i+1}</text>
-                </g>
-              ))}
-            </svg>
-          </div>
-        </div>
-
-        {/* Recent tenders table */}
-        <div style={{ background: '#fff', borderRadius: 7, padding: '7px 11px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', flex: 1, minHeight: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <span style={{ fontSize: 9, fontWeight: 600, color: '#f97316', borderBottom: '1.5px solid #f97316', paddingBottom: 2 }}>Recent Tenders</span>
-              <span style={{ fontSize: 9, color: '#9ca3af' }}>Saved</span>
-              <span style={{ fontSize: 9, color: '#9ca3af' }}>Closing Soon</span>
-            </div>
-            <span style={{ fontSize: 8, color: '#9ca3af', background: '#f3f4f6', padding: '1px 5px', borderRadius: 3 }}>Monthly ▾</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {[
-              { org: 'AIIMS New Delhi', title: 'Medical Equipment Supply & Installation', match: '94%', closing: 'Dec 15', status: 'Active' },
-              { org: 'NHAI', title: 'Road Construction — National Highway NH-48', match: '87%', closing: 'Dec 20', status: 'Active' },
-              { org: 'MeitY', title: 'IT Infrastructure & Cloud Migration', match: '81%', closing: 'Jan 3', status: 'New' },
-            ].map((t) => (
-              <div key={t.title} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 6px', borderRadius: 5, background: '#f9fafb' }}>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 8, fontWeight: 600, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.title}</div>
-                  <div style={{ fontSize: 7, color: '#9ca3af' }}>{t.org}</div>
+        {/* Result cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, borderRadius: 9, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+          {MOCK_TENDERS.map((t, i) => (
+            <div
+              key={t.refNo}
+              style={{
+                padding: '9px 11px',
+                background: i % 2 === 0 ? '#18181b' : '#111113',
+                borderBottom: i < MOCK_TENDERS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+              }}
+            >
+              {/* Title + match badge */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6, gap: 8 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 600, color: 'rgba(255,255,255,0.92)', marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {t.title}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, fontSize: 8, color: 'rgba(255,255,255,0.45)' }}>
+                    <span>🏢 {t.org}</span>
+                    <span>📍 {t.location}</span>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, marginLeft: 8 }}>
-                  <span style={{ fontSize: 7, color: '#16a34a', fontWeight: 600, background: '#dcfce7', padding: '1px 4px', borderRadius: 99 }}>{t.match} match</span>
-                  <span style={{ fontSize: 7, color: '#6b7280' }}>Closes {t.closing}</span>
-                  <span style={{ fontSize: 7, color: t.status === 'New' ? '#7c3aed' : '#2563eb', background: t.status === 'New' ? '#ede9fe' : '#dbeafe', padding: '1px 4px', borderRadius: 99 }}>{t.status}</span>
+                <div
+                  style={{
+                    flexShrink: 0,
+                    minWidth: 38,
+                    borderRadius: 6,
+                    background: 'rgba(0,0,0,0.3)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    padding: '4px 6px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 1,
+                    boxShadow: `inset 0 -2px 0 ${MATCH_COLOR[t.matchColor]}`,
+                  }}
+                >
+                  <span style={{ fontSize: 11, fontWeight: 700, lineHeight: 1, color: MATCH_COLOR[t.matchColor] }}>{t.match}%</span>
+                  <span style={{ fontSize: 5.5, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>AI Match</span>
                 </div>
               </div>
-            ))}
-          </div>
+
+              {/* Key details grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6, marginBottom: 6 }}>
+                {[
+                  { label: 'Ref No.', value: t.refNo, mono: true },
+                  { label: 'Published', value: t.published },
+                  { label: 'Opening', value: t.opening },
+                  { label: 'Closing', value: t.closing, red: true },
+                ].map((d) => (
+                  <div key={d.label}>
+                    <div style={{ fontSize: 6.5, color: 'rgba(255,255,255,0.35)', marginBottom: 1 }}>{d.label}</div>
+                    <div style={{ fontSize: 8, fontWeight: 500, color: d.red ? '#f87171' : 'rgba(255,255,255,0.8)', fontFamily: d.mono ? 'var(--font-geist-mono), monospace' : undefined, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {d.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Financial row */}
+              <div style={{ display: 'flex', gap: 12, padding: '5px 8px', background: 'rgba(255,255,255,0.03)', borderRadius: 5, marginBottom: 6 }}>
+                {[
+                  { label: 'Tender Value', value: t.value },
+                  { label: 'EMD', value: t.emd },
+                  { label: 'Period', value: t.period },
+                ].map((f) => (
+                  <div key={f.label}>
+                    <div style={{ fontSize: 6.5, color: 'rgba(255,255,255,0.35)' }}>{f.label}</div>
+                    <div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{f.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer tags + actions */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {t.tags.map((tag) => (
+                    <span key={tag} style={{ fontSize: 7, fontWeight: 500, color: 'rgba(96,165,250,0.9)', background: 'rgba(59,130,246,0.1)', padding: '1.5px 5px', borderRadius: 3 }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <span style={{ fontSize: 7, fontWeight: 500, color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, padding: '2px 6px' }}>♡ Save</span>
+                  <span style={{ fontSize: 7, fontWeight: 600, color: '#000', background: '#fff', borderRadius: 4, padding: '2px 6px' }}>↗ View</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

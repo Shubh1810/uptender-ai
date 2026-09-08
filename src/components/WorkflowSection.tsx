@@ -1,61 +1,83 @@
 'use client';
 
+/**
+ * WORKFLOW SECTION v3 — TenderPost
+ *
+ * Three steps only. Discovery/alerts is already sold in the hero
+ * (search bar + live tender count), so this section skips it entirely
+ * and focuses only on the part of the pipeline competitors don't touch:
+ *
+ *   1. Vault    — one-time credential + document capture   (~15% cumulative)
+ *   2. Qualify  — hard eligibility verdict from the NIT     (~45% cumulative)
+ *   3. Bid pack — auto-filled annexures & compliance set    (~90% cumulative)
+ *
+ * The coverage meter is the moat argument made visible: discovery tools
+ * stop before this section even starts.
+ */
+
 import React, { useRef, useState, useLayoutEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
-  CheckCircle,
-  Bell,
-  Save,
-  Trophy,
-  TrendingUp,
-  Sparkles,
-  Users,
-  Medal,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
   AlertTriangle,
   Clock,
+  FileSignature,
+  PenLine,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Register GSAP plugins
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Step data
+/* ─────────────────────────────────────────────
+   Step data
+   ───────────────────────────────────────────── */
+
 const steps = [
   {
-    key: 'save',
-    label: 'Save',
-    title: 'Save time with auto-filled tender details',
+    key: 'vault',
+    label: 'Vault',
+    title: 'Your company file, entered once',
     description:
-      'We securely save your preferences, documents and past bids so forms are auto‑filled the next time you apply.',
-    cta: { href: '/onboarding', text: 'Start saving' },
-    icon: Save,
+      'Udyam, GST, ITRs, audited balance sheets, work orders, licences and DSC details live in one place. We read the numbers out of them — turnover by financial year, similar-work values, validity dates — so no bid ever starts from an empty folder.',
+    replaces: 'Replaces 3–4 hours per bid spent re-collecting the same paperwork',
+    coverage: 15,
+    cta: { href: '/onboarding', text: 'Build your vault' },
   },
   {
-    key: 'notify',
-    label: 'Get notified',
-    title: 'Get notified the moment a tender matches',
+    key: 'qualify',
+    label: 'Qualify',
+    title: 'Bid or skip, answered before you open the PDF',
     description:
-      'Real‑time alerts across email and WhatsApp with AI‑selected relevance so you only see what matters.',
-    cta: { href: '/make-payment?plan=professional&amount=12353', text: 'Enable alerts' },
-    icon: Bell,
+      'We read the NIT against your real credentials and return a verdict, not a similarity score. Turnover short by ₹1.8 Cr? You find out in seconds, not on day four of drafting.',
+    replaces: 'Replaces reading a 200-page NIT to find six eligibility numbers',
+    coverage: 45,
+    cta: { href: '/dashboard', text: 'Check a live tender' },
   },
   {
-    key: 'win',
-    label: 'Win tenders',
-    title: 'Win tenders with confidence',
+    key: 'pack',
+    label: 'Bid pack',
+    title: 'The submission, assembled',
     description:
-      'Guided checklists, compliance reminders and AI suggestions help you submit stronger, on‑time bids.',
-    cta: { href: '/dashboard', text: 'Explore tenders' },
-    icon: Trophy,
+      'Every undertaking, affidavit and annexure filled in that tender’s own format, on your letterhead, ready to sign. Expired certificates get flagged before upload — not after rejection.',
+    replaces: 'Replaces two days of retyping declarations a consultant charges ₹1,500 for',
+    coverage: 90,
+    cta: { href: '/onboarding', text: 'Generate a bid pack' },
   },
 ] as const;
 
-// Static wavy lines background - warm tones
+type StepKey = (typeof steps)[number]['key'];
+
+/* ─────────────────────────────────────────────
+   Shared primitives
+   ───────────────────────────────────────────── */
+
 const WavyLines = () => (
   <div className="absolute inset-0 pointer-events-none opacity-40">
     <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="none">
@@ -66,7 +88,6 @@ const WavyLines = () => (
   </div>
 );
 
-// Slot machine animation variants
 const slotMachineVariants = {
   enter: (direction: 'down' | 'up') => ({
     opacity: 0,
@@ -74,12 +95,7 @@ const slotMachineVariants = {
     rotateX: direction === 'down' ? -20 : 20,
     scale: 0.9,
   }),
-  center: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    scale: 1,
-  },
+  center: { opacity: 1, y: 0, rotateX: 0, scale: 1 },
   exit: (direction: 'down' | 'up') => ({
     opacity: 0,
     y: direction === 'down' ? -100 : 100,
@@ -89,253 +105,47 @@ const slotMachineVariants = {
 };
 
 const slotMachineTransition = {
-  duration: 0.1,
+  duration: 0.12,
   ease: [0.22, 1, 0.36, 1] as const,
 };
 
-// Apple-style toggle switch
-function AppleToggle({ enabled, onChange }: { enabled: boolean; onChange: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onChange}
-      className="relative flex-shrink-0 focus:outline-none"
-      style={{ width: 51, height: 31 }}
-      aria-checked={enabled}
-      role="switch"
-    >
-      <motion.div
-        className="absolute inset-0 rounded-full"
-        animate={{ backgroundColor: enabled ? '#34c759' : '#e5e7eb' }}
-        transition={{ duration: 0.25 }}
-      />
-      <motion.div
-        className="absolute top-[2px] w-[27px] h-[27px] bg-white rounded-full shadow-md"
-        animate={{ x: enabled ? 22 : 2 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 24, mass: 0.8 }}
-      />
-    </button>
-  );
-}
+const cardBase = 'bg-white/95 backdrop-blur-md rounded-2xl shadow-sm';
 
-// Animated AI score bar with counter
-function AIScoreBar({ score, inView }: { score: number; inView: boolean }) {
-  const [displayed, setDisplayed] = useState(0);
-
+/** Counts up to `to` when `run` flips true. */
+function useCountUp(to: number, run: boolean, duration = 900) {
+  const [n, setN] = useState(0);
   React.useEffect(() => {
-    if (!inView) return;
-    const end = score;
-    const duration = 1100;
-    const stepTime = 16;
-    const steps = Math.floor(duration / stepTime);
-    let current = 0;
-    const timer = setInterval(() => {
-      current++;
-      setDisplayed(Math.round((end * current) / steps));
-      if (current >= steps) clearInterval(timer);
-    }, stepTime);
-    return () => clearInterval(timer);
-  }, [inView, score]);
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #1d4ed8 0%, #2563eb 20%, #4338ca 45%, #6d28d9 65%, #9333ea 82%, #db2777 100%)' }}
-          initial={{ width: 0 }}
-          animate={{ width: inView ? `${score}%` : 0 }}
-          transition={{ duration: 1.1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        />
-      </div>
-      <motion.span
-        className="text-sm font-semibold text-gray-900 w-9 text-right tabular-nums"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: inView ? 1 : 0 }}
-        transition={{ delay: 0.25 }}
-      >
-        {displayed}%
-      </motion.span>
-    </div>
-  );
-}
-
-function CroppedScoringIcon() {
-  return (
-    <span
-      className="inline-flex h-7 w-7 overflow-hidden"
-      aria-hidden="true"
-      style={{
-        filter: 'brightness(0) saturate(100%) invert(55%) sepia(98%) saturate(1435%) hue-rotate(348deg) brightness(99%) contrast(97%)',
-      }}
-    >
-      <img
-        src="/noun-scoring-8390670.svg"
-        alt=""
-        className="h-[35px] w-7 object-cover object-top"
-      />
-    </span>
-  );
-}
-
-// Notify step — Apple-style unified card with sequenced animations
-function NotifyContent({ direction }: { direction: 'down' | 'up' }) {
-  const [emailOn, setEmailOn] = useState(false);
-  const [waOn, setWaOn] = useState(false);
-  const [scoreVisible, setScoreVisible] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(cardRef, { once: true, margin: '-60px' });
-
-  // Sequence: email toggle → WhatsApp toggle → AI score
-  // Spring (stiffness:120, damping:18, mass:1.2) settles in ~900ms
-  React.useEffect(() => {
-    if (!inView) return;
-    const t1 = setTimeout(() => setEmailOn(true), 150);
-    const t2 = setTimeout(() => setWaOn(true), 150 + 420);
-    const t3 = setTimeout(() => setScoreVisible(true), 150 + 420 + 420);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [inView]);
-
-  return (
-    <motion.div
-      key="notify-content"
-      ref={cardRef}
-      custom={direction}
-      variants={slotMachineVariants}
-      initial="enter"
-      animate="center"
-      exit="exit"
-      transition={slotMachineTransition}
-      style={{ transformPerspective: 1200 }}
-      className="relative w-full space-y-3"
-    >
-      {/* Unified notification toggles card */}
-      <motion.div
-        className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 16 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {/* Email row */}
-        <div className="flex items-center justify-between px-4 py-3.5">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h.273L12 10.91l10.091-7.09h.273c.904 0 1.636.732 1.636 1.636z"/>
-              </svg>
-            </div>
-            <div>
-              <span className="font-medium text-gray-900 text-sm">Email alerts</span>
-              <p className="text-xs text-gray-400">Instant tender match emails</p>
-            </div>
-          </div>
-          <AppleToggle enabled={emailOn} onChange={() => setEmailOn(v => !v)} />
-        </div>
-
-        <div className="h-px bg-gray-100 mx-4" />
-
-        {/* WhatsApp row */}
-        <div className="flex items-center justify-between px-4 py-3.5">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#25D366] rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.787"/>
-              </svg>
-            </div>
-            <div>
-              <span className="font-medium text-gray-900 text-sm">WhatsApp alerts</span>
-              <p className="text-xs text-gray-400">Real-time notifications</p>
-            </div>
-          </div>
-          <AppleToggle enabled={waOn} onChange={() => setWaOn(v => !v)} />
-        </div>
-      </motion.div>
-
-      {/* AI relevance score card */}
-      <motion.div
-        className="bg-white/95 backdrop-blur-md rounded-2xl px-4 py-4 shadow-sm"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: scoreVisible ? 1 : 0, y: scoreVisible ? 0 : 20 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <CroppedScoringIcon />
-            <span className="text-sm font-semibold text-gray-900"> Relevance Score</span>
-          </div>
-          <span className="text-[11px] text-gray-400 font-medium">this week</span>
-        </div>
-
-        <AIScoreBar score={87} inView={scoreVisible} />
-
-        <motion.p
-          className="text-xs text-gray-400 mt-2.5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: scoreVisible ? 1 : 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          High match · 12 tenders found this week
-        </motion.p>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-function WinProbBar({ inView }: { inView: boolean }) {
-  const [displayed, setDisplayed] = useState(0);
-  React.useEffect(() => {
-    if (!inView) return;
-    const total = Math.floor(900 / 16);
+    if (!run) return;
+    const total = Math.max(1, Math.floor(duration / 16));
     let i = 0;
     const t = setInterval(() => {
       i++;
-      setDisplayed(Math.round((74 * i) / total));
+      setN(Math.round((to * i) / total));
       if (i >= total) clearInterval(t);
     }, 16);
     return () => clearInterval(t);
-  }, [inView]);
-
-  return (
-    <div className="flex items-center gap-3 mt-3">
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #34d399, #10b981, #059669)' }}
-          initial={{ width: 0 }}
-          animate={{ width: inView ? '74%' : 0 }}
-          transition={{ duration: 1.0, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        />
-      </div>
-      <span className="text-sm font-semibold text-emerald-600 w-9 text-right tabular-nums">
-        {displayed}%
-      </span>
-    </div>
-  );
+  }, [run, to, duration]);
+  return n;
 }
 
-function WinContent({ direction }: { direction: 'down' | 'up' }) {
-  const [aiVisible, setAiVisible] = useState(false);
-  const [infoVisible, setInfoVisible] = useState([false, false, false]);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(cardRef, { once: true, margin: '-60px' });
+/* ─────────────────────────────────────────────
+   1. VAULT
+   ───────────────────────────────────────────── */
 
-  React.useEffect(() => {
-    if (!inView) return;
-    // AI suggestion after bar finishes (~1.1s)
-    const t1 = setTimeout(() => setAiVisible(true), 1150);
-    // Info rows stagger after AI suggestion
-    [0, 1, 2].forEach(i =>
-      setTimeout(() => setInfoVisible(prev => {
-        const n = [...prev]; n[i] = true; return n;
-      }), 1150 + 300 + i * 180)
-    );
-    return () => clearTimeout(t1);
-  }, [inView]);
+const vaultDocs = [
+  { name: 'Udyam registration', meta: 'Micro · valid to 12 Mar 2028', state: 'ok' },
+  { name: 'Audited balance sheets', meta: 'FY22 · FY23 · FY24 — avg ₹4.1 Cr', state: 'ok' },
+  { name: 'Completion certificates', meta: '11 works · highest ₹1.9 Cr', state: 'ok' },
+  { name: 'EPF / ESI challans', meta: 'Last filed Jun 2026 — 3 months stale', state: 'warn' },
+] as const;
+
+function VaultContent({ direction }: { direction: 'down' | 'up' }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
 
   return (
     <motion.div
-      key="win-content"
-      ref={cardRef}
+      ref={ref}
       custom={direction}
       variants={slotMachineVariants}
       initial="enter"
@@ -345,157 +155,259 @@ function WinContent({ direction }: { direction: 'down' | 'up' }) {
       style={{ transformPerspective: 1200 }}
       className="relative w-full space-y-3"
     >
-      {/* Top card — Win Probability */}
-      <motion.div
-        className="bg-white/95 backdrop-blur-md rounded-2xl px-4 pt-4 pb-4 shadow-sm"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 14 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {/* Header row */}
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Win Probability</span>
-            </div>
-            <span className="text-3xl font-bold text-gray-900 tabular-nums leading-none">74%</span>
-          </div>
-          <div className="flex flex-col items-end gap-1">
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 flex items-center gap-1">
-              <Users className="w-3 h-3" /> #2 of 12 bidders
-            </span>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 flex items-center gap-1">
-              <Medal className="w-3 h-3 text-amber-500" /> ₹1.2 Cr tender
-            </span>
-          </div>
-        </div>
+      <div className={`${cardBase} overflow-hidden`}>
+        {vaultDocs.map((d, i) => (
+          <React.Fragment key={d.name}>
+            {i > 0 && <div className="h-px bg-gray-100 mx-4" />}
+            <motion.div
+              className="flex items-center gap-3 px-4 py-3"
+              initial={{ opacity: 0, x: -8 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.12 + i * 0.14, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {d.state === 'ok' ? (
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+              ) : (
+                <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0" />
+              )}
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">{d.name}</div>
+                <div className={`text-xs truncate ${d.state === 'warn' ? 'text-amber-600' : 'text-gray-400'}`}>
+                  {d.meta}
+                </div>
+              </div>
+            </motion.div>
+          </React.Fragment>
+        ))}
+      </div>
 
-        <WinProbBar inView={inView} />
-      </motion.div>
-
-      {/* AI Suggestion strip */}
       <motion.div
-        className="bg-white/95 backdrop-blur-md rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3"
+        className={`${cardBase} px-4 py-3 flex items-center gap-3`}
         initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: aiVisible ? 1 : 0, y: aiVisible ? 0 : 10 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 0.75, duration: 0.4 }}
       >
-        <span className="relative inline-flex flex-shrink-0">
-          <svg width="0" height="0" style={{ position: 'absolute', overflow: 'hidden' }}>
-            <defs>
-              <radialGradient id="win-sparkle" cx="50%" cy="50%" r="55%">
-                <stop offset="0%" stopColor="#fed7aa" />
-                <stop offset="55%" stopColor="#fb923c" />
-                <stop offset="100%" stopColor="#ea580c" />
-              </radialGradient>
-            </defs>
-          </svg>
-          <Sparkles className="w-4 h-4" style={{ stroke: 'url(#win-sparkle)' }} />
-        </span>
-        <p className="text-sm font-medium text-gray-800">
-          Lower bid by <span className="text-emerald-600 font-semibold">3%</span> to increase win chance
+        <ShieldCheck className="h-4 w-4 text-orange-500 flex-shrink-0" />
+        <p className="text-sm text-gray-700">
+          Entered once. Reused across every bid after this one.
         </p>
-      </motion.div>
-
-      {/* Info rows card */}
-      <motion.div
-        className="bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: infoVisible[0] ? 1 : 0, y: infoVisible[0] ? 0 : 10 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {/* Competitor range */}
-        <motion.div
-          className="flex items-center justify-between px-4 py-3"
-          initial={{ opacity: 0, x: -6 }}
-          animate={{ opacity: infoVisible[0] ? 1 : 0, x: infoVisible[0] ? 0 : -6 }}
-          transition={{ duration: 0.3 }}
-        >
-          <span className="text-xs text-gray-500 font-medium">Competitor range</span>
-          <span className="text-xs font-semibold text-gray-800">₹1.08 – 1.15 Cr</span>
-        </motion.div>
-
-        <div className="h-px bg-gray-100 mx-4" />
-
-        {/* Risk */}
-        <motion.div
-          className="flex items-center justify-between px-4 py-3"
-          initial={{ opacity: 0, x: -6 }}
-          animate={{ opacity: infoVisible[1] ? 1 : 0, x: infoVisible[1] ? 0 : -6 }}
-          transition={{ duration: 0.3 }}
-        >
-          <span className="text-xs text-gray-500 font-medium">Risks</span>
-          <span className="text-xs font-semibold text-amber-600 flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3" /> 1 eligibility concern
-          </span>
-        </motion.div>
-
-        <div className="h-px bg-gray-100 mx-4" />
-
-        {/* Deadline */}
-        <motion.div
-          className="flex items-center justify-between px-4 py-3"
-          initial={{ opacity: 0, x: -6 }}
-          animate={{ opacity: infoVisible[2] ? 1 : 0, x: infoVisible[2] ? 0 : -6 }}
-          transition={{ duration: 0.3 }}
-        >
-          <span className="text-xs text-gray-500 font-medium">Deadline</span>
-          <span className="text-xs font-semibold text-red-500 flex items-center gap-1">
-            <Clock className="w-3 h-3" /> 18h left
-          </span>
-        </motion.div>
       </motion.div>
     </motion.div>
   );
 }
 
-// Inner content for each step (this is what animates)
-function StepContent({ stepKey, direction }: { stepKey: 'save' | 'notify' | 'win'; direction: 'down' | 'up' }) {
-  if (stepKey === 'save') {
-    return (
-      <motion.div 
-        key="save-content"
-        custom={direction}
-        variants={slotMachineVariants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={slotMachineTransition}
-        style={{ transformPerspective: 1200 }}
-        className="relative space-y-3 w-full"
+/* ─────────────────────────────────────────────
+   2. QUALIFY — hard eligibility verdict
+   ───────────────────────────────────────────── */
+
+const criteria = [
+  { label: 'Avg annual turnover, 3 FYs', need: '≥ ₹3.00 Cr', you: '₹4.10 Cr', pass: true },
+  { label: 'Similar work, single order', need: '≥ ₹1.60 Cr', you: '₹1.90 Cr', pass: true },
+  { label: 'Contractor class (PWD)', need: 'Class B', you: 'Class B', pass: true },
+  { label: 'OEM authorisation (MAF)', need: 'Required', you: 'Not on file', pass: false },
+] as const;
+
+function QualifyContent({ direction }: { direction: 'down' | 'up' }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [verdictIn, setVerdictIn] = useState(false);
+
+  React.useEffect(() => {
+    if (!inView) return;
+    const t = setTimeout(() => setVerdictIn(true), 300 + criteria.length * 160);
+    return () => clearTimeout(t);
+  }, [inView]);
+
+  return (
+    <motion.div
+      ref={ref}
+      custom={direction}
+      variants={slotMachineVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={slotMachineTransition}
+      style={{ transformPerspective: 1200 }}
+      className="relative w-full space-y-3"
+    >
+      <motion.div
+        className={`${cardBase} overflow-hidden`}
+        initial={{ opacity: 0, y: 14 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
-          <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-          <div className="flex flex-col">
-            <span className="font-medium text-gray-900">Profile information</span>
-            <span className="text-xs text-gray-500">Company details, Primary industry, GSTIN</span>
+        <div className="px-4 pt-3.5 pb-2">
+          <div className="text-sm font-semibold text-gray-900 truncate">
+            Water supply pipeline, Pkg-3
           </div>
+          <div className="text-xs text-gray-400">MJP Nashik · ₹2.4 Cr · NIT read in 11 seconds</div>
         </div>
-        <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
-          <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-          <div className="flex flex-col">
-            <span className="font-medium text-gray-900">Saved documents</span>
-            <span className="text-xs text-gray-500">PAN, MSME, past bids, templates</span>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl px-4 py-3 shadow-sm border flex items-center">
-          <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-          <div className="flex flex-col">
-            <span className="font-medium text-gray-900">Preferred categories</span>
-            <span className="text-xs text-gray-500">Sectors, Locations, Budget range</span>
-          </div>
+
+        <div className="h-px bg-gray-100 mx-4" />
+
+        <div className="px-4 py-2.5 space-y-2">
+          {criteria.map((c, i) => (
+            <motion.div
+              key={c.label}
+              className="flex items-center gap-2.5"
+              initial={{ opacity: 0, x: -6 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.3 + i * 0.16, duration: 0.3 }}
+            >
+              {c.pass ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+              ) : (
+                <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+              )}
+              <span className="text-xs text-gray-600 flex-1 truncate">{c.label}</span>
+              <span className="text-xs text-gray-400 tabular-nums flex-shrink-0">{c.need}</span>
+              <span
+                className={`text-xs font-semibold tabular-nums flex-shrink-0 w-[86px] text-right ${
+                  c.pass ? 'text-gray-900' : 'text-red-500'
+                }`}
+              >
+                {c.you}
+              </span>
+            </motion.div>
+          ))}
         </div>
       </motion.div>
-    );
-  }
 
-  if (stepKey === 'notify') {
-    return <NotifyContent direction={direction} />;
-  }
-
-  return <WinContent direction={direction} />;
+      {/* Verdict */}
+      <motion.div
+        className={`${cardBase} px-4 py-3.5`}
+        initial={{ opacity: 0, y: 12 }}
+        animate={verdictIn ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-bold tracking-wide text-amber-700 bg-amber-100 rounded-full px-2.5 py-1 flex-shrink-0">
+            Conditional
+          </span>
+          <p className="text-sm text-gray-800 leading-snug">
+            Eligible on all counts except the MAF. Get it from your OEM and this is a real bid.
+          </p>
+        </div>
+        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-gray-400">
+          <Clock className="h-3 w-3" />
+          Flagged on day one, not day four
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 }
+
+/* ─────────────────────────────────────────────
+   3. BID PACK — generated compliance set
+   ───────────────────────────────────────────── */
+
+const packItems = [
+  'Annexure I — Bidder declaration',
+  'Annexure IV — No-blacklisting affidavit',
+  'Bid security declaration (MSE exempt)',
+  'Turnover certificate, CA format',
+  'Priced BOQ, portal template',
+] as const;
+
+function PackContent({ direction }: { direction: 'down' | 'up' }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [done, setDone] = useState<number>(0);
+  const [footerIn, setFooterIn] = useState(false);
+  const filled = useCountUp(19, inView, 1100);
+
+  React.useEffect(() => {
+    if (!inView) return;
+    const timers = packItems.map((_, i) =>
+      setTimeout(() => setDone((d) => Math.max(d, i + 1)), 350 + i * 190)
+    );
+    const t = setTimeout(() => setFooterIn(true), 350 + packItems.length * 190 + 150);
+    return () => { timers.forEach(clearTimeout); clearTimeout(t); };
+  }, [inView]);
+
+  return (
+    <motion.div
+      ref={ref}
+      custom={direction}
+      variants={slotMachineVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={slotMachineTransition}
+      style={{ transformPerspective: 1200 }}
+      className="relative w-full space-y-3"
+    >
+      <motion.div
+        className={`${cardBase} overflow-hidden`}
+        initial={{ opacity: 0, y: 14 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="flex items-baseline justify-between px-4 pt-3.5 pb-2.5">
+          <div>
+            <span className="text-2xl font-bold text-gray-900 tabular-nums leading-none">
+              {filled}
+            </span>
+            <span className="text-sm text-gray-400"> of 22 documents filled</span>
+          </div>
+          <span className="text-[11px] text-gray-400">3 need your signature</span>
+        </div>
+
+        <div className="h-1 bg-gray-100 mx-4 rounded-full overflow-hidden">
+          <motion.div
+            className="h-full rounded-full bg-blue-500"
+            initial={{ width: 0 }}
+            animate={inView ? { width: '86%' } : {}}
+            transition={{ duration: 1.1, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </div>
+
+        <div className="px-4 py-3 space-y-2">
+          {packItems.map((label, i) => (
+            <motion.div
+              key={label}
+              className="flex items-center gap-2.5"
+              initial={{ opacity: 0, x: -6 }}
+              animate={done > i ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.28 }}
+            >
+              <FileSignature className="h-3.5 w-3.5 text-gray-300 flex-shrink-0" />
+              <span className="text-xs text-gray-700 flex-1 truncate">{label}</span>
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div
+        className={`${cardBase} px-4 py-3 flex items-center gap-3`}
+        initial={{ opacity: 0, y: 10 }}
+        animate={footerIn ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.4 }}
+      >
+        <PenLine className="h-4 w-4 text-orange-500 flex-shrink-0" />
+        <p className="text-sm text-gray-800 leading-snug">
+          On your letterhead, in this tender’s format. Sign with your DSC and upload.
+        </p>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   Router
+   ───────────────────────────────────────────── */
+
+function StepContent({ stepKey, direction }: { stepKey: StepKey; direction: 'down' | 'up' }) {
+  if (stepKey === 'vault') return <VaultContent direction={direction} />;
+  if (stepKey === 'qualify') return <QualifyContent direction={direction} />;
+  return <PackContent direction={direction} />;
+}
+
+
+/* ─────────────────────────────────────────────
+   Section
+   ───────────────────────────────────────────── */
 
 export function WorkflowSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -506,212 +418,148 @@ export function WorkflowSection() {
   const [direction, setDirection] = useState<'down' | 'up'>('down');
 
   useLayoutEffect(() => {
-    // Skip on server
     if (typeof window === 'undefined') return;
-    
+
     const section = sectionRef.current;
     const trigger = triggerRef.current;
     const imageContainer = imageContainerRef.current;
     if (!section || !trigger || !imageContainer) return;
 
-    // Create GSAP context for cleanup
     const ctx = gsap.context(() => {
-      // Create the ScrollTrigger with pinning
-      const scrollTrigger = ScrollTrigger.create({
-        trigger: trigger,
+      ScrollTrigger.create({
+        trigger,
         start: 'top top',
-        end: '+=2400', // Total scroll distance (800px per step × 3 steps)
+        end: '+=2400', // 800px per step × 3 steps
         pin: true,
         pinSpacing: true,
-        scrub: 0.8, // Smooth scrubbing (0.8 seconds to catch up)
+        scrub: 0.8,
         anticipatePin: 1,
         onUpdate: (self) => {
-          // Update progress (0 to 1)
           const prog = self.progress;
           setProgress(prog * 100);
-          
-          // Calculate active step (0, 1, or 2)
-          const step = Math.min(Math.floor(prog * steps.length), steps.length - 1);
-          setActiveIndex(step);
-          
-          // Track direction
+          setActiveIndex(Math.min(Math.floor(prog * steps.length), steps.length - 1));
           setDirection(self.direction === 1 ? 'down' : 'up');
-          
-          // Animate background image position based on scroll progress
-          // Scroll from top (0%) to bottom (100%) of the image
-          const backgroundPositionY = prog * 100;
-          imageContainer.style.backgroundPositionY = `${backgroundPositionY}%`;
+          imageContainer.style.backgroundPositionY = `${prog * 100}%`;
         },
       });
     }, section);
 
-    // Cleanup
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
+  const active = steps[activeIndex];
+
   return (
-    <section 
-      ref={sectionRef}
-      id="workflow" 
-      className="relative z-10"
-      style={{ backgroundColor: '#fefcf3' }}
-    >
-      {/* This div gets pinned */}
-      <div 
-        ref={triggerRef}
-        className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 flex items-center"
-      >
+    <section ref={sectionRef} id="workflow" className="relative z-10" style={{ backgroundColor: '#fefcf3' }}>
+      <div ref={triggerRef} className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 flex items-center">
         <div className="max-w-5xl mx-auto w-full">
-          {/* Tabs - Mobile only, shown above images */}
-          <div className="flex items-center justify-center gap-4 text-sm font-medium text-gray-600 mb-6 lg:hidden">
+
+          {/* Tabs — mobile */}
+          <div className="flex items-center justify-center gap-4 text-sm font-medium mb-6 lg:hidden">
             {steps.map((s, idx) => (
-              <button
+              <span
                 key={s.key}
-                type="button"
                 className={`transition-all duration-300 ${
-                  activeIndex === idx 
-                    ? 'text-gray-900 font-bold' 
-                    : 'text-gray-400 hover:text-gray-600'
+                  activeIndex === idx ? 'text-gray-900 font-bold' : 'text-gray-400'
                 }`}
               >
                 {s.label}
-              </button>
+              </span>
             ))}
           </div>
 
-          {/* Main content area with two columns */}
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-stretch">
-            {/* Left column - Tabs (desktop) + Content + Progress */}
+
+            {/* Left column */}
             <div className="flex flex-col justify-between order-3 lg:order-1">
-              {/* Tabs - Desktop only */}
-              <div className="hidden lg:flex w-full max-w-xl mx-auto lg:mx-0 items-center gap-4 text-base md:text-lg font-medium text-gray-600 mb-6 justify-center lg:justify-start">
+
+              {/* Tabs — desktop */}
+              <div className="hidden lg:flex w-full max-w-xl mx-auto lg:mx-0 items-center gap-6 text-base font-medium mb-6">
                 {steps.map((s, idx) => (
-                  <button
+                  <span
                     key={s.key}
-                    type="button"
                     className={`transition-all duration-300 ${
-                      activeIndex === idx 
-                        ? 'text-gray-900 font-bold' 
-                        : 'text-gray-400 hover:text-gray-600'
+                      activeIndex === idx ? 'text-gray-900 font-bold' : 'text-gray-400'
                     }`}
                   >
                     {s.label}
-                  </button>
+                  </span>
                 ))}
               </div>
 
-              {/* Text content */}
+              {/* Copy */}
               <div className="flex-1 flex items-center overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={`content-${activeIndex}`}
-                    initial={{ 
-                      opacity: 0, 
-                      y: direction === 'down' ? 80 : -80,
-                      rotateX: direction === 'down' ? -15 : 15,
-                      scale: 0.95
-                    }}
-                    animate={{ 
-                      opacity: 1, 
-                      y: 0,
-                      rotateX: 0,
-                      scale: 1
-                    }}
-                    exit={{ 
-                      opacity: 0, 
-                      y: direction === 'down' ? -80 : 80,
-                      rotateX: direction === 'down' ? 15 : -15,
-                      scale: 0.95
-                    }}
-                    transition={{
-                      duration: 0.2,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
+                    key={`copy-${activeIndex}`}
+                    initial={{ opacity: 0, y: direction === 'down' ? 80 : -80, rotateX: direction === 'down' ? -15 : 15, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: direction === 'down' ? -80 : 80, rotateX: direction === 'down' ? 15 : -15, scale: 0.95 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                     style={{ transformPerspective: 1000 }}
                     className="w-full max-w-xl mx-auto text-center lg:text-left"
                   >
-                    <h2 className="text-2xl lg:text-4xl font-semibold mb-3 lg:mb-4 text-gray-900 font-lexend">
-                      {steps[activeIndex].title}
+                    <h2 className="text-2xl lg:text-[2.4rem] leading-[1.15] font-semibold mb-3 lg:mb-4 text-gray-900 font-lexend">
+                      {active.title}
                     </h2>
-                    <p className="text-base lg:text-lg text-gray-600 mb-4 lg:mb-6 font-lexend font-light">
-                      {steps[activeIndex].description}
+                    <p className="text-base lg:text-lg text-gray-600 mb-3 font-lexend font-light">
+                      {active.description}
                     </p>
-                    <Link href={steps[activeIndex].cta.href}>
+                    <p className="text-sm text-gray-500 mb-5 lg:mb-6">
+                      {active.replaces}
+                    </p>
+                    <Link href={active.cta.href}>
                       <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-6 rounded-full text-base lg:text-lg">
-                        {steps[activeIndex].cta.text}
+                        {active.cta.text}
                       </Button>
                     </Link>
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              {/* Progress indicator - Desktop only */}
-              <div className="hidden lg:flex justify-center lg:justify-start gap-3 items-center mt-6">
-                {steps.map((_, idx) => {
-                  const segmentStart = (idx / steps.length) * 100;
-                  const segmentEnd = ((idx + 1) / steps.length) * 100;
-                  const segmentProgress = Math.max(
-                    0,
-                    Math.min(100, ((progress - segmentStart) / (segmentEnd - segmentStart)) * 100)
-                  );
-                  const isActive = segmentProgress > 0 && segmentProgress < 100;
+              {/* Coverage meter + segment progress */}
+              <div className="mt-7 space-y-4">
 
-                  return (
-                    <div
-                      key={idx}
-                      className="h-1.5 rounded-full bg-gray-200 overflow-hidden relative"
-                      style={{ width: 48 }}
-                    >
-                      <motion.div
-                        className="h-full rounded-full absolute left-0 top-0"
-                        style={{ 
-                          width: `${segmentProgress}%`,
-                          background: isActive 
-                            ? 'linear-gradient(90deg, #6b7280 0%, #6b7280 70%, #60a5fa 95%, #38bdf8 100%)'
-                            : '#6b7280',
-                          boxShadow: isActive ? '0 0 12px rgba(56, 189, 248, 0.8), 2px 0 8px rgba(96, 165, 250, 0.6)' : 'none'
-                        }}
-                        transition={{ duration: 0.05, ease: 'linear' }}
-                      />
-                    </div>
-                  );
-                })}
+                <div className="hidden lg:flex gap-2 items-center">
+                  {steps.map((_, idx) => {
+                    const segStart = (idx / steps.length) * 100;
+                    const segEnd = ((idx + 1) / steps.length) * 100;
+                    const segProgress = Math.max(0, Math.min(100, ((progress - segStart) / (segEnd - segStart)) * 100));
+                    return (
+                      <div key={idx} className="h-1 rounded-full bg-gray-200 overflow-hidden relative" style={{ width: 58 }}>
+                        <div
+                          className="h-full rounded-full absolute left-0 top-0 bg-gray-600"
+                          style={{ width: `${segProgress}%` }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
-            {/* Right column - Full height container */}
+            {/* Right column */}
             <div className="w-full max-w-md mx-auto lg:ml-auto lg:mr-0 order-2 lg:order-2">
-              {/* Image container with scrollable background */}
-              <div 
+              <div
                 ref={imageContainerRef}
-                className="relative rounded-3xl p-6 shadow-xl h-full min-h-[350px] sm:min-h-[450px] flex items-center overflow-hidden"
-                style={{ 
+                className="relative rounded-3xl p-6 shadow-xl h-full min-h-[380px] sm:min-h-[470px] flex items-center overflow-hidden"
+                style={{
                   backgroundImage: 'url(/workflow.jpeg)',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center top',
                   backgroundRepeat: 'no-repeat',
                 }}
               >
-                {/* Overlay to maintain readability of content */}
-                <div 
+                <div
                   className="absolute inset-0 rounded-3xl"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(232, 217, 200, 0.3) 0%, rgba(240, 225, 208, 0.2) 50%, rgba(248, 240, 229, 0.3) 100%)'
+                    background:
+                      'linear-gradient(to bottom, rgba(232, 217, 200, 0.3) 0%, rgba(240, 225, 208, 0.2) 50%, rgba(248, 240, 229, 0.3) 100%)',
                   }}
                 />
-                
-                {/* Static wavy lines background */}
                 <WavyLines />
-                
-                {/* Animated content inside */}
                 <AnimatePresence mode="wait">
-                  <StepContent 
-                    key={steps[activeIndex].key}
-                    stepKey={steps[activeIndex].key} 
-                    direction={direction} 
-                  />
+                  <StepContent key={active.key} stepKey={active.key} direction={direction} />
                 </AnimatePresence>
               </div>
             </div>
@@ -728,16 +576,7 @@ export function WorkflowSection() {
               animate={{ y: [0, 6, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M19 12l-7 7-7-7" />
               </svg>
             </motion.div>

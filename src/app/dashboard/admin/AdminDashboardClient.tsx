@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Activity, RefreshCw, Shield, TrendingUp, Users } from 'lucide-react';
+import { Activity, Loader2, RefreshCw, Shield, TrendingUp, Users } from 'lucide-react';
 
 interface User {
   user_id: string;
@@ -125,9 +125,9 @@ export default function AdminDashboardClient() {
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-white/40" />
+          <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400">Loading</p>
         </div>
       </div>
     );

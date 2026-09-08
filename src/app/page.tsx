@@ -7,11 +7,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { HeroSection } from '@/components/HeroSection';
+import { PricingSection } from '@/components/PricingSection';
 import { 
   Shield, 
   Zap, 
-  Users, 
-  CheckCircle, 
+  Users,
   Brain,
   FileText,
   BarChart3,
@@ -32,7 +32,6 @@ import {
   Layout,
   LineChart
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
@@ -296,49 +295,6 @@ export default function Home() {
     }
   ];
 
-  const pricingPlans = [
-    {
-      name: 'Basic',
-      price: 1249,
-      description: 'Essential tender tracking for small businesses',
-      features: [
-        'Government tender notifications',
-        'Basic AI analysis',
-        'Email alerts',
-        'Standard templates',
-        'Email support'
-      ]
-    },
-    {
-      name: 'Professional',
-      price: 2499,
-      description: 'Advanced features for growing companies',
-      features: [
-        'All Basic features',
-        'Advanced AI recommendations',
-        'Multi-sector coverage',
-        'Priority support',
-        'Analytics dashboard',
-        'Custom filters'
-      ]
-    },
-    {
-      name: 'Enterprise',
-      price: 7999,
-      description: 'Complete solution for large organizations',
-      features: [
-        'All Professional features',
-        'Unlimited notifications',
-        'API access',
-        'Dedicated support',
-        'Custom integrations',
-        'White-label options'
-      ],
-      popular: true,
-      showBadge: false
-    }
-  ];
-
   const tenderCategories = [
     {
       icon: '/healthcare-icon.svg',
@@ -590,99 +546,8 @@ export default function Home() {
       {/* Professional Features Section */}
       <FeaturesSection features={features} />
 
-      {/* Simplified Pricing Section */}
-      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold text-gray-900 mb-4">
-              Pricing that fits all
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              No Credit card required. Cancel anytime.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {pricingPlans.map((plan, index) => (
-              <div
-                key={plan.name}
-                className="relative rounded-xl p-8 border border-gray-900 transition-all duration-200 hover:shadow-lg flex flex-col h-full"
-                style={{
-                  backgroundColor: plan.popular ? '#fefcf3' : 'white'
-                }}
-              >
-                {plan.popular && (plan as any).showBadge !== false && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-                
-                {plan.popular && (
-                  <div className="absolute -bottom-10 -right-9 opacity-9 pointer-events-none">
-                    <Image
-                      src="/ashok.webp"
-                      alt="Ashok Chakra"
-                      width={240}
-                      height={240}
-                      className="w-64 h-64"
-                    />
-                  </div>
-                )}
-                
-                <div className="text-center mb-8">
-                  <h3 className={`text-2xl font-bold mb-3 ${
-                    plan.popular ? 'text-[#b84d00] italic font-playfair' : 'text-gray-900'
-                  }`}>
-                    {plan.name}
-                  </h3>
-                  <p className="text-gray-600">{plan.description}</p>
-                </div>
-
-                <ul className="space-y-3 mb-8 flex-grow">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start">
-                      <CheckCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-green-500" />
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-auto">
-                  <div className="mb-6">
-                    <p className="text-gray-600 mb-2">Starting from</p>
-                    <div className="mb-2">
-                      <span className="text-4xl font-bold text-gray-900">
-                        ₹{plan.price.toLocaleString()}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 text-sm">
-                      {index === pricingPlans.length - 1
-                        ? 'only per month.'
-                        : 'per month, billed yearly.'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <Link href={`/make-payment?plan=${plan.name.toLowerCase()}&amount=${plan.price}`} className="inline-block">
-                      <Button 
-                        className={`w-auto py-6 px-4 font-semibold rounded-full transition-colors text-base ${
-                          plan.popular
-                            ? 'bg-blue-500 hover:bg-blue-600 text-white border-0' 
-                            : 'bg-white hover:bg-gray-50 text-gray-900 border border-gray-900'
-                        }`}
-                      >
-                        Get this plan
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Pricing Section */}
+      <PricingSection />
 
       {/* Subtle FAQ Section */}
       <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10">
