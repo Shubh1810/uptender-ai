@@ -15,13 +15,15 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { WavyBackground } from '@/components/ui/wavy-background';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
-import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
+import { getLiveTendersCount, type TenderStats } from '@/features/tenders/tender-stats';
 
 export function HeroSection() {
+  const router = useRouter();
   const [tenderStats, setTenderStats] = React.useState<TenderStats>({
     liveTendersCount: 0,
     lastUpdated: '',
@@ -139,7 +141,7 @@ export function HeroSection() {
               type="text"
               placeholder='e.g. "IT, Construction, Healthcare"'
               className="w-full bg-transparent py-3 pl-3 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
-              onFocus={() => { window.location.href = '/onboarding'; }}
+              onFocus={() => router.push('/onboarding')}
             />
           </div>
 

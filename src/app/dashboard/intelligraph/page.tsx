@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { LineChart, Sparkles, BarChart3, PieChart, TrendingUp } from 'lucide-react';
-import { PlanGate } from '@/components/guards/PlanGate';
+import { PlanGate } from '@/features/plans/PlanGate';
 
 export default function IntelliGraphPage() {
   const demoContent = (

@@ -1,11 +1,10 @@
 "use client";
 
+import type { AlertFieldProps } from "../types";
+
 import { useState } from "react";
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+type Props = AlertFieldProps;
 
 export function MatchScoreSlider({ preferences, updateField }: Props) {
   const score = preferences.match_score_threshold ?? 60;

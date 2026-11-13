@@ -1,11 +1,10 @@
 "use client";
 
+import type { AlertFieldProps } from "../types";
+
 import { Bell, Mail, MessageSquare, Smartphone } from "lucide-react";
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+type Props = AlertFieldProps;
 
 export function ChannelSelector({ preferences, updateField }: Props) {
   const channels = preferences.channels || [];

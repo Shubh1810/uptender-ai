@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Send, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { trackEmailSignup } from '@/lib/posthog/events';
 
@@ -75,7 +75,7 @@ export function EmailSignup({ className = '' }: EmailSignupProps) {
           </motion.div>
           <h3 className="text-xl font-semibold text-white mb-2">Successfully Subscribed</h3>
           <p className="text-white/80 text-sm">
-            You'll receive updates about TenderPost AI launch and early access opportunities.
+            You&apos;ll receive updates about TenderPost AI launch and early access opportunities.
           </p>
         </div>
       </motion.div>

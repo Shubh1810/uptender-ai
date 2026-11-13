@@ -1,15 +1,12 @@
 import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeft, FileText, AlertTriangle, Scale, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { FileText, AlertTriangle, Scale, Users } from 'lucide-react';
 import { Header } from '@/components/Header';
 
 export default function TermsAndConditionsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Header */}
-      <Header variant="simple" showBackButton={true} />
+      <Header variant="simple" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Title Section */}
@@ -141,7 +138,7 @@ export default function TermsAndConditionsPage() {
                 9. Disclaimer of Warranties
               </h2>
               <p className="text-gray-700 mb-4">
-                The information on this service is provided on an 'as is' basis. To the fullest extent 
+                The information on this service is provided on an &apos;as is&apos; basis. To the fullest extent 
                 permitted by law, we exclude:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
@@ -170,7 +167,7 @@ export default function TermsAndConditionsPage() {
                 You agree to defend, indemnify, and hold harmless Uptender AI and its licensee and 
                 licensors, and their employees, contractors, agents, officers and directors, from and 
                 against any and all claims, damages, obligations, losses, liabilities, costs or debt, 
-                and expenses (including but not limited to attorney's fees).
+                and expenses (including but not limited to attorney&apos;s fees).
               </p>
             </section>
 

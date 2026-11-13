@@ -1,58 +1,32 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/server/supabase/server';
 
 /**
- * GET: Retrieve the live tender count from the `tenders` table.
+ * GET /api/tender-stats: public count of active tenders (landing page, header).
  *
- * This mirrors the search dashboard data source so every part of the app
- * reflects the same active-tender total.
+ * Anonymous visitors can't read the `tenders` table (see the security
+ * hardening migration), so the count comes from the `active_tender_count()`
+ * SECURITY DEFINER function. Cached at the CDN for 5 minutes.
  */
 export async function GET() {
   try {
     const supabase = await createClient();
+    const { data, error } = await supabase.rpc('active_tender_count');
+    if (error) throw error;
 
-    const { count, error } = await supabase
-      .from('tenders')
-      .select('id', { count: 'exact', head: true })
-      .eq('is_active', true);
-
-    if (error) {
-      console.error('❌ Supabase error fetching tender stats:', error.message, error.code, error.details);
-      return NextResponse.json({
-        success: false,
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-        data: {
-          liveTendersCount: 0,
-          lastUpdated: '',
-          isConnected: false,
-        }
-      }, { status: 500 });
-    }
-
-    const liveTendersCount = count ?? 0;
-    const isConnected = liveTendersCount > 0;
-    const lastUpdated = new Date().toISOString();
-
-    console.log(`📊 Fetched live tender stats from tenders table: ${liveTendersCount} active tenders`);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        liveTendersCount,
-        lastUpdated,
-        isConnected,
-      }
-    });
-
+    const liveTendersCount = Number(data ?? 0);
+    return NextResponse.json(
+      {
+        success: true,
+        data: { liveTendersCount, lastUpdated: new Date().toISOString(), isConnected: liveTendersCount > 0 },
+      },
+      { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } }
+    );
   } catch (error) {
-    console.error('❌ Error fetching tender stats:', error);
-    return NextResponse.json({
-      success: false,
-      data: {
-        liveTendersCount: 0,
-        lastUpdated: '',
-        isConnected: false,
-      }
-    }, { status: 500 });
+    console.error('[api:tender-stats] failed', error);
+    return NextResponse.json(
+      { success: false, data: { liveTendersCount: 0, lastUpdated: '', isConnected: false } },
+      { status: 500 }
+    );
   }
 }

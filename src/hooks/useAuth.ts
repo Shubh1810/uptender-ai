@@ -15,7 +15,7 @@ import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 let cachedUser: User | null = null;
 let initialized = false;
-let listeners: Set<() => void> = new Set();
+const listeners: Set<() => void> = new Set();
 let authSubscription: { unsubscribe: () => void } | null = null;
 let signingOut = false;
 

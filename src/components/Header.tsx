@@ -4,23 +4,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePostHog } from 'posthog-js/react';
-import { Button } from '@/components/ui/button';
 import { GetStartedButton } from '@/components/ui/get-started-button';
-import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
-import { createClient } from '@/lib/supabase/client';
-import { resetAuthState, useAuth } from '@/hooks/useAuth';
+import { getLiveTendersCount, type TenderStats } from '@/features/tenders/tender-stats';
+import { useAuth } from '@/hooks/useAuth';
+import { signOut } from '@/lib/auth/sign-out';
 import { User } from '@supabase/supabase-js';
 import { LayoutDashboard, LogOut, Settings, UserCircle } from 'lucide-react';
 
 interface HeaderProps {
   variant?: 'main' | 'simple';
   className?: string;
-  showBackButton?: boolean;
-  backButtonText?: string;
 }
 
 function getInitialsFromUser(user: User | null): string {
-  const meta = (user?.user_metadata as Record<string, any>) || {};
+  const meta = (user?.user_metadata as Record<string, string | undefined>) || {};
   const fullName: string | undefined = meta.full_name || meta.name || meta.fullName;
   const email: string | undefined = user?.email || meta.email;
   // Prefer first name from full name; otherwise use email username
@@ -33,35 +30,12 @@ function getInitialsFromUser(user: User | null): string {
 }
 
 function getDisplayNameFromUser(user: User | null): string {
-  const meta = (user?.user_metadata as Record<string, any>) || {};
+  const meta = (user?.user_metadata as Record<string, string | undefined>) || {};
   return meta.full_name || meta.name || meta.display_name || user?.email?.split('@')[0] || 'Account';
 }
 
 function handleSignOut() {
-  const supabase = createClient();
-  resetAuthState();
-  supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-
-  try {
-    const keysToRemove: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.startsWith('sb-') || key.startsWith('supabase'))) {
-        keysToRemove.push(key);
-      }
-    }
-    keysToRemove.forEach((key) => localStorage.removeItem(key));
-    localStorage.removeItem('saved_tender_ids');
-    localStorage.removeItem('tender_cache');
-    localStorage.removeItem('tender_cache_timestamp');
-    localStorage.removeItem('last_refresh_timestamp');
-  } catch {}
-
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = '/api/auth/signout?redirect=/';
-  document.body.appendChild(form);
-  form.submit();
+  signOut('/');
 }
 
 function AccountMenu({ user, size = 'md' }: { user: User; size?: 'sm' | 'md' }) {
@@ -160,9 +134,7 @@ function AccountMenu({ user, size = 'md' }: { user: User; size?: 'sm' | 'md' }) 
 
 export function Header({ 
   variant = 'main', 
-  className = '', 
-  showBackButton = false,
-  backButtonText = 'Back to Home'
+  className = '',
 }: HeaderProps) {
   const posthog = usePostHog();
   const [tenderStats, setTenderStats] = useState<TenderStats>({
@@ -206,7 +178,6 @@ export function Header({
       variant,
       timestamp: new Date().toISOString(),
     });
-    console.log('📊 PostHog tracked: Logo clicked');
   };
   
   return (
@@ -258,20 +229,12 @@ function MainNavigation() {
   const posthog = usePostHog();
   const { user } = useAuth(); // Use shared auth hook - single listener for entire app
 
-  const triggerWaitlist = () => {
-    // Force show waitlist overlay immediately
-    localStorage.removeItem('waitlist-overlay-seen');
-    // Dispatch a custom event to trigger the overlay
-    window.dispatchEvent(new CustomEvent('show-waitlist-overlay'));
-  };
-
   const trackNavClick = (section: string) => {
     posthog?.capture('header_navigation_clicked', {
       section,
       location: 'main_header',
       timestamp: new Date().toISOString(),
     });
-    console.log('📊 PostHog tracked:', section);
   };
 
   return (
@@ -322,17 +285,7 @@ function MainNavigation() {
 
 // Alternative navigation for tender-guide and other internal pages (Mobile)
 export function InternalPageNavigation() {
-  const posthog = usePostHog();
   const { user } = useAuth(); // Use shared auth hook
-
-  const trackInternalNavClick = (page: string) => {
-    posthog?.capture('internal_header_navigation_clicked', {
-      page,
-      location: 'internal_header',
-      timestamp: new Date().toISOString(),
-    });
-    console.log('📊 PostHog tracked internal nav:', page);
-  };
 
   return (
     <nav className="flex md:hidden items-center space-x-2">
@@ -358,7 +311,6 @@ export function InternalPageDesktopNav() {
       location: 'internal_header',
       timestamp: new Date().toISOString(),
     });
-    console.log('📊 PostHog tracked internal nav:', page);
   };
 
   return (

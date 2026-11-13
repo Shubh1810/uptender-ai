@@ -3,10 +3,12 @@
 import React from 'react';
 import { Heart, ExternalLink, Calendar, Building, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useSavedTenders } from '@/hooks/useSavedTenders';
+import { useSavedTenders } from '@/features/saved-tenders/useSavedTenders';
 
 export default function TendersPage() {
   const { savedTenders, loading, error, unsaveTender } = useSavedTenders();
+  // Fixed "now" for this render pass so countdowns are stable and render stays pure.
+  const [now] = React.useState(() => Date.now());
 
   const handleDelete = async (tender_ref: string) => {
     const result = await unsaveTender(tender_ref);
@@ -17,31 +19,18 @@ export default function TendersPage() {
     }
   };
 
-  // Format date helper
-  const formatDate = (dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    } catch {
-      return 'N/A';
-    }
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
-  // Calculate days until closing
-  const getDaysUntilClosing = (closingDate: string) => {
+  const getDaysUntilClosing = (closingDate: string | null) => {
     if (!closingDate) return null;
-    try {
-      const now = new Date();
-      const closing = new Date(closingDate);
-      const diffTime = closing.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays;
-    } catch {
-      return null;
-    }
+    const closing = new Date(closingDate).getTime();
+    if (Number.isNaN(closing)) return null;
+    return Math.ceil((closing - now) / (1000 * 60 * 60 * 24));
   };
 
   // Loading state
@@ -195,7 +184,7 @@ export default function TendersPage() {
               {tender.notes && (
                 <div className="mt-3 pt-3 border-t border-gray-100 dark:border-white/[0.06]">
                   <p className="text-sm text-gray-600 dark:text-white/60 italic">
-                    "{tender.notes}"
+                    &quot;{tender.notes}&quot;
                   </p>
                 </div>
               )}

@@ -78,7 +78,7 @@ export const trackTenderSearch = (properties: {
   query?: string;
   resultsCount: number;
   page?: number;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   searchDuration?: number;
   fromCache?: boolean;
 }) => {
@@ -150,7 +150,7 @@ export const trackTenderExternalClick = (properties: {
 
 export const trackSearchFilterApplied = (properties: {
   filterType: string;
-  filterValue: any;
+  filterValue: unknown;
   resultsCount: number;
 }) => {
   posthog.capture('search_filter_applied', {
@@ -313,7 +313,7 @@ export const trackWaitlistOverlayDismissed = (properties?: {
 export const trackFeatureUsed = (properties: {
   featureName: string;
   location?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timeSpent?: number;
   successful?: boolean;
 }) => {
@@ -413,7 +413,7 @@ export const identifyUser = (properties: {
  * Set user properties without identifying
  * Use this to add additional properties to an identified user
  */
-export const setUserProperties = (properties: Record<string, any>) => {
+export const setUserProperties = (properties: Record<string, unknown>) => {
   posthog.setPersonProperties(properties);
 };
 

@@ -1,18 +1,26 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
+import { requireUser } from '@/server/auth';
+import { ApiError, apiHandler, assertSameOrigin, parseJson } from '@/server/http';
+import { encryptField } from '@/server/crypto';
+
+const shortText = z.string().trim().min(1).max(200);
+const tagList = z.array(z.string().trim().min(1).max(100)).max(50).default([]);
+
+/** Indian GSTIN: 2-digit state code, PAN, entity code, 'Z', checksum. */
+const GSTIN = /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 
 const profileSchema = z.object({
-  full_name: z.string().min(1),
-  company: z.string().min(1),
-  business_type: z.enum(['Proprietorship','Pvt Ltd','LLP','MSME','Startup','Consultant','Individual']),
+  full_name: shortText,
+  company: shortText,
+  business_type: z.enum(['Proprietorship', 'Pvt Ltd', 'LLP', 'MSME', 'Startup', 'Consultant', 'Individual']),
   gst_number: z.preprocess(
-    (val) => (val === '' || val === null || val === undefined ? undefined : val),
-    z.string().min(5).optional()
+    (val) => (typeof val === 'string' && val.trim() ? val.trim().toUpperCase() : undefined),
+    z.string().regex(GSTIN, 'Invalid GST number').optional()
   ),
-  years_in_operation: z.number().int().min(0).max(50),
-  primary_industry: z.string().min(1),
-  secondary_industries: z.array(z.string()).default([]),
+  years_in_operation: z.number().int().min(0).max(100),
+  primary_industry: shortText,
+  secondary_industries: tagList,
 });
 
 const preferencesSchema = z.object({
@@ -20,16 +28,15 @@ const preferencesSchema = z.object({
   notify_sms: z.boolean().default(false),
   notify_email: z.boolean().default(true),
   notify_inapp: z.boolean().default(true),
-  frequency: z.enum(['real_time','daily','weekly']).default('daily'),
+  frequency: z.enum(['real_time', 'daily', 'weekly']).default('daily'),
   alert_threshold: z.number().int().min(0).max(100).default(70),
-  keywords: z.array(z.string()).default([]),
-  categories: z.array(z.string()).default([]),
-  regions: z.array(z.string()).default([]),
-  // New Step 3 fields from Bid Intelligence Setup
-  roles: z.array(z.string()).min(1, 'At least one role must be selected'),
-  user_goal: z.string().min(1, 'User goal is required'),
+  keywords: tagList,
+  categories: tagList,
+  regions: tagList,
+  roles: z.array(z.string().trim().min(1).max(100)).min(1, 'At least one role must be selected').max(20),
+  user_goal: z.string().trim().min(1, 'User goal is required').max(100),
   tender_documentation_comfort: z.enum(['experienced', 'guided', 'new'], {
-    required_error: 'Tender documentation comfort level is required'
+    error: 'Tender documentation comfort level is required',
   }),
 });
 
@@ -38,93 +45,44 @@ const payloadSchema = z.object({
   preferences: preferencesSchema,
 });
 
-export async function POST(req: Request) {
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+/** POST /api/onboarding: saves the onboarding profile + alert preferences. */
+export const POST = apiHandler('onboarding', async (request) => {
+  assertSameOrigin(request);
+  const { supabase, user } = await requireUser();
+  const { profile, preferences } = await parseJson(request, payloadSchema);
 
-    const json = await req.json();
-    
-    // Validate with detailed error messages
-    let parsed;
-    try {
-      parsed = payloadSchema.parse(json);
-    } catch (validationError: any) {
-      console.error('Validation error:', validationError.errors);
-      return NextResponse.json({ 
-        error: 'Validation failed',
-        details: validationError.errors,
-        receivedData: json
-      }, { status: 400 });
-    }
+  // Only the columns listed here are writable; `role` is never accepted from the client.
+  const { error: profileError } = await supabase.from('profiles').upsert({
+    id: user.id,
+    full_name: profile.full_name,
+    company: profile.company,
+    business_type: profile.business_type,
+    gst_number_enc: profile.gst_number ? encryptField(profile.gst_number) : null,
+    years_in_operation: profile.years_in_operation,
+    primary_industry: profile.primary_industry,
+    secondary_industries: profile.secondary_industries,
+    onboarding_completed: true,
+    updated_at: new Date().toISOString(),
+  });
 
-    const { error: pErr, data: profileData } = await supabase
-      .from('profiles')
-      .upsert({
-        id: user.id,
-        full_name: parsed.profile.full_name,
-        company: parsed.profile.company,
-        business_type: parsed.profile.business_type,
-        gst_number_enc: parsed.profile.gst_number ?? null,
-        years_in_operation: parsed.profile.years_in_operation,
-        primary_industry: parsed.profile.primary_industry,
-        secondary_industries: parsed.profile.secondary_industries,
-        onboarding_completed: true,
-        updated_at: new Date().toISOString(),
-      })
-      .select();
-    
-    if (pErr) {
-      console.error('Profile upsert error:', pErr);
-      return NextResponse.json({ 
-        error: 'Failed to save profile',
-        details: pErr.message,
-        code: pErr.code,
-        hint: pErr.hint
-      }, { status: 400 });
-    }
-
-    const pref = parsed.preferences;
-    const { error: prefErr, data: prefData } = await supabase
-      .from('user_preferences')
-      .upsert({
-        user_id: user.id,
-        notify_whatsapp: pref.notify_whatsapp,
-        notify_sms: pref.notify_sms,
-        notify_email: pref.notify_email,
-        notify_inapp: pref.notify_inapp,
-        frequency: pref.frequency,
-        alert_threshold: pref.alert_threshold,
-        keywords: pref.keywords,
-        categories: pref.categories,
-        regions: pref.regions,
-        // New Step 3 fields
-        roles: pref.roles,
-        user_goal: pref.user_goal,
-        tender_documentation_comfort: pref.tender_documentation_comfort,
-        updated_at: new Date().toISOString(),
-      })
-      .select();
-    
-    if (prefErr) {
-      console.error('Preferences upsert error:', prefErr);
-      return NextResponse.json({ 
-        error: 'Failed to save preferences',
-        details: prefErr.message,
-        code: prefErr.code,
-        hint: prefErr.hint
-      }, { status: 400 });
-    }
-
-    return NextResponse.json({ ok: true, profile: profileData, preferences: prefData });
-  } catch (e: any) {
-    console.error('Onboarding API error:', e);
-    return NextResponse.json({ 
-      error: e.message ?? 'Bad Request',
-      stack: process.env.NODE_ENV === 'development' ? e.stack : undefined
-    }, { status: 400 });
+  if (profileError) {
+    console.error('[api:onboarding] profile upsert failed', profileError);
+    throw new ApiError(500, 'DB_ERROR', 'Failed to save profile');
   }
-}
 
+  const { error: prefError } = await supabase.from('user_preferences').upsert(
+    {
+      user_id: user.id,
+      ...preferences,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' }
+  );
 
+  if (prefError) {
+    console.error('[api:onboarding] preferences upsert failed', prefError);
+    throw new ApiError(500, 'DB_ERROR', 'Failed to save preferences');
+  }
+
+  return NextResponse.json({ ok: true });
+});

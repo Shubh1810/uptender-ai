@@ -1,11 +1,10 @@
 "use client";
 
+import type { AlertFieldProps } from "../types";
+
 import { Briefcase, ShoppingCart, Wrench, UserCog } from "lucide-react";
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+type Props = AlertFieldProps;
 
 export function TenderTypeSelector({ preferences, updateField }: Props) {
   const selected = preferences.tender_types || [];

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle, Calendar, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PAID_PLANS, formatINR, getPlanPricing, type PaidPlanId } from '@/config/plans';
 
 interface FeatureRowData {
   title: string;
@@ -18,10 +19,9 @@ interface TailoredRowData {
 
 interface PricingPlan {
   name: string;
-  /** Key expected by /make-payment's checkout tabs (basic | professional | enterprise) */
-  checkoutPlanKey?: string;
+  /** Paid plan backing this card; prices and checkout key come from `@/config/plans`. */
+  planId?: PaidPlanId;
   tagline: string;
-  price?: number;
   priceLabel?: string;
   gstNote?: string;
   pill?: string;
@@ -35,11 +35,9 @@ interface PricingPlan {
 
 const pricingPlans: PricingPlan[] = [
   {
-    name: 'Starter',
-    checkoutPlanKey: 'basic',
+    name: PAID_PLANS.basic.name,
+    planId: 'basic',
     tagline: 'For individual bidders who want eligibility answers, not just alerts.',
-    price: 4999,
-    gstNote: '+ 18% GST · ₹5,899 total',
     pill: '1 user login',
     features: [
       { title: 'All India Tenders Covered', description: 'GeM, eProcure, state & PSU portals' },
@@ -57,11 +55,9 @@ const pricingPlans: PricingPlan[] = [
     cta: { type: 'buy' },
   },
   {
-    name: 'Professional',
-    checkoutPlanKey: 'professional',
+    name: PAID_PLANS.pro.name,
+    planId: 'pro',
     tagline: 'For teams bidding regularly who need volume and compliance cover.',
-    price: 14999,
-    gstNote: '+ 18% GST · ₹17,699 total',
     pill: '4 user logins',
     popular: true,
     features: [
@@ -78,11 +74,9 @@ const pricingPlans: PricingPlan[] = [
     cta: { type: 'buy' },
   },
   {
-    name: 'Enterprise',
-    checkoutPlanKey: 'enterprise',
+    name: PAID_PLANS.enterprise.name,
+    planId: 'enterprise',
     tagline: 'For bid teams running at volume, with API access and your own templates.',
-    price: 39999,
-    gstNote: '+ 18% GST · ₹47,199 total',
     pill: '10 user logins',
     features: [
       { title: 'Everything in Professional', description: 'With 4x the monthly limits' },
@@ -144,6 +138,30 @@ function FeatureRow({ title, description, value }: FeatureRowData) {
   );
 }
 
+function PlanPrice({ plan }: { plan: PricingPlan }) {
+  if (!plan.planId) {
+    return (
+      <>
+        <span className="text-2xl font-bold text-gray-900">{plan.priceLabel}</span>
+        {plan.gstNote && <p className="text-gray-500 text-[11px] mt-0.5">{plan.gstNote}</p>}
+      </>
+    );
+  }
+
+  const pricing = getPlanPricing(plan.planId);
+  return (
+    <>
+      <span className="text-2xl font-bold text-gray-900">
+        {formatINR(pricing.monthlyEquivalent)}
+        <span className="text-sm font-medium text-gray-500"> /month</span>
+      </span>
+      <p className="text-gray-500 text-[11px] mt-0.5">
+        Billed yearly · {formatINR(pricing.base)} + 18% GST ({formatINR(pricing.total)} total)
+      </p>
+    </>
+  );
+}
+
 export function PricingSection() {
   return (
     <section id="pricing" className="py-10 px-4 sm:px-6 lg:px-8 bg-white relative z-10">
@@ -189,17 +207,7 @@ export function PricingSection() {
 
               <div className="mb-3 flex items-center justify-between gap-2">
                 <div>
-                  {plan.price !== undefined ? (
-                    <span className="text-2xl font-bold text-gray-900">
-                      ₹{plan.price.toLocaleString()}
-                      <span className="text-sm font-medium text-gray-500"> /year</span>
-                    </span>
-                  ) : (
-                    <span className="text-2xl font-bold text-gray-900">{plan.priceLabel}</span>
-                  )}
-                  {plan.gstNote && (
-                    <p className="text-gray-500 text-[11px] mt-0.5">{plan.gstNote}</p>
-                  )}
+                  <PlanPrice plan={plan} />
                 </div>
                 {plan.pill && (
                   <span className="flex-shrink-0 whitespace-nowrap rounded-full border border-gray-300 px-2 py-0.5 text-[10px] font-medium text-gray-600">
@@ -245,7 +253,7 @@ export function PricingSection() {
 
               <div className="mt-auto pt-1 flex justify-start">
                 {plan.cta.type === 'buy' ? (
-                  <Link href={`/make-payment?plan=${plan.checkoutPlanKey ?? plan.name.toLowerCase()}`}>
+                  <Link href={`/make-payment?plan=${plan.planId ? PAID_PLANS[plan.planId].checkoutKey : ''}`}>
                     <Button
                       className={`w-auto py-2 px-6 font-semibold rounded-full transition-colors text-sm opacity-100 ${
                         plan.popular

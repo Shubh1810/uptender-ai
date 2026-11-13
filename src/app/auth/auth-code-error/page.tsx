@@ -19,7 +19,7 @@ export default function AuthCodeError() {
           Authentication Error
         </h1>
         <p className="text-gray-600 mb-2">
-          We couldn't complete your sign-in request. This could be due to:
+          We couldn&apos;t complete your sign-in request. This could be due to:
         </p>
         
         {/* Error Reasons */}

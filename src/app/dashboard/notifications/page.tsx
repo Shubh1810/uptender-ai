@@ -12,7 +12,7 @@ export default function NotificationsPage() {
           Notification Manager
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          No notifications yet. You'll see all your notifications here.
+          No notifications yet. You&apos;ll see all your notifications here.
         </p>
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Zap, Sparkles, FileText, CheckCircle } from 'lucide-react';
-import { PlanGate } from '@/components/guards/PlanGate';
+import { PlanGate } from '@/features/plans/PlanGate';
 
 export default function AIDraftPage() {
   // Demo content for free users to see (will be blurred)

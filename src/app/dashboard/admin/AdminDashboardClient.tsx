@@ -28,10 +28,6 @@ export default function AdminDashboardClient() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
-    fetchUsers().finally(() => setLoading(false));
-  }, []);
-
   const fetchUsers = async () => {
     try {
       const response = await fetch('/api/admin/users');
@@ -45,9 +41,15 @@ export default function AdminDashboardClient() {
     }
   };
 
+  useEffect(() => {
+    // Data fetch on mount; state is only set after the request resolves.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchUsers().finally(() => setLoading(false));
+  }, []);
+
   const fetchUserUsage = async (userId: string) => {
     try {
-      const response = await fetch(`/api/admin/user-usage?user_id=${userId}`);
+      const response = await fetch(`/api/admin/user-usage?user_id=${encodeURIComponent(userId)}`);
       const data = await response.json();
 
       if (data.success) {

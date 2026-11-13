@@ -1,19 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { 
-  Heart, 
-  Stethoscope, 
-  Activity,
-  Bell,
-  CheckCircle,
-  ArrowRight,
-  Building2,
-  Pill,
-  Microscope,
-  Ambulance,
-  Shield
-} from 'lucide-react';
+import { Heart, Stethoscope, ArrowRight, Building2, Pill } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ContentPageHeader } from '@/components/Header';
 import { ContentPageFooter } from '@/components/Footer';

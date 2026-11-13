@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Brain, CheckCircle, AlertTriangle, Target } from 'lucide-react';
-import { PlanGate } from '@/components/guards/PlanGate';
+import { PlanGate } from '@/features/plans/PlanGate';
 
 export default function AIReviewPage() {
   const demoContent = (

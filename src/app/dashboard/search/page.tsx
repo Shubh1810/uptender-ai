@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { useDashboardAccess } from '@/components/dashboard/DashboardAccessProvider';
 import Image from 'next/image';
 import {
   Search,
@@ -32,8 +31,8 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { trackTenderSearch, trackTenderExternalClick } from '@/lib/posthog/events';
-import { useSavedTenders } from '@/hooks/useSavedTenders';
-import { useSubscription } from '@/hooks/useSubscription';
+import { useSavedTenders } from '@/features/saved-tenders/useSavedTenders';
+import { useSubscription } from '@/features/plans/useSubscription';
 
 interface Tender {
   id: string;
@@ -84,9 +83,7 @@ interface SidebarFilters {
   minAmount: string;
   maxAmount: string;
   organisation: string;
-  tenderFeeExempted: boolean;
   emdExempted: boolean;
-  tenderType: string;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -123,7 +120,33 @@ const DATE_QUICK_CLOSING = [
 
 const PORTALS = ['GeM', 'CPPP', 'State Portal', 'Defence', 'Railways', 'NHIDCL'];
 const STATES  = ['Andhra Pradesh','Assam','Bihar','Delhi','Gujarat','Haryana','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Odisha','Punjab','Rajasthan','Tamil Nadu','Telangana','Uttar Pradesh','West Bengal'];
-const PROCUREMENT_TYPES = ['Open Tender', 'Limited Tender', 'Single Tender', 'EOI', 'RFP', 'RFQ', 'Global Tender'];
+/** Label shown in the sidebar → substring matched against `tenders.tender_type`. */
+const PROCUREMENT_TYPE_MATCH: Record<string, string> = {
+  'Open Tender': 'Open',
+  'Limited Tender': 'Limited',
+  'Single Tender': 'Single',
+  'EOI': 'EOI',
+  'RFP': 'RFP',
+  'RFQ': 'RFQ',
+  'Global Tender': 'Global',
+};
+const PROCUREMENT_TYPES = Object.keys(PROCUREMENT_TYPE_MATCH);
+
+const EMPTY_FILTERS: SidebarFilters = {
+  keywords: [],
+  excludeKeywords: [],
+  dateType: 'published',
+  dateRange: '',
+  customDate: '',
+  portal: '',
+  state: '',
+  city: '',
+  procurementType: '',
+  minAmount: '',
+  maxAmount: '',
+  organisation: '',
+  emdExempted: false,
+};
 
 function AccordionSection({
   title, children, defaultOpen = false,
@@ -185,7 +208,6 @@ function KeywordChips({
 }
 
 export default function SearchPage() {
-  const [user, setUser]           = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [tenders, setTenders]     = useState<Tender[]>([]);
   const [loading, setLoading]     = useState(false);
@@ -196,26 +218,11 @@ export default function SearchPage() {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'value_desc' | 'value_asc'>('newest');
   const [showSortMenu, setShowSortMenu] = useState(false);
 
-  const [filters, setFilters] = useState<SidebarFilters>({
-    keywords: [],
-    excludeKeywords: [],
-    dateType: 'published',
-    dateRange: '',
-    customDate: '',
-    portal: '',
-    state: '',
-    city: '',
-    procurementType: '',
-    minAmount: '',
-    maxAmount: '',
-    organisation: '',
-    tenderFeeExempted: false,
-    emdExempted: false,
-    tenderType: '',
-  });
+  const [filters, setFilters] = useState<SidebarFilters>(EMPTY_FILTERS);
 
   const router = useRouter();
-  const supabase = createClient();
+  // The dashboard layout has already verified the session server-side.
+  const { initialUser: user } = useDashboardAccess();
   const { isSaved, saveTender, unsaveTender } = useSavedTenders();
   const { hasFeature, plan } = useSubscription();
   const [showExportPopup, setShowExportPopup] = useState(false);
@@ -224,18 +231,40 @@ export default function SearchPage() {
   const filterDebounce  = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressFetch   = useRef(false);
 
-  useEffect(() => {
-    let mounted = true;
-    const init = async () => {
-      try {
-        const { data: { user: authUser }, error } = await supabase.auth.getUser();
-        if (error || !authUser) { if (mounted) window.location.href = '/'; return; }
-        if (mounted) setUser(authUser);
-      } catch { if (mounted) window.location.href = '/'; }
-    };
-    init();
-    return () => { mounted = false; };
-  }, []);
+  const fetchTenders = async (page = 1, query = searchQuery, f: SidebarFilters = filters) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: String(ITEMS_PER_PAGE) });
+      if (query.trim())                                params.set('query', query.trim());
+      f.keywords.forEach((k) =>                        params.append('keyword', k));
+      if (f.excludeKeywords.length)                    params.set('exclude', f.excludeKeywords.join(','));
+      if (f.dateRange && f.dateRange !== 'pick')       params.set('date_filter', f.dateRange);
+      if (f.dateRange === 'pick' && f.customDate)      params.set('date_filter', f.customDate);
+      if (f.dateType)                                  params.set('date_type', f.dateType);
+      if (f.portal)                                    params.set('source', f.portal);
+      if (f.state)                                     params.set('location', f.state);
+      if (f.city)                                      params.set('city', f.city);
+      if (f.procurementType)                           params.set('tender_type', PROCUREMENT_TYPE_MATCH[f.procurementType] ?? f.procurementType);
+      if (f.minAmount)                                 params.set('min_amount', f.minAmount);
+      if (f.maxAmount)                                 params.set('max_amount', f.maxAmount);
+      if (f.organisation)                              params.set('organisation', f.organisation);
+      if (f.emdExempted)                               params.set('emd_exempted', 'true');
+
+      const response = await fetch(`/api/tenders?${params}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error('Failed to fetch tenders');
+      const data: TenderResponse = await response.json();
+      setTenders(data.items || []);
+      setTotalCount(data.total_items || 0);
+      setCurrentPage(page);
+      setLoading(false);
+      trackTenderSearch({ query: query || undefined, resultsCount: data.total_items || 0, page });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load tenders');
+      setLoading(false);
+    }
+  };
 
   const prevFilters = useRef(filters);
 
@@ -268,59 +297,12 @@ export default function SearchPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
-  const fetchTenders = async (page = 1, query = searchQuery, f: SidebarFilters = filters) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const allKeywords = [...f.keywords, ...(query.trim() ? [query.trim()] : [])];
-      const params = new URLSearchParams({ page: String(page), limit: String(ITEMS_PER_PAGE) });
-      if (allKeywords.length)                          params.set('query', allKeywords.join(' '));
-      if (f.excludeKeywords.length)                    params.set('exclude', f.excludeKeywords.join(','));
-      if (f.dateRange && f.dateRange !== 'pick')       params.set('date_filter', f.dateRange);
-      if (f.dateRange === 'pick' && f.customDate)      params.set('date_filter', f.customDate);
-      if (f.dateType)                                  params.set('date_type', f.dateType);
-      if (f.portal)                                    params.set('source', f.portal);
-      if (f.state)                                     params.set('location', f.state);
-      if (f.city)                                      params.set('city', f.city);
-      if (f.procurementType)                           params.set('tender_type', f.procurementType);
-      if (f.minAmount)                                 params.set('min_amount', f.minAmount);
-      if (f.maxAmount)                                 params.set('max_amount', f.maxAmount);
-      if (f.organisation)                              params.set('organisation', f.organisation);
-      if (f.tenderFeeExempted)                         params.set('tender_fee_exempted', 'true');
-      if (f.emdExempted)                               params.set('emd_exempted', 'true');
-      if (f.tenderType)                                params.set('tender_type', f.tenderType);
-
-      const response = await fetch(`/api/tenders?${params}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error('Failed to fetch tenders');
-      const data: TenderResponse = await response.json();
-      console.log(
-        `🔎 Search fetched ${data.items?.length ?? 0} tenders from Supabase tenders table (${data.total_items ?? 0} total matches)`,
-        {
-          source: data.source,
-          page: data.page,
-          limit: data.limit,
-          query: query || null,
-          filters: f,
-        }
-      );
-      setTenders(data.items || []);
-      setTotalCount(data.total_items || 0);
-      setCurrentPage(page);
-      setLoading(false);
-      trackTenderSearch({ query: query || undefined, resultsCount: data.total_items || 0, page });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tenders');
-      setLoading(false);
-    }
-  };
-
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); fetchTenders(1); };
   const handleApply  = () => { fetchTenders(1); setMobileSidebarOpen(false); };
   const handleClearAll = () => {
     suppressFetch.current = true;
     setSearchQuery('');
-    setFilters({ keywords: [], excludeKeywords: [], dateType: 'published', dateRange: '', customDate: '', portal: '', state: '', city: '', procurementType: '', minAmount: '', maxAmount: '', organisation: '', tenderFeeExempted: false, emdExempted: false, tenderType: '' });
+    setFilters(EMPTY_FILTERS);
     setTenders([]); setTotalCount(0); setCurrentPage(1);
   };
   const handlePageChange = (newPage: number) => {
@@ -333,9 +315,9 @@ export default function SearchPage() {
     if (isSaved(tender.ref_no)) {
       await unsaveTender(tender.ref_no);
     } else {
-      const result = await saveTender(tender as any);
+      const result = await saveTender(tender);
       if (result && !result.success && result.limitExceeded) {
-        if (confirm(`${result.error}\n\nWould you like to upgrade your plan?`)) router.push('/pricing');
+        if (confirm(`${result.error}\n\nWould you like to upgrade your plan?`)) router.push('/make-payment');
       }
     }
   };
@@ -491,7 +473,6 @@ export default function SearchPage() {
     if (filters.state)           tags.push({ key: 'state',  label: `State: ${filters.state}`,   onRemove: () => setFilters(f => ({ ...f, state: '' })) });
     if (filters.city)            tags.push({ key: 'city',   label: `City: ${filters.city}`,     onRemove: () => setFilters(f => ({ ...f, city: '' })) });
     if (filters.procurementType) tags.push({ key: 'proc',   label: `Type: ${filters.procurementType}`, onRemove: () => setFilters(f => ({ ...f, procurementType: '' })) });
-    if (filters.tenderType)      tags.push({ key: 'ttype',  label: `Tender: ${filters.tenderType}`,    onRemove: () => setFilters(f => ({ ...f, tenderType: '' })) });
     if (filters.minAmount || filters.maxAmount) {
       const label = filters.minAmount && filters.maxAmount
         ? `₹${Number(filters.minAmount).toLocaleString('en-IN')} – ₹${Number(filters.maxAmount).toLocaleString('en-IN')}`
@@ -500,7 +481,6 @@ export default function SearchPage() {
       tags.push({ key: 'amount', label, onRemove: () => setFilters(f => ({ ...f, minAmount: '', maxAmount: '' })) });
     }
     if (filters.organisation)    tags.push({ key: 'org',  label: `Org: ${filters.organisation}`,  onRemove: () => setFilters(f => ({ ...f, organisation: '' })) });
-    if (filters.tenderFeeExempted) tags.push({ key: 'fee', label: 'Fee Exempt',  onRemove: () => setFilters(f => ({ ...f, tenderFeeExempted: false })) });
     if (filters.emdExempted)       tags.push({ key: 'emd', label: 'EMD Exempt',  onRemove: () => setFilters(f => ({ ...f, emdExempted: false })) });
     return tags;
   }, [filters]);
@@ -511,16 +491,16 @@ export default function SearchPage() {
   const hasActiveFilters = searchQuery || filters.keywords.length || filters.excludeKeywords.length ||
     filters.dateRange || filters.portal || filters.state || filters.city ||
     filters.procurementType || filters.minAmount || filters.maxAmount ||
-    filters.organisation || filters.tenderFeeExempted || filters.emdExempted;
+    filters.organisation || filters.emdExempted;
   const activeFilterCount = [
     filters.keywords.length > 0, filters.excludeKeywords.length > 0, !!filters.dateRange,
     !!filters.portal, !!filters.state, !!filters.city, !!filters.procurementType,
     !!(filters.minAmount || filters.maxAmount), !!filters.organisation,
-    filters.tenderFeeExempted, filters.emdExempted,
+    filters.emdExempted,
   ].filter(Boolean).length;
 
   /* ── Sidebar ── */
-  const Sidebar = () => (
+  const renderSidebar = () => (
     <aside className="flex h-full flex-col overflow-y-auto rounded-xl border border-gray-200 bg-white dark:border-white/[0.08] dark:bg-[#18181b] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-white/[0.06]">
@@ -770,7 +750,6 @@ export default function SearchPage() {
       <div className="border-b border-gray-100 px-4 py-3 dark:border-white/[0.06] space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-white/40 mb-2">Fee Preferences</p>
         {[
-          { key: 'tenderFeeExempted' as const, label: 'Tender fee exempted' },
           { key: 'emdExempted'       as const, label: 'EMD fee exempted'    },
         ].map(({ key, label }) => (
           <label key={key} className="flex cursor-pointer items-center gap-2.5">
@@ -788,28 +767,6 @@ export default function SearchPage() {
           </label>
         ))}
       </div>
-
-      {/* Advanced Filters */}
-      <AccordionSection title="Advanced Filters">
-        <div className="space-y-2.5">
-          <div>
-            <p className="mb-1.5 text-[11px] font-medium text-gray-500 dark:text-white/40">Tender Type</p>
-            <select
-              value={filters.tenderType}
-              onChange={e => setFilters(f => ({ ...f, tenderType: e.target.value }))}
-              className="w-full rounded-lg border border-gray-200 dark:border-white/[0.10] bg-white dark:bg-black/20 px-3 py-2 text-xs text-gray-900 dark:text-white/90 focus:outline-none"
-            >
-              <option value="">All Types</option>
-              <option value="Open">Open</option>
-              <option value="Limited">Limited</option>
-              <option value="Single">Single</option>
-              <option value="EOI">EOI</option>
-              <option value="RFP">RFP</option>
-              <option value="RFQ">RFQ</option>
-            </select>
-          </div>
-        </div>
-      </AccordionSection>
 
       {/* Apply button */}
       <div className="sticky bottom-0 border-t border-gray-100 bg-white px-4 py-3 dark:border-white/[0.06] dark:bg-[#18181b]">
@@ -883,7 +840,7 @@ export default function SearchPage() {
                 type="button"
                 onClick={() => {
                   setShowExportPopup(false);
-                  router.push('/pricing');
+                  router.push('/make-payment');
                 }}
                 className="flex-1 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
               >
@@ -952,7 +909,7 @@ export default function SearchPage() {
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileSidebarOpen(false)} />
           <div className="absolute bottom-0 left-0 top-0 w-[300px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <Sidebar />
+            {renderSidebar()}
           </div>
         </div>
       )}
@@ -962,7 +919,7 @@ export default function SearchPage() {
 
         {/* Left sidebar — desktop only */}
         <div className="hidden min-h-0 w-64 flex-shrink-0 overflow-hidden lg:flex lg:flex-col">
-          <Sidebar />
+          {renderSidebar()}
         </div>
 
         {/* Right: header + search + results */}
@@ -1279,7 +1236,7 @@ export default function SearchPage() {
                     {(() => {
                       const maxV = 7;
                       let start = Math.max(1, currentPage - Math.floor(maxV / 2));
-                      let end   = Math.min(totalPages, start + maxV - 1);
+                      const end   = Math.min(totalPages, start + maxV - 1);
                       if (end - start < maxV - 1) start = Math.max(1, end - maxV + 1);
                       const pages: number[] = [];
                       for (let i = start; i <= end; i++) pages.push(i);

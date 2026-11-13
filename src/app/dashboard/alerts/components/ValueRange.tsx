@@ -1,20 +1,21 @@
 "use client";
 
+import type { AlertFieldProps } from "../types";
 import React from "react";
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+type Props = AlertFieldProps;
 
 const formatValue = (lakhs: number) => {
   if (lakhs >= 1000) return `₹${(lakhs / 100).toFixed(1)} Cr`;
   return `₹${lakhs} Lakh`;
 };
 
+const RANGE_MIN = 0;
+const RANGE_MAX = 1000; // lakhs
+
 export function ValueRange({ preferences, updateField }: Props) {
-  const min = preferences.project_value_min;
-  const max = preferences.project_value_max;
+  const min = preferences.project_value_min ?? RANGE_MIN;
+  const max = preferences.project_value_max ?? RANGE_MAX;
 
   return (
     <div className="space-y-6">
@@ -33,7 +34,7 @@ export function ValueRange({ preferences, updateField }: Props) {
           step={10}
           value={min}
           onChange={(e) =>
-            updateField("project_value_min", parseInt(e.target.value))
+            updateField("project_value_min", Math.min(Number(e.target.value), max))
           }
           className="w-full accent-neutral-900"
         />
@@ -52,7 +53,7 @@ export function ValueRange({ preferences, updateField }: Props) {
           step={10}
           value={max}
           onChange={(e) =>
-            updateField("project_value_max", parseInt(e.target.value))
+            updateField("project_value_max", Math.max(Number(e.target.value), min))
           }
           className="w-full accent-neutral-900"
         />

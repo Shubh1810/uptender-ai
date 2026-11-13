@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { isOnboardingComplete } from '@/lib/onboarding';
+import { hardNavigate } from '@/lib/navigation';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,6 +38,7 @@ export default function OnboardingClient() {
   const [otp, setOtp] = React.useState('');
   const [otpSent, setOtpSent] = React.useState(false);
   const [authError, setAuthError] = React.useState('');
+  const [submitError, setSubmitError] = React.useState('');
 
   const [fullName, setFullName] = React.useState('');
   const [isFullNameLocked, setIsFullNameLocked] = React.useState(false);
@@ -366,15 +369,15 @@ export default function OnboardingClient() {
     return insights[fieldName] || { insight: "", whyItMatters: "" };
   };
 
-  // Reset carousel when step changes
-  React.useEffect(() => {
-    if (step === 1) {
-      setActiveFeatureIndex(0);
-    }
-    if (step === 3) {
-      setActiveStep3Index(0);
-    }
-  }, [step]);
+  // Reset per-step UI state when the step changes (adjusting state during
+  // render, per React docs, instead of a cascading effect).
+  const [renderedStep, setRenderedStep] = React.useState(step);
+  if (renderedStep !== step) {
+    setRenderedStep(step);
+    if (step === 1) setActiveFeatureIndex(0);
+    if (step === 3) setActiveStep3Index(0);
+    if (step !== 2) setFocusedField(null);
+  }
 
   // Auto-rotate carousel for step 1
   React.useEffect(() => {
@@ -398,12 +401,6 @@ export default function OnboardingClient() {
     return () => clearInterval(interval);
   }, [step, step3Priorities.length]);
 
-  // Reset focused field when step changes
-  React.useEffect(() => {
-    if (step !== 2) {
-      setFocusedField(null);
-    }
-  }, [step]);
 
 
   const roleOptions = ['Manufacturer', 'Authorized Dealer / Distributor', 'Contractor / EPC', 'Service Provider', 'Consultant', 'New Bidder (≤ 2 years)'];
@@ -426,53 +423,6 @@ export default function OnboardingClient() {
   };
 
 
-  const steps = [
-    { id: 1 as Step, label: 'Sign up / Login' },
-    { id: 2 as Step, label: 'Company Snapshot' },
-    { id: 3 as Step, label: 'Bid Intelligence Setup' },
-  ] as const;
-
-  // Refs for measuring dot positions
-  const stepRefs = React.useRef<(HTMLDivElement | null)[]>([]);
-  const lineRef = React.useRef<HTMLDivElement | null>(null);
-  const [progressWidth, setProgressWidth] = React.useState<string>('0%');
-
-  // Calculate progress width based on current step's dot position
-  React.useEffect(() => {
-    const calculateProgress = () => {
-      if (!lineRef.current) return;
-
-      const lineRect = lineRef.current.getBoundingClientRect();
-      const lineWidth = lineRect.width;
-
-      // Wait for DOM to be ready
-      requestAnimationFrame(() => {
-        const currentStepIndex = step - 1;
-        const currentStepRef = stepRefs.current[currentStepIndex];
-
-        if (currentStepRef && lineRef.current) {
-          const dotRect = currentStepRef.getBoundingClientRect();
-          const dotCenterX = dotRect.left + dotRect.width / 2;
-          const lineLeft = lineRef.current.getBoundingClientRect().left;
-          const dotPositionFromLeft = dotCenterX - lineLeft;
-
-          // Calculate percentage, accounting for dot being at the center of the line
-          const percentage = (dotPositionFromLeft / lineWidth) * 100;
-          setProgressWidth(`${Math.max(0, Math.min(100, percentage))}%`);
-        }
-      });
-    };
-
-    // Small delay to ensure DOM is rendered
-    const timeoutId = setTimeout(calculateProgress, 0);
-
-    // Recalculate on window resize
-    window.addEventListener('resize', calculateProgress);
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener('resize', calculateProgress);
-    };
-  }, [step]);
 
   React.useEffect(() => {
     const stepParam = searchParams?.get('step');
@@ -507,8 +457,8 @@ export default function OnboardingClient() {
             }
           } else if (profile) {
             // Already onboarded — send to dashboard regardless of step param
-            if (profile.onboarding_completed === true || profile.onboarding_completed === 'true') {
-              window.location.href = '/dashboard';
+            if (isOnboardingComplete(profile.onboarding_completed)) {
+              hardNavigate('/dashboard');
               return;
             }
             // Not completed — honour step param for UX continuity, default to step 2
@@ -537,6 +487,8 @@ export default function OnboardingClient() {
           }
         });
     });
+    // Runs once per URL change; `fullName` is only read to avoid overwriting user input.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, searchParams]);
 
 
@@ -594,8 +546,8 @@ export default function OnboardingClient() {
           .eq('id', data.user.id)
           .maybeSingle();
 
-        if (profile?.onboarding_completed) {
-          window.location.href = '/dashboard';
+        if (isOnboardingComplete(profile?.onboarding_completed)) {
+          hardNavigate('/dashboard');
         } else {
           setStep(2);
         }
@@ -610,6 +562,7 @@ export default function OnboardingClient() {
 
   const submitOnboarding = async () => {
     setLoading(true);
+    setSubmitError('');
     try {
       const payload = {
         profile: {
@@ -641,24 +594,15 @@ export default function OnboardingClient() {
       });
       
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
-        console.error('Onboarding API error:', errorData);
-        throw new Error(
-          errorData.details 
-            ? `Validation error: ${JSON.stringify(errorData.details)}` 
-            : errorData.error || 'Failed to save onboarding'
-        );
+        const errorData = await res.json().catch(() => ({}));
+        const firstIssue = Array.isArray(errorData.details) ? errorData.details[0]?.message : undefined;
+        throw new Error(firstIssue || errorData.error || 'Failed to save your details');
       }
-      
-      const result = await res.json();
-      console.log('Onboarding saved successfully:', result);
-      
-      // Redirect to dashboard after successful onboarding
-      window.location.href = '/dashboard';
+
+      hardNavigate('/dashboard');
     } catch (e) {
-      const errorMessage = (e as Error).message || 'An error occurred';
       console.error('Onboarding submit error:', e);
-      alert(`Failed to save onboarding: ${errorMessage}\n\nPlease check the browser console for details.`);
+      setSubmitError(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -836,7 +780,7 @@ export default function OnboardingClient() {
               <div className="max-w-lg mx-auto pb-8 w-full">
                 <div className="text-center space-y-4 mb-6">
                   <h3 className="text-xl lg:text-2xl font-semibold text-white leading-tight">
-                    Based on your profile, we'll prioritize:
+                    Based on your profile, we&apos;ll prioritize:
                   </h3>
                 </div>
                 <div className="relative h-20 overflow-hidden">
@@ -1086,7 +1030,7 @@ export default function OnboardingClient() {
                             setAuthError(error.message);
                             setLoading(false);
                           }
-                        } catch (err) {
+                        } catch {
                           setAuthError('Failed to sign in with Google');
                           setLoading(false);
                         }
@@ -1120,7 +1064,7 @@ export default function OnboardingClient() {
                             setAuthError(error.message);
                             setLoading(false);
                           }
-                        } catch (err) {
+                        } catch {
                           setAuthError('Failed to sign in with Apple');
                           setLoading(false);
                         }
@@ -1138,7 +1082,7 @@ export default function OnboardingClient() {
 
                   {/* Terms */}
                   <p className="text-xs text-center text-gray-500">
-                    By signing up to create an account I accept Company's{' '}
+                    By signing up to create an account I accept Company&apos;s{' '}
                     <Link href="/terms" className="text-[#3d2817] hover:underline">
                       Terms of use
                     </Link>
@@ -1442,6 +1386,12 @@ export default function OnboardingClient() {
                       ))}
                     </div>
                   </div>
+
+                  {submitError && (
+                    <div role="alert" className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                      {submitError}
+                    </div>
+                  )}
 
                   <div className="flex gap-2.5 pt-6">
                     <Button 

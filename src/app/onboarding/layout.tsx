@@ -14,7 +14,7 @@ export default function OnboardingLayout({
         loads and React.Suspense resolves, causing the visible delay.
         q=75 must match the quality prop on the <Image> component below.
       */}
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      { }
       <link
         rel="preload"
         as="image"

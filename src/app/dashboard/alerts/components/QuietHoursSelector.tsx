@@ -1,11 +1,10 @@
 "use client";
 
+import type { AlertFieldProps } from "../types";
+
 import { useState } from "react";
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+type Props = AlertFieldProps;
 
 export function QuietHoursSelector({ preferences, updateField }: Props) {
   const quiet = preferences.quiet_hours || { enabled: false, from: "23:00", to: "07:00" };

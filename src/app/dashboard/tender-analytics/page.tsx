@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TrendingUp, BarChart, PieChart, Activity, ArrowUp } from 'lucide-react';
-import { PlanGate } from '@/components/guards/PlanGate';
+import { PlanGate } from '@/features/plans/PlanGate';
 
 export default function TenderAnalyticsPage() {
   const demoContent = (

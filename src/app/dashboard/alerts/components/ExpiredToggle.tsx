@@ -1,9 +1,8 @@
 "use client";
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+import type { AlertFieldProps } from "../types";
+
+type Props = AlertFieldProps;
 
 export function ExpiredToggle({ preferences, updateField }: Props) {
   const value = preferences.show_expired || false;

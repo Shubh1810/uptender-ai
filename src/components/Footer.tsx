@@ -95,7 +95,7 @@ export function Footer({ className = '' }: FooterProps) {
               </li>
               <li>
                 <span className="font-medium text-white">Sales:</span>
-                <a href="tel:+919821844444" className="ml-2 hover:text-white transition-colors">+91 98200 29999</a>
+                <a href="tel:+919821844444" className="ml-2 hover:text-white transition-colors">+91 98219 44444</a>
               </li>
               <li>
                 <span className="font-medium text-white">Email:</span>

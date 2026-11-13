@@ -1,16 +1,23 @@
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
+import { safeRedirectPath } from '@/lib/safe-redirect';
 
+/**
+ * Signs the user out and redirects with a 302. It's a redirect, not JSON,
+ * because Safari ignores Set-Cookie on fetch() responses but always applies it
+ * on navigations. The client triggers it via form.submit() (see lib/auth/sign-out).
+ */
 export async function POST(request: NextRequest) {
   const origin = request.nextUrl.origin;
-  const redirectTo = request.nextUrl.searchParams.get('redirect') || '/';
 
-  // Return a 302 REDIRECT, not JSON. Safari silently ignores Set-Cookie
-  // headers on fetch() responses but always processes them on navigation
-  // (302) responses. The client triggers this via form.submit().
-  const response = NextResponse.redirect(new URL(redirectTo, origin), {
-    status: 302,
-  });
+  // CSRF: only accept sign-out submitted from our own pages.
+  const requestOrigin = request.headers.get('origin');
+  if (requestOrigin && requestOrigin !== origin) {
+    return NextResponse.json({ error: 'Cross-origin request rejected' }, { status: 403 });
+  }
+
+  const redirectTo = safeRedirectPath(request.nextUrl.searchParams.get('redirect'), '/');
+  const response = NextResponse.redirect(new URL(redirectTo, origin), { status: 302 });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,9 +28,7 @@ export async function POST(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
         },
       },
     }
@@ -32,17 +37,13 @@ export async function POST(request: NextRequest) {
   try {
     await supabase.auth.signOut({ scope: 'global' });
   } catch (err) {
-    console.error('Supabase signOut error:', err);
+    console.error('[auth] signOut error', err);
   }
 
-  // Safety net: forcibly expire every Supabase auth cookie.
+  // Safety net: expire every Supabase auth cookie even if signOut failed.
   request.cookies.getAll().forEach((cookie) => {
     if (cookie.name.startsWith('sb-')) {
-      response.cookies.set(cookie.name, '', {
-        path: '/',
-        maxAge: 0,
-        expires: new Date(0),
-      });
+      response.cookies.set(cookie.name, '', { path: '/', maxAge: 0, expires: new Date(0) });
     }
   });
 

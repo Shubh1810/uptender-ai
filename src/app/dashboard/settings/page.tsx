@@ -51,7 +51,6 @@ export default function SettingsPage() {
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<ProfileData>({
     full_name: '',
     company: '',
@@ -74,20 +73,6 @@ export default function SettingsPage() {
   });
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
-  useEffect(() => {
-    const init = async () => {
-      const { data: { user: authUser }, error } = await supabase.auth.getUser();
-      if (error || !authUser) {
-        setLoading(false);
-        return;
-      }
-      setUser(authUser);
-      await fetchUserData(authUser.id);
-      setLoading(false);
-    };
-    init();
-  }, []);
-
   const fetchUserData = async (userId: string) => {
     try {
       // Fetch profile
@@ -103,7 +88,7 @@ export default function SettingsPage() {
           company: profileData.company || '',
           business_type: profileData.business_type || 'Proprietorship',
           gst_number: '', // Don't expose encrypted GST
-          years_in_operation: profileData.years_in_operation || 0,
+          years_in_operation: profileData.years_in_operation ?? 0,
           primary_industry: profileData.primary_industry || '',
           secondary_industries: profileData.secondary_industries || [],
         });
@@ -118,12 +103,12 @@ export default function SettingsPage() {
 
       if (prefsData && !prefsError) {
         setPreferences({
-          notify_whatsapp: prefsData.notify_whatsapp || false,
-          notify_sms: prefsData.notify_sms || false,
-          notify_email: prefsData.notify_email || true,
-          notify_inapp: prefsData.notify_inapp || true,
+          notify_whatsapp: prefsData.notify_whatsapp ?? false,
+          notify_sms: prefsData.notify_sms ?? false,
+          notify_email: prefsData.notify_email ?? true,
+          notify_inapp: prefsData.notify_inapp ?? true,
           frequency: prefsData.frequency || 'daily',
-          alert_threshold: prefsData.alert_threshold || 70,
+          alert_threshold: prefsData.alert_threshold ?? 70,
           roles: prefsData.roles || [],
           user_goal: prefsData.user_goal || '',
           tender_documentation_comfort: prefsData.tender_documentation_comfort || '',
@@ -133,6 +118,23 @@ export default function SettingsPage() {
       console.error('Error fetching user data:', error);
     }
   };
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user: authUser }, error } = await supabase.auth.getUser();
+      if (error || !authUser) {
+        setLoading(false);
+        return;
+      }
+      setUser(authUser);
+      await fetchUserData(authUser.id);
+      setLoading(false);
+    };
+    init();
+    // Load once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const saveProfile = async () => {
     if (!user) return;
@@ -449,7 +451,7 @@ export default function SettingsPage() {
               >
                 <select
                   value={preferences.frequency}
-                  onChange={(e) => setPreferences({ ...preferences, frequency: e.target.value as any })}
+                  onChange={(e) => setPreferences({ ...preferences, frequency: e.target.value as typeof preferences.frequency })}
                   className="w-full px-0 py-1 bg-transparent border-none text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-0"
                 >
                   <option value="real_time">Real Time</option>

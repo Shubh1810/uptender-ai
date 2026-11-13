@@ -32,11 +32,8 @@ if (typeof window !== 'undefined') {
       request_batching: true, // Batch requests to reduce network calls
       persistence: 'localStorage+cookie', // More reliable persistence
       debug: process.env.NODE_ENV === 'development',
-      loaded: (posthog) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('✅ PostHog loaded successfully');
-          console.log('📊 Autocapture enabled - All clicks and pageviews will be tracked');
-        }
+      loaded: () => {
+        if (process.env.NODE_ENV === 'development') console.debug('[posthog] loaded');
       },
     });
     

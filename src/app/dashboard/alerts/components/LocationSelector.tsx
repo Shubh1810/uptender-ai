@@ -1,5 +1,6 @@
 "use client";
 
+import type { AlertFieldProps } from "../types";
 import React from "react";
 import { cn } from "@/lib/utils";
 
@@ -29,10 +30,7 @@ const CITIES = [
   "Ahmedabad",
 ];
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+type Props = AlertFieldProps;
 
 export function LocationSelector({ preferences, updateField }: Props) {
   const type = preferences.location_type;

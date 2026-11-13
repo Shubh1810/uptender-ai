@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Eye, TrendingUp, Users, BarChart } from 'lucide-react';
-import { PlanGate } from '@/components/guards/PlanGate';
+import { PlanGate } from '@/features/plans/PlanGate';
 
 export default function CompetitorIntelPage() {
   const demoContent = (

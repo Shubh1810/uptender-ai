@@ -1,45 +1,20 @@
 'use client';
 
 import React, { useRef, useLayoutEffect } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { HeroSection } from '@/components/HeroSection';
 import { PricingSection } from '@/components/PricingSection';
-import { 
-  Shield, 
-  Zap, 
-  Users,
-  Brain,
-  FileText,
-  BarChart3,
-  Bell,
-  Target,
-  Save,
-  Trophy,
-  TrendingUp,
-  Search,
-  Heart,
-  Building,
-  PlusCircle,
-  MinusCircle,
-  Clock,
-  Sparkles,
-  Link2,
-  CircleDollarSign,
-  Layout,
-  LineChart
-} from 'lucide-react';
+import { Bell, Target, PlusCircle, MinusCircle, CircleDollarSign, Layout, LineChart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
 import { SearchBar } from '@/components/ui/search-bar';
-import { EmailSignup } from '@/components/ui/email-signup';
 import { WaitlistOverlay } from '@/components/ui/waitlist-overlay';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
-import { getLiveTendersCount, type TenderStats } from '@/lib/tender-stats';
+import { getLiveTendersCount, type TenderStats } from '@/features/tenders/tender-stats';
 import { WorkflowSection } from '@/components/WorkflowSection';
 
 // Register GSAP plugins
@@ -58,11 +33,6 @@ function FeaturesSection({ features }: { features: Feature[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // Initialize refs array with correct length
-  if (featureRefs.current.length !== features.length) {
-    featureRefs.current = new Array(features.length).fill(null);
-  }
 
   // Helper function to determine which column an item belongs to (0, 1, or 2)
   const getColumnIndex = (index: number) => index % 3;
@@ -174,6 +144,7 @@ function FeaturesSection({ features }: { features: Feature[] }) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
   const [ctaEmail, setCtaEmail] = React.useState('');
   const [ctaLoading, setCtaLoading] = React.useState(false);
@@ -295,34 +266,6 @@ export default function Home() {
     }
   ];
 
-  const tenderCategories = [
-    {
-      icon: '/healthcare-icon.svg',
-      title: 'Healthcare & Medical Tenders',
-      description: 'Medical equipment, pharmaceutical supplies, hospital tenders, diagnostic equipment, and healthcare infrastructure projects across India.',
-      keywords: 'Healthcare tenders, medical equipment tenders, pharmaceutical tenders, hospital supplies',
-      isImage: true
-    },
-    {
-      icon: Building,
-      title: 'Construction & Infrastructure',
-      description: 'Road construction, building projects, smart city tenders, water supply, electricity infrastructure, and public works department tenders.',
-      keywords: 'Construction tenders, infrastructure tenders, PWD tenders, road construction'
-    },
-    {
-      icon: Shield,
-      title: 'Government & Defense',
-      description: 'Central government tenders, defense procurement, public sector undertaking tenders, and government department requirements.',
-      keywords: 'Government tenders, defense tenders, PSU tenders, central government procurement'
-    },
-    {
-      icon: Zap,
-      title: 'IT & Technology',
-      description: 'Software development, IT infrastructure, digital services, cybersecurity, and technology implementation tenders from government and private sectors.',
-      keywords: 'IT tenders, software tenders, technology procurement, digital services'
-    }
-  ];
-
   const faqData = [
     {
       question: 'What types of tenders does Tender Post AI cover?',
@@ -388,7 +331,7 @@ export default function Home() {
             {/* Left side content */}
             <div className="text-center lg:text-left mt-8 lg:mt-12 px-2 lg:pl-24">
               <h1 className="text-3xl md:text-4xl text-gray-900 mb-2 leading-tight" style={{ fontFamily: '"Funnel Display", sans-serif' }}>
-                 <span className="text-3xl md:text-4xl font-semibold">AI-powered Tender Intelligence that tells you what's worth bidding.</span> <span className="font-semibold"></span>{' '}
+                 <span className="text-3xl md:text-4xl font-semibold">AI-powered Tender Intelligence that tells you what&apos;s worth bidding.</span> <span className="font-semibold"></span>{' '}
                 <span className="inline-flex items-center ml-2 text-sm text-gray-600 font-medium">
                   powered by{' '}
                   <Image
@@ -409,11 +352,11 @@ export default function Home() {
                   placeholder="Describe your business (e.g. “IT, Construction, Healthcare”)..."
                   onFocus={() => {
                     // Redirect to onboarding/sign-in page when user clicks/focuses on search
-                    window.location.href = '/onboarding';
+                    router.push('/onboarding');
                   }}
-                  onSearch={(query) => {
+                  onSearch={() => {
                     // Redirect to onboarding/sign-in page when user searches
-                    window.location.href = '/onboarding';
+                    router.push('/onboarding');
                   }}
                   className="max-w-lg w-full search-bar-mobile"
                 />
@@ -598,6 +541,8 @@ export default function Home() {
       <section className="py-16 sm:py-32 px-4 sm:px-6 lg:px-8 relative z-10 overflow-hidden" style={{ backgroundColor: '#ff8c42' }}>
         {/* Rotated background image */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Decorative, CSS-rotated background; next/image's fill sizing can't express the 90° swap. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src="/mobile wallpaper.jpeg"
             alt=""
@@ -615,6 +560,7 @@ export default function Home() {
             }}
           />
           {/* Mobile version - no rotation, fit to cover */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src="/mobile wallpaper.jpeg"
             alt=""
@@ -680,7 +626,7 @@ export default function Home() {
             </form>
             {ctaSuccess && (
               <p className="mt-4 text-white text-sm text-center font-medium">
-                Thank you for joining! We'll be in touch soon.
+                Thank you for joining! We&apos;ll be in touch soon.
               </p>
             )}
           </div>

@@ -22,7 +22,7 @@ import {
   Crosshair,
   Lock
 } from 'lucide-react';
-import { useSubscription } from '@/hooks/useSubscription';
+import { useSubscription } from '@/features/plans/useSubscription';
 
 type PlanTier = 'basic' | 'pro' | 'enterprise';
 

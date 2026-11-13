@@ -1,9 +1,8 @@
 "use client";
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+import type { AlertFieldProps } from "../types";
+
+type Props = AlertFieldProps;
 
 export function FrequencySelector({ preferences, updateField }: Props) {
   const value = preferences.frequency || "instant";

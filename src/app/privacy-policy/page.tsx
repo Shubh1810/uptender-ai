@@ -1,14 +1,12 @@
 import React from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Shield, Lock, Eye, Database, Mail } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Lock, Eye, Database, Mail } from 'lucide-react';
 import { Header } from '@/components/Header';
 
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Header */}
-      <Header variant="simple" showBackButton={true} />
+      <Header variant="simple" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Title Section */}
@@ -139,7 +137,7 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Changes to This Policy</h2>
               <p className="text-gray-700">
                 We may update this Privacy Policy from time to time. We will notify you of any changes 
-                by posting the new Privacy Policy on this page and updating the "Last updated" date.
+                by posting the new Privacy Policy on this page and updating the &quot;Last updated&quot; date.
               </p>
             </section>
 

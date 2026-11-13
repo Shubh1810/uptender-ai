@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Bell, CheckCircle, Loader2, Lock } from 'lucide-react';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import { useWaitlistOverlay } from '@/hooks/useWaitlistOverlay';
 
 interface WaitlistOverlayProps {
@@ -72,8 +71,9 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
         markAsSeen();
         
         // Track conversion event (if analytics is available)
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'conversion', {
+        const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+        if (gtag) {
+          gtag('event', 'conversion', {
             event_category: 'waitlist',
             event_label: 'overlay_signup',
             value: 1
@@ -87,7 +87,7 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
       } else {
         setError(data.error || 'Something went wrong. Please try again.');
       }
-    } catch (error) {
+    } catch {
       setError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
@@ -169,7 +169,7 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                         transition={{ delay: 0.3 }}
                         className="text-xl font-bold text-gray-900 mb-2"
                       >
-                        Don't Miss Out! 🚀
+                        Don&apos;t Miss Out! 🚀
                       </motion.h2>
                       
                       <motion.p
@@ -249,7 +249,7 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                           ) : (
                             <div className="flex items-center justify-center space-x-2">
                               <Bell className="h-4 w-4" />
-                              <span>Join Waitlist - It's Free!</span>
+                              <span>Join Waitlist - It&apos;s Free!</span>
                             </div>
                           )}
                         </button>
@@ -290,12 +290,12 @@ export function WaitlistOverlay({ onClose }: WaitlistOverlayProps) {
                     </h3>
                     
                     <p className="text-sm text-gray-600 mb-3">
-                      Thank you for joining! We've sent a confirmation email to <strong>{email}</strong>
+                      Thank you for joining! We&apos;ve sent a confirmation email to <strong>{email}</strong>
                     </p>
                     
                     <div className="bg-blue-50 p-3 mb-3">
                       <p className="text-blue-800 text-xs">
-                        💡 <strong>What's next?</strong> You'll be among the first to know when TenderPost launches with exclusive early access!
+                        💡 <strong>What&apos;s next?</strong> You&apos;ll be among the first to know when TenderPost launches with exclusive early access!
                       </p>
                     </div>
                     

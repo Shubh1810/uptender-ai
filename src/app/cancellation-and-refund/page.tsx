@@ -1,14 +1,12 @@
 import React from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Shield, RotateCcw, CreditCard, Clock, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { RotateCcw, CreditCard, Clock, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 
 export default function CancellationAndRefundPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       {/* Header */}
-      <Header variant="simple" showBackButton={true} />
+      <Header variant="simple" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Title Section */}
@@ -40,7 +38,7 @@ export default function CancellationAndRefundPage() {
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
                 <li><strong>Immediate Effect:</strong> Cancellations take effect at the end of your current billing period</li>
-                <li><strong>Data Access:</strong> You'll retain access to your data until the end of your paid period</li>
+                <li><strong>Data Access:</strong> You&apos;ll retain access to your data until the end of your paid period</li>
                 <li><strong>No Penalty:</strong> No cancellation fees or penalties apply</li>
                 <li><strong>Data Export:</strong> You can export your data before the subscription ends</li>
               </ul>
@@ -98,7 +96,7 @@ export default function CancellationAndRefundPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Review Process</h4>
-                    <p className="text-gray-700">We'll review your request within 2-3 business days</p>
+                    <p className="text-gray-700">We&apos;ll review your request within 2-3 business days</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-4">
@@ -166,7 +164,7 @@ export default function CancellationAndRefundPage() {
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
                 <li><strong>Escalation:</strong> Request escalation to our senior management</li>
-                <li><strong>Mediation:</strong> We're open to third-party mediation for disputes</li>
+                <li><strong>Mediation:</strong> We&apos;re open to third-party mediation for disputes</li>
                 <li><strong>Chargeback Rights:</strong> You retain the right to dispute charges with your bank</li>
                 <li><strong>Customer Advocacy:</strong> We prioritize customer satisfaction in all decisions</li>
               </ul>

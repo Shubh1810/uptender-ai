@@ -172,7 +172,7 @@ export default function SignUpPage() {
                     setError(error.message);
                     setLoading(false);
                   }
-                } catch (err) {
+                } catch {
                   setError('Failed to sign up with Apple');
                   setLoading(false);
                 }

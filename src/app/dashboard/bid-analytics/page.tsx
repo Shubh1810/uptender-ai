@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Target, TrendingUp, Award, Clock, DollarSign } from 'lucide-react';
-import { PlanGate } from '@/components/guards/PlanGate';
+import { Target, TrendingUp, Award, DollarSign } from 'lucide-react';
+import { PlanGate } from '@/features/plans/PlanGate';
 
 export default function BidAnalyticsPage() {
   const demoContent = (

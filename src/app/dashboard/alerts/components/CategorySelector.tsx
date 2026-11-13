@@ -1,12 +1,10 @@
 "use client";
 
+import type { AlertFieldProps } from "../types";
 import React from "react";
 import { cn } from "@/lib/utils";
 
-interface Props {
-  preferences: any;
-  updateField: (field: string, value: any) => void;
-}
+type Props = AlertFieldProps;
 
 const categories = [
   { id: "it_services", label: "IT Services", icon: "💻" },

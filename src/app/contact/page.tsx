@@ -63,7 +63,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <Header variant="simple" showBackButton={true} />
+      <Header variant="simple" />
 
       {/* Main Content with Dotted Background */}
       <section 
@@ -82,7 +82,7 @@ export default function ContactPage() {
               Get in Touch
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We're here to help you with AI-powered tender management
+              We&apos;re here to help you with AI-powered tender management
             </p>
           </div>
 
@@ -144,7 +144,7 @@ export default function ContactPage() {
                     <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-green-800 font-semibold text-base">Message sent successfully!</p>
-                      <p className="text-green-700 text-sm mt-1">We'll get back to you within 24 hours.</p>
+                      <p className="text-green-700 text-sm mt-1">We&apos;ll get back to you within 24 hours.</p>
                     </div>
                   </div>
                 )}

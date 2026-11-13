@@ -1,18 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Metadata } from 'next';
-import { 
-  Shield, 
-  FileText, 
-  TrendingUp,
-  Bell,
-  CheckCircle,
-  ArrowRight,
-  Building,
-  Users,
-  Target
-} from 'lucide-react';
+import { Shield, FileText, TrendingUp, Bell, ArrowRight, Building, Users, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ContentPageHeader } from '@/components/Header';
 import { ContentPageFooter } from '@/components/Footer';

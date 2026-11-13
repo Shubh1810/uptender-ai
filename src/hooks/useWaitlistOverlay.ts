@@ -1,47 +1,52 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 import { usePathname } from 'next/navigation';
 
+const STORAGE_KEY = 'tenderpost-waitlist-overlay-seen';
+
+/** Pages where the waitlist overlay must never appear. */
+const EXCLUDED_PATHS = [
+  '/make-payment',
+  '/signup',
+  '/login',
+  '/checkout',
+  '/thank-you',
+  '/privacy-policy',
+  '/terms-and-conditions',
+  '/cancellation-and-refund',
+  '/shipping-and-delivery',
+];
+
+const listeners = new Set<() => void>();
+
+function hasSeenOverlay(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEY) === 'true';
+  } catch {
+    return true; // storage blocked: don't nag
+  }
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 export function useWaitlistOverlay() {
-  const [shouldShow, setShouldShow] = useState(false);
   const pathname = usePathname();
+  // Server snapshot = "seen", so the overlay never flashes during hydration.
+  const seen = useSyncExternalStore(subscribe, hasSeenOverlay, () => true);
+  const excluded = EXCLUDED_PATHS.some((path) => pathname.startsWith(path));
 
-  // Pages where overlay should NOT appear
-  const excludedPaths = [
-    '/make-payment',
-    '/signup',
-    '/login',
-    '/checkout',
-    '/thank-you',
-    '/privacy-policy',
-    '/terms-and-conditions',
-    '/cancellation-and-refund',
-    '/shipping-and-delivery'
-  ];
-
-  useEffect(() => {
-    // Don't show on excluded paths
-    if (excludedPaths.some(path => pathname.startsWith(path))) {
-      setShouldShow(false);
-      return;
+  const markAsSeen = useCallback(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, 'true');
+    } catch {
+      /* ignore */
     }
+    listeners.forEach((l) => l());
+  }, []);
 
-    // Check if user has already seen the overlay
-    const hasSeenOverlay = localStorage.getItem('tenderpost-waitlist-overlay-seen');
-    
-    if (!hasSeenOverlay) {
-      setShouldShow(true);
-    }
-  }, [pathname]);
-
-  const markAsSeen = () => {
-    localStorage.setItem('tenderpost-waitlist-overlay-seen', 'true');
-    setShouldShow(false);
-  };
-
-  return {
-    shouldShow,
-    markAsSeen
-  };
-} 
+  return { shouldShow: !seen && !excluded, markAsSeen };
+}

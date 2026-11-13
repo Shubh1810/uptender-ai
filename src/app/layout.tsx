@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { CookieBanner } from "@/components/ui/cookie-banner";
 import { PostHogProvider, PostHogPageView } from "@/lib/posthog/provider";
+import { PAID_PLANS, PAID_PLAN_IDS, CURRENCY } from "@/config/plans";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -54,6 +55,7 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://tenderpost.org"),
   title: "TenderPost - AI Tender Notifier & Automation Platform for India | Government Tenders, Healthcare Tenders",
   description: "Revolutionary AI-powered tender management platform for India. Get instant notifications for government tenders, healthcare tenders, construction tenders. Advanced tender automation, bid analysis, and tender tracking system. Win more tenders with AI-driven insights.",
   keywords: [
@@ -208,13 +210,15 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
-        {/* Google Fonts - Chiron Sung HK */}
+        {/* Google Fonts. App Router root layout applies to every page, so the
+            pages/_document-era no-page-custom-font rule doesn't apply here. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@200..900&display=swap" rel="stylesheet" />
         
-        {/* Google Fonts - Funnel Display */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet" />
 
-        {/* Google Sans */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
         
         {/* Comprehensive Favicon and Icon Links */}
@@ -328,13 +332,13 @@ export default function RootLayout({
               "operatingSystem": "Web Browser",
               "applicationCategory": "BusinessApplication",
               "description": "AI-powered tender management and notification platform for Indian government tenders across all industries with advanced automation and bid analysis.",
-              "offers": {
+              "offers": PAID_PLAN_IDS.map((id) => ({
                 "@type": "Offer",
-                "price": "499",
-                "priceCurrency": "INR",
-                "priceValidUntil": "2025-12-31",
+                "name": `${PAID_PLANS[id].name} (annual)`,
+                "price": String(PAID_PLANS[id].yearlyPrice),
+                "priceCurrency": CURRENCY,
                 "availability": "https://schema.org/InStock"
-              },
+              })),
               "featureList": [
                 "Tender Notifications",
                 "AI Bid Analysis", 

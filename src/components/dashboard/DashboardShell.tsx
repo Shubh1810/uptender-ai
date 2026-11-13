@@ -37,7 +37,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import DashboardLoadingScreen from '@/components/dashboard/DashboardLoadingScreen';
-import { resetAuthState } from '@/hooks/useAuth';
+import { signOut } from '@/lib/auth/sign-out';
 import { identifyUser, trackDashboardViewed, trackUserSignedOut } from '@/lib/posthog/events';
 
 interface Tab {
@@ -51,6 +51,13 @@ interface DashboardShellProps {
   children: React.ReactNode;
   initialUser: User;
   isDirector: boolean;
+}
+
+let tabSequence = 0;
+/** Unique, render-pure tab id (Date.now() collided for tabs opened in the same ms). */
+function nextTabId() {
+  tabSequence += 1;
+  return `tab-${tabSequence}`;
 }
 
 export default function DashboardShell({
@@ -142,14 +149,16 @@ export default function DashboardShell({
     prevActiveTabIdRef.current = activeTabId;
   }, [activeTabId]);
 
+  // Syncs tab state from the router (an external source); setState here is intentional.
   useEffect(() => {
     if (!pathname) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarOpen(false);
 
     const current = tabsRef.current;
     if (current.length === 0) {
       const initialTab: Tab = {
-        id: `tab-${Date.now()}`,
+        id: nextTabId(),
         title: getPageName(pathname),
         path: pathname,
         icon: getPageIcon(pathname),
@@ -164,7 +173,7 @@ export default function DashboardShell({
       setActiveTabId(existingTab.id);
     } else {
       const newTab: Tab = {
-        id: `tab-${Date.now()}`,
+        id: nextTabId(),
         title: getPageName(pathname),
         path: pathname,
         icon: getPageIcon(pathname),
@@ -172,9 +181,13 @@ export default function DashboardShell({
       setTabs((prev) => [...prev, newTab]);
       setActiveTabId(newTab.id);
     }
+    // getPageName/getPageIcon are pure lookups on `pathname`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  // Hydrates the theme from localStorage after mount (unavailable during SSR).
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setThemeMounted(true);
     const stored = localStorage.getItem('dashboard-theme') as 'light' | 'dark' | null;
     if (stored) {
@@ -255,7 +268,7 @@ export default function DashboardShell({
 
   const addNewTab = () => {
     const newTab: Tab = {
-      id: `tab-${Date.now()}`,
+      id: nextTabId(),
       title: 'Dashboard',
       path: '/dashboard',
       icon: LayoutDashboard,
@@ -313,33 +326,10 @@ export default function DashboardShell({
   };
 
   const handleSignOut = () => {
-    resetAuthState();
-    supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-
-    try {
-      const keysToRemove: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.startsWith('sb-') || key.startsWith('supabase'))) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach((key) => localStorage.removeItem(key));
-      localStorage.removeItem('saved_tender_ids');
-      localStorage.removeItem('tender_cache');
-      localStorage.removeItem('tender_cache_timestamp');
-      localStorage.removeItem('last_refresh_timestamp');
-    } catch {}
-
     try {
       trackUserSignedOut();
     } catch {}
-
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/api/auth/signout?redirect=/';
-    document.body.appendChild(form);
-    form.submit();
+    signOut('/');
   };
 
   const toggleSection = (sectionKey: string) => {

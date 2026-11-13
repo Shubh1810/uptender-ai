@@ -2,14 +2,9 @@
 
 import { createContext, useContext } from 'react';
 import type { User } from '@supabase/supabase-js';
+import type { SubscriptionPlan } from '@/features/plans/types';
 
-export interface SubscriptionPlan {
-  plan_id: string;
-  display_name: string;
-  features: Record<string, unknown>;
-  limits: Record<string, number>;
-  status: string;
-}
+export type { SubscriptionPlan };
 
 interface DashboardAccessContextValue {
   initialUser: User | null;
@@ -27,12 +22,11 @@ interface DashboardAccessProviderProps extends DashboardAccessContextValue {
   children: React.ReactNode;
 }
 
-export function DashboardAccessProvider({
-  children,
-  initialUser,
-  initialPlan,
-  isDirector,
-}: DashboardAccessProviderProps) {
+/**
+ * Carries the server-resolved user, plan and role into client components.
+ * Values are for display/UX only; the server re-checks access on every API call.
+ */
+export function DashboardAccessProvider({ children, initialUser, initialPlan, isDirector }: DashboardAccessProviderProps) {
   return (
     <DashboardAccessContext.Provider value={{ initialUser, initialPlan, isDirector }}>
       {children}

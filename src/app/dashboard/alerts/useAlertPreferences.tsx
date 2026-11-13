@@ -2,30 +2,12 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-
-type Preferences = {
-  keywords?: string[];
-  exclusion_keywords?: string[];
-  categories?: string[];
-  locations?: string[];
-  tender_value_min?: number | null;
-  tender_value_max?: number | null;
-  tender_types?: string[];
-  show_expired?: boolean;
-  match_score_threshold?: number;
-  channels?: string[];
-  frequency?: string;
-  quiet_hours?: {
-    enabled: boolean;
-    from: string;
-    to: string;
-  };
-};
+import type { AlertPreferences, UpdateAlertField } from "./types";
 
 export function useAlertPreferences(userId: string | null) {
   // Create Supabase client inside the hook to ensure fresh auth state
   const supabase = useMemo(() => createClient(), []);
-  const [preferences, setPreferences] = useState<Preferences>({});
+  const [preferences, setPreferences] = useState<AlertPreferences>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isDirty, setDirty] = useState(false);
@@ -50,10 +32,10 @@ export function useAlertPreferences(userId: string | null) {
 
       setLoading(false);
     })();
-  }, [userId]);
+  }, [supabase, userId]);
 
   // Update a single field
-  const updateField = useCallback((field: string, value: any) => {
+  const updateField: UpdateAlertField = useCallback((field, value) => {
     setPreferences((prev) => ({
       ...prev,
       [field]: value,
@@ -76,7 +58,7 @@ export function useAlertPreferences(userId: string | null) {
 
     setSaving(false);
     if (!error) setDirty(false);
-  }, [preferences, userId]);
+  }, [preferences, supabase, userId]);
 
   return {
     preferences,
