@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { SubscriptionPlan } from '@/features/plans/types';
 
@@ -32,8 +33,12 @@ function toPlan(planId: string, status: string, row: PlanRow | null, expiresAt: 
  *
  * Always resolve limits through this function. Previously, users without a
  * subscription row skipped limit checks entirely.
+ *
+ * Cached per server render (React `cache()`), keyed by the client + user id.
  */
-export async function getActivePlan(supabase: SupabaseClient, userId: string): Promise<SubscriptionPlan> {
+export const getActivePlan = cache(loadActivePlan);
+
+async function loadActivePlan(supabase: SupabaseClient, userId: string): Promise<SubscriptionPlan> {
   const now = new Date().toISOString();
 
   const { data } = await supabase

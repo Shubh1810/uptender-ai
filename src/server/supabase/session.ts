@@ -37,11 +37,13 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() refreshes an expired session (writing new cookies via setAll)
+  // and verifies the JWT locally when the project uses asymmetric signing
+  // keys; otherwise it falls back to a getUser() round-trip. This is only a
+  // redirect gate: pages re-verify with getUser() via server/auth.ts.
+  const { data } = await supabase.auth.getClaims();
 
-  if (!user) {
+  if (!data?.claims?.sub) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/';
     redirectUrl.search = '';
