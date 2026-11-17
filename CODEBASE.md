@@ -63,7 +63,8 @@ src/
 │   ├── manifest.ts           → /manifest.webmanifest (installable app)
 │   ├── opengraph-image.tsx twitter-image.tsx  → 1200×630 share card
 │   ├── sitemap.ts robots.ts  → /sitemap.xml, /robots.txt
-│   ├── icon.png apple-icon.png  loading.tsx  globals.css
+│   ├── icon.png apple-icon.png favicon.ico  loading.tsx  globals.css
+│   ├── not-found.tsx error.tsx global-error.tsx   404 / crash screens
 │
 ├── features/                 ONE FOLDER PER PRODUCT AREA (UI + hooks + server code)
 │   ├── auth/                 useAuth, sign-out, get-started-button (Google)
@@ -76,21 +77,23 @@ src/
 │   ├── billing/              checkout-script, types (Razorpay browser SDK)
 │   │   └── server/           razorpay.ts (SDK + signatures), activate.ts
 │   ├── admin/                AdminDashboardClient
-│   └── marketing/            HomePage (landing, client), seo.ts (titles, keywords, JSON-LD),
-│       │                     og-image, HeroSection, PricingSection, WorkflowSection, search-bar
+│   └── marketing/            HomePage (landing, SERVER component), seo.ts (titles, keywords,
+│       │                     JSON-LD), og-image, faq.ts (FAQ data), client sections:
+│       │                     HeroSection, WorkflowSection, FeaturesSection, PricingSection, FaqSection
 │       ├── effects/          wavy-background, glowing-effect, hover-border-gradient
-│       └── waitlist/         waitlist-overlay, useWaitlistOverlay, email-signup
+│       └── waitlist/         waitlist-overlay, useWaitlistOverlay, email-signup, WaitlistCtaForm
 │
 ├── components/               ONLY UI USED ACROSS MANY ROUTES
 │   ├── ui/                   button, input, loading-screen (primitives)
-│   └── layout/               Header, Footer, cookie-banner
+│   └── layout/               Header, Footer, cookie-banner, ErrorState (error boundary UI)
 │       └── dashboard/        DashboardShell, DashboardAccessProvider, DashboardLoadingScreen
 │
 ├── server/                   INFRASTRUCTURE ONLY (no product logic), server-only
 │   env.ts http.ts auth.ts rate-limit.ts crypto.ts email/ supabase/
 │
 ├── lib/                      PURE HELPERS, safe in browser and server
-│   safe-redirect.ts escape-html.ts navigation.ts utils.ts
+│   safe-redirect.ts escape-html.ts navigation.ts utils.ts site.ts (SITE_URL)
+│   fonts.ts (every next/font family + CSS variables)
 │   supabase/client.ts (browser client)  analytics/ (PostHog provider + events)
 │
 └── proxy.ts                  runs before every request (Next 16's "middleware")
@@ -119,7 +122,7 @@ The other top-level folders:
 | `scripts/` | One-off Node scripts (e.g. encrypting old GST numbers) |
 | `tests/` | Vitest unit tests: pricing, redirects, escaping, signatures, encryption |
 | `public/` | Images served as-is at `/<filename>` |
-| `docs/` | Old product notes, **partly out of date** |
+| `docs/archive/` | Old product notes, **out of date**, kept for history |
 | `.github/workflows/ci.yml` | typecheck, lint, tests, `npm audit` and build on every push/PR |
 
 ---
@@ -141,13 +144,15 @@ GET /  ──▶ app/layout.tsx                 fonts, default metadata (feature
                                            JSON-LD, PostHog + Vercel Analytics,
                                            components/layout/cookie-banner
        ──▶ app/(marketing)/page.tsx       server: homepage title + canonical
-       ──▶ features/marketing/HomePage.tsx  the landing page itself (client component)
+       ──▶ features/marketing/HomePage.tsx  server: static sections (CTA, categories,
+             │                               FAQ JSON-LD) render to HTML, no client JS
              ├─ components/layout/Header, Footer
-             ├─ features/marketing/HeroSection, WorkflowSection, PricingSection
-             ├─ features/marketing/effects/*      visual effects
-             ├─ features/marketing/waitlist/*     waitlist popup + form
-             └─ features/tenders/tender-stats ──▶ GET /api/tender-stats
-                                                  ──▶ active_tender_count()
+             ├─ client islands: HeroSection, WorkflowSection (sticky scroll story),
+             │  FeaturesSection (scroll offsets), PricingSection, FaqSection
+             ├─ features/marketing/effects/*      visual effects (framer-motion)
+             ├─ features/marketing/waitlist/*     waitlist popup + CTA form
+             └─ Header + Hero ─▶ features/tenders/tender-stats (one shared request,
+                                 cached 60s) ─▶ GET /api/tender-stats ─▶ active_tender_count()
 ```
 
 - **Other public pages:** `app/(marketing)/blog`, `contact`, `tender-guide`,
@@ -419,7 +424,9 @@ URLs did not change. Route groups `(…)` are invisible in the URL.
   `subscription_plans`, `user_preferences`, `alert_preferences`) were created
   by hand and aren't in `supabase/migrations/`.
 - Supabase query results are typed by hand. There are no generated types.
-- `docs/` describes an older version (Next 15, Zustand, "TenderHub").
+- `docs/archive/` describes an older version (Next 15, Zustand, "TenderHub").
+- 12 dashboard routes are still "coming soon" placeholders. CLAUDE.md says to
+  replace them with nav entries, but deleting routes needs your sign-off.
 - Settings and alerts write to Supabase from the browser. Everything else goes
   through API routes.
 - Marketing pages import `Header`/`Footer` one by one. A shared

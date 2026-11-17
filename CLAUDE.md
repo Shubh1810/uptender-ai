@@ -174,21 +174,37 @@ through `env()` / `requireEnv('X')` from `@/server/env`, never
   **Writes** go through Server Actions or API routes with zod plus
   `requireUser()`. **No new direct browser writes to Supabase tables**: settings
   and alerts do this today and are legacy.
-- **One cached auth lookup per request:** wrap shared server lookups in React
-  `cache()` rather than calling `getAuth()` repeatedly.
+- **One auth lookup per request.** `getAuth`, `getUserRole` and
+  `getActivePlan` are already wrapped in React `cache()`, so call them freely in
+  layouts and pages. Wrap any new shared server lookup the same way.
 - **Keep files under ~300 lines.** Split big pages into
   `features/<area>/components/`. Don't grow `search/page.tsx` (~1,270 lines) or
   `OnboardingClient.tsx` (~1,420); extract from them instead.
 - **No placeholder routes.** Upcoming features are "coming soon" entries in the
   nav config, not 21-line pages.
 - **No new dependencies without a clear need.**
-  - Animation: framer-motion only (gsap is being removed).
+  - Animation: framer-motion only. gsap was removed; don't re-add it.
   - Icons: lucide-react.
   - UI primitives: shadcn into `components/ui/`.
-- **No `alert()` / `confirm()` in new UI.** Show errors inline.
-- **Fonts:** don't add more `next/font` families to `app/layout.tsx`.
-- **Deduplicate fetches.** The tender count is fetched by Header, Hero and the
-  landing page separately. Don't add a fourth caller; lift it to one place.
+- **No `alert()` / `confirm()` in new UI.** Show errors inline. Existing calls
+  get replaced when you touch that file.
+- **Fonts all live in `src/lib/fonts.ts`** (self-hosted via `next/font`).
+  - Never add Google Fonts `<link>` tags.
+  - Reference a font by its CSS variable (`var(--font-funnel)`), not its name.
+  - Only fonts used on most pages get `preload: true`.
+  - Adding a family means removing one.
+- **Never set `overflow-x: hidden` on `html`/`body`.** It silently breaks
+  `position: sticky` site-wide. Use `overflow-x: clip` (already set in
+  `globals.css`).
+- **Deduplicate fetches.** Shared client data goes through a module-level
+  cached getter, like `getLiveTendersCount()` in
+  `features/tenders/tender-stats.ts`, not separate fetches per component.
+- **Errors:**
+  - `app/error.tsx`, `app/(app)/dashboard/error.tsx`, `app/global-error.tsx`
+    and `app/not-found.tsx` exist.
+  - In a page, call `notFound()` for missing records. For crashes, let the
+    error boundary show its "Try again" screen.
+  - New error boundaries reuse `components/layout/ErrorState.tsx`.
 
 ## Working rules
 
@@ -210,5 +226,5 @@ through `env()` / `requireEnv('X')` from `@/server/env`, never
   `20261103000000_security_hardening.sql`**. `/api/tender-stats` returns 500
   and payment activation can't work until it's applied (see README "Deploying
   these changes"). Confirm the scraper uses the service-role key first.
-- `docs/` is stale (claims Next 15, Zustand, "TenderHub"). Trust code,
-  README and CODEBASE.md over it.
+- `docs/archive/` holds old notes (Next 15, Zustand, "TenderHub"). Trust
+  code, README and CODEBASE.md over them.
