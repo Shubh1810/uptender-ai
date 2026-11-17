@@ -30,15 +30,11 @@ export function HeroSection() {
     isConnected: false,
   });
 
+  // Live tender count; shared with the Header (one request per minute per tab).
   React.useEffect(() => {
-    const load = async () => {
-      try {
-        const stats = await getLiveTendersCount();
-        setTenderStats(stats);
-      } catch {}
-    };
+    const load = () => getLiveTendersCount().then(setTenderStats);
     load();
-    const id = setInterval(load, 60000);
+    const id = setInterval(load, 60_000);
     return () => clearInterval(id);
   }, []);
 

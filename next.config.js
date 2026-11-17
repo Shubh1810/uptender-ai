@@ -48,8 +48,13 @@ const nextConfig = {
   async headers() {
     return [
       { source: '/(.*)', headers: securityHeaders },
-      // Never cache API responses in shared caches unless a route opts in.
-      { source: '/api/(.*)', headers: [{ key: 'Cache-Control', value: 'no-store' }] },
+      // Never cache API responses in shared caches. Routes that set their own
+      // Cache-Control must be excluded here, or this header overrides theirs:
+      //   tender-stats: public count, CDN-cached for 5 min.
+      {
+        source: '/api/:path((?!tender-stats$).*)',
+        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+      },
     ];
   },
 

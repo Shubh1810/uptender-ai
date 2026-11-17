@@ -147,30 +147,12 @@ export function Header({
   const stickyClasses = variant === 'main' ? "fixed top-0 left-0 right-0 z-[90]" : "";
   const patternClasses = variant === 'main' ? "header-dots-pattern" : "";
   
-  // Load live tenders count on mount and listen for updates
+  // Live tender count; shared with the Hero (one request per minute per tab).
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const stats = await getLiveTendersCount();
-        setTenderStats(stats);
-        console.log('🔝 Header: Live tenders updated:', stats.liveTendersCount, stats.isConnected ? '✅ Connected' : '⚠️ Not Connected');
-      } catch (error) {
-        console.error('❌ Header: Failed to load tender stats:', error);
-      }
-    };
-    
-    // Initial load
+    const loadStats = () => getLiveTendersCount().then(setTenderStats);
     loadStats();
-    
-    // Optional: Refresh every 60 seconds to show updated counts from CRON
-    const refreshInterval = setInterval(() => {
-      console.log('🔄 Header: Refreshing tender stats from Supabase...');
-      loadStats();
-    }, 60000); // Every 60 seconds
-    
-    return () => {
-      clearInterval(refreshInterval);
-    };
+    const refreshInterval = setInterval(loadStats, 60_000);
+    return () => clearInterval(refreshInterval);
   }, []);
   
   const trackLogoClick = () => {
