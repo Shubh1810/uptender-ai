@@ -2,8 +2,8 @@ import crypto from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { safeRedirectPath } from '@/lib/safe-redirect';
 import { escapeHtml } from '@/lib/escape-html';
-import { sanitizeSearchTerm, sanitizeSearchTerms, MAX_TERMS } from '@/lib/search-terms';
-import { signaturesMatch, verifyCheckoutSignature, verifyWebhookSignature } from '@/server/billing/razorpay';
+import { sanitizeSearchTerm, sanitizeSearchTerms, MAX_TERMS } from '@/features/tenders/search-terms';
+import { signaturesMatch, verifyCheckoutSignature, verifyWebhookSignature } from '@/features/billing/server/razorpay';
 import { decryptField, encryptField } from '@/server/crypto';
 
 describe('safeRedirectPath', () => {

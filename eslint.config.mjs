@@ -14,7 +14,7 @@ export default defineConfig([
           paths: [
             {
               name: 'razorpay',
-              message: 'Import Razorpay only via @/server/billing/razorpay (server-only).',
+              message: 'Import Razorpay only via @/features/billing/server/razorpay (server-only).',
             },
           ],
         },
@@ -22,7 +22,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/server/billing/razorpay.ts'],
+    files: ['src/features/billing/server/razorpay.ts'],
     rules: { 'no-restricted-imports': 'off' },
   },
   globalIgnores(['.next/**', 'out/**', 'build/**', 'coverage/**', 'next-env.d.ts']),

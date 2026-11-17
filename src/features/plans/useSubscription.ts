@@ -1,6 +1,6 @@
 'use client';
 
-import { useDashboardAccess } from '@/components/dashboard/DashboardAccessProvider';
+import { useDashboardAccess } from '@/components/layout/dashboard/DashboardAccessProvider';
 import type { SubscriptionPlan } from '@/features/plans/types';
 
 const FREE_PLAN: SubscriptionPlan = {

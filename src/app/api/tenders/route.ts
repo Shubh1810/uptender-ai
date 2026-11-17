@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireUser } from '@/server/auth';
 import { ApiError, apiHandler } from '@/server/http';
 import { enforceRateLimit } from '@/server/rate-limit';
-import { sanitizeSearchTerm, sanitizeSearchTerms } from '@/lib/search-terms';
+import { sanitizeSearchTerm, sanitizeSearchTerms } from '@/features/tenders/search-terms';
 
 const SELECT_FIELDS = [
   'id', 'ref_no', 'tender_id', 'source', 'title', 'organisation', 'url',

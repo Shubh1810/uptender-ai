@@ -11,29 +11,35 @@ npm run check                # typecheck + lint + tests (same as CI, minus build
 
 ## Architecture
 
+See [CODEBASE.md](CODEBASE.md) for a stage-by-stage walkthrough and
+[CLAUDE.md](CLAUDE.md) for the coding rules (for people and AI agents).
+
 ```
 src/
   app/            Routes only. Pages stay thin; API route handlers validate,
-                  authorise, call into server/ and return JSON.
-  features/       Client-side domain code, one folder per domain
+                  authorise, call into features/ + server/ and return JSON.
+    (marketing)/    public site + (legal)/ pages   ┐ "(…)" route groups
+    (auth)/         auth/*, onboarding             │ don't appear in URLs
+    (app)/          dashboard/*, make-payment      ┘
+    api/            JSON endpoints + Razorpay webhook
+  features/       One folder per product area: UI, hooks, and (in server/)
+                  server-only code for that area
+    auth/ onboarding/ tenders/ saved-tenders/ alerts/ admin/ marketing/
+    plans/          catalog.ts = single source of truth for names, prices, GST
+      server/       getActivePlan(), planLimit()
     billing/        Razorpay Checkout loader + browser SDK types
-    plans/          useSubscription, PlanGate, plan types
-    saved-tenders/  useSavedTenders
-    tenders/        live tender count
-  server/         Server-only code (`import 'server-only'`; importing it from a
-                  client component fails the build)
+      server/       Razorpay client, signature checks, subscription activation
+  components/     UI shared across routes: ui/ primitives, layout/ chrome
+  server/         Infrastructure only (`import 'server-only'`)
     env.ts          Validated environment variables
     http.ts         apiHandler(), parseJson(), ApiError, same-origin check
     auth.ts         getAuth(), requireUser(), requireDirector()
-    plans.ts        getActivePlan(): current plan + limits (free fallback)
     rate-limit.ts   Best-effort per-instance limiter
     crypto.ts       AES-256-GCM field encryption (GST numbers)
-    billing/        Razorpay client, signature checks, subscription activation
     email/          Resend client + HTML-escaped templates
     supabase/       server (RLS, as the user) / admin (service role) / session
-  config/plans.ts Single source of truth for plan names, prices, GST
-  lib/            Framework-agnostic helpers (safe redirects, escaping, …)
-  components/     Shared UI (landing sections, dashboard shell, ui/ primitives)
+  lib/            Pure helpers (safe redirects, escaping, analytics, browser
+                  Supabase client)
   proxy.ts        Session refresh + redirect for protected pages
 supabase/
   migrations/     Versioned SQL, including RLS. Apply in order.
@@ -48,7 +54,7 @@ docs/             Product / historical notes
 - **The browser can reach Supabase directly** with the public anon key. Every
   table must be protected by RLS; API checks alone are not enough.
 - **Never trust the client for money or permissions.** Prices come from
-  `config/plans.ts`; plans are activated only by `activate_subscription`
+  `features/plans/catalog.ts`; plans are activated only by `activate_subscription`
   (service role) after Razorpay confirms payment.
 - **Route handlers** use `apiHandler` + `parseJson(schema)` + `requireUser()`.
   Errors are thrown as `ApiError`; unexpected errors return a generic 500 and

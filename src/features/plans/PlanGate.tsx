@@ -3,7 +3,7 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import { useSubscription } from '@/features/plans/useSubscription';
-import { PAID_PLANS, isPaidPlanId } from '@/config/plans';
+import { PAID_PLANS, isPaidPlanId } from '@/features/plans/catalog';
 
 interface PlanGateProps {
   children: ReactNode;

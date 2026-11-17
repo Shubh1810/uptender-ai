@@ -58,9 +58,6 @@ const nextConfig = {
       { source: '/home', destination: '/', permanent: true },
       { source: '/index', destination: '/', permanent: true },
       { source: '/pricing', destination: '/#pricing', permanent: false },
-      { source: '/government-tender', destination: '/government-tenders', permanent: true },
-      { source: '/healthcare-tender', destination: '/healthcare-tenders', permanent: true },
-      { source: '/construction-tender', destination: '/construction-tenders', permanent: true },
     ];
   },
 

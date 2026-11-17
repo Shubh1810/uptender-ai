@@ -6,7 +6,7 @@ import {
   isPaidPlanId,
   planFromCheckoutKey,
   subscriptionExpiry,
-} from '@/config/plans';
+} from '@/features/plans/catalog';
 
 describe('plan pricing', () => {
   it('charges base + 18% GST, matching the totals advertised on the landing page', () => {

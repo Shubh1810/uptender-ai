@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ApiError, apiHandler } from '@/server/http';
-import { verifyWebhookSignature } from '@/server/billing/razorpay';
-import { activateSubscriptionFromPayment } from '@/server/billing/activate';
+import { verifyWebhookSignature } from '@/features/billing/server/razorpay';
+import { activateSubscriptionFromPayment } from '@/features/billing/server/activate';
 
 interface WebhookEvent {
   event: string;

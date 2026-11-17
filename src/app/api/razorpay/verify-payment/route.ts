@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireUser } from '@/server/auth';
 import { ApiError, apiHandler, assertSameOrigin, forbidden, parseJson } from '@/server/http';
-import { verifyCheckoutSignature } from '@/server/billing/razorpay';
-import { activateSubscriptionFromPayment } from '@/server/billing/activate';
+import { verifyCheckoutSignature } from '@/features/billing/server/razorpay';
+import { activateSubscriptionFromPayment } from '@/features/billing/server/activate';
 
 const schema = z.object({
   razorpay_order_id: z.string().min(1).max(64),

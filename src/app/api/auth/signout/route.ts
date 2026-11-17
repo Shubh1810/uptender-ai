@@ -5,7 +5,7 @@ import { safeRedirectPath } from '@/lib/safe-redirect';
 /**
  * Signs the user out and redirects with a 302. It's a redirect, not JSON,
  * because Safari ignores Set-Cookie on fetch() responses but always applies it
- * on navigations. The client triggers it via form.submit() (see lib/auth/sign-out).
+ * on navigations. The client triggers it via form.submit() (see features/auth/sign-out).
  */
 export async function POST(request: NextRequest) {
   const origin = request.nextUrl.origin;

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireUser } from '@/server/auth';
 import { ApiError, apiHandler, assertSameOrigin, badRequest, parseJson } from '@/server/http';
-import { getActivePlan, planLimit } from '@/server/plans';
+import { getActivePlan, planLimit } from '@/features/plans/server/active-plan';
 import { UNLIMITED } from '@/features/plans/types';
 
 /** Used only if a plan row has no `saved_tenders` limit configured. */

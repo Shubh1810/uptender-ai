@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { CURRENCY, PAID_PLAN_IDS, getPlanPricing } from '@/config/plans';
+import { CURRENCY, PAID_PLAN_IDS, getPlanPricing } from '@/features/plans/catalog';
 import { requireUser } from '@/server/auth';
 import { apiHandler, assertSameOrigin, parseJson } from '@/server/http';
 import { enforceRateLimit } from '@/server/rate-limit';
-import { createOrder, razorpayKeyId } from '@/server/billing/razorpay';
+import { createOrder, razorpayKeyId } from '@/features/billing/server/razorpay';
 
 const schema = z.object({
   planId: z.enum(PAID_PLAN_IDS),
