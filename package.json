@@ -20,7 +20,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.17.0",
-    "gsap": "^3.13.0",
     "lucide-react": "^0.514.0",
     "next": "^16.4.4",
     "posthog-js": "^1.274.1",

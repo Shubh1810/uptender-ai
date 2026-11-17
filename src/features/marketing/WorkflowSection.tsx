@@ -15,11 +15,16 @@
  * stop before this section even starts.
  */
 
-import React, { useRef, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import {
+  motion,
+  AnimatePresence,
+  useInView,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+} from 'framer-motion';
 import {
   CheckCircle2,
   XCircle,
@@ -30,10 +35,6 @@ import {
   PenLine,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 /* ─────────────────────────────────────────────
    Step data
@@ -409,49 +410,39 @@ function StepContent({ stepKey, direction }: { stepKey: StepKey; direction: 'dow
    Section
    ───────────────────────────────────────────── */
 
+/** Scroll distance the panel stays pinned for: 800px per step × 3 steps. */
+const PIN_DISTANCE = 2400;
+
 export function WorkflowSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const triggerRef = useRef<HTMLDivElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
+  const lastProgressRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [direction, setDirection] = useState<'down' | 'up'>('down');
 
-  useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+  // Pinning: the panel below is `sticky top-0`, followed by a PIN_DISTANCE
+  // spacer, so it stays on screen while the page scrolls that far. Progress
+  // runs 0 → 1 from "section top hits viewport top" to "section bottom hits
+  // viewport bottom". The spring smooths it like GSAP's `scrub: 0.8`.
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end end'] });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.0005 });
 
-    const section = sectionRef.current;
-    const trigger = triggerRef.current;
-    const imageContainer = imageContainerRef.current;
-    if (!section || !trigger || !imageContainer) return;
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger,
-        start: 'top top',
-        end: '+=2400', // 800px per step × 3 steps
-        pin: true,
-        pinSpacing: true,
-        scrub: 0.8,
-        anticipatePin: 1,
-        onUpdate: (self) => {
-          const prog = self.progress;
-          setProgress(prog * 100);
-          setActiveIndex(Math.min(Math.floor(prog * steps.length), steps.length - 1));
-          setDirection(self.direction === 1 ? 'down' : 'up');
-          imageContainer.style.backgroundPositionY = `${prog * 100}%`;
-        },
-      });
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
+  useMotionValueEvent(smoothProgress, 'change', (prog) => {
+    setDirection(prog >= lastProgressRef.current ? 'down' : 'up');
+    lastProgressRef.current = prog;
+    setProgress(prog * 100);
+    setActiveIndex(Math.min(Math.floor(prog * steps.length), steps.length - 1));
+    if (imageContainerRef.current) {
+      imageContainerRef.current.style.backgroundPositionY = `${prog * 100}%`;
+    }
+  });
 
   const active = steps[activeIndex];
 
   return (
     <section ref={sectionRef} id="workflow" className="relative z-10" style={{ backgroundColor: '#fefcf3' }}>
-      <div ref={triggerRef} className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 flex items-center">
+      <div className="sticky top-0 min-h-screen py-24 px-4 sm:px-6 lg:px-8 flex items-center">
         <div className="max-w-5xl mx-auto w-full">
 
           {/* Tabs — mobile */}
@@ -583,6 +574,8 @@ export function WorkflowSection() {
           </motion.div>
         </div>
       </div>
+      {/* Scroll distance during which the sticky panel above stays pinned. */}
+      <div aria-hidden style={{ height: PIN_DISTANCE }} />
     </section>
   );
 }

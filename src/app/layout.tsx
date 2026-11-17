@@ -89,7 +89,7 @@ export default function RootLayout({
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       </head>
-      <body className={`${fontVariables} antialiased overflow-x-hidden`}>
+      <body className={`${fontVariables} antialiased overflow-x-clip`}>
         <PostHogProvider>
           <Suspense fallback={null}>
             <PostHogPageView />

@@ -48,7 +48,14 @@ const playfairDisplay = Playfair_Display({
 const funnelDisplay = Funnel_Display({ variable: '--font-funnel', subsets: ['latin'], preload: false });
 
 // Dashboard search page heading.
-const googleSans = Google_Sans({ variable: '--font-google-sans', subsets: ['latin'], preload: false });
+// next/font has no fallback metrics for Google Sans (the build logs a harmless
+// "Failed to find font override values" warning), so no size-adjusted fallback.
+const googleSans = Google_Sans({
+  variable: '--font-google-sans',
+  subsets: ['latin'],
+  preload: false,
+  adjustFontFallback: false,
+});
 
 /** Put on <body> so every `--font-*` variable is defined. */
 export const fontVariables = [
