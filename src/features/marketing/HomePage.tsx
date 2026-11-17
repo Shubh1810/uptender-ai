@@ -96,7 +96,7 @@ function FeaturesSection({ features }: { features: Feature[] }) {
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900" style={{ fontFamily: '"Funnel Display", sans-serif' }}>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900" style={{ fontFamily: 'var(--font-funnel), sans-serif' }}>
             Advanced AI-Powered Tender Management Features
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -330,7 +330,7 @@ export default function Home() {
               <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left side content */}
             <div className="text-center lg:text-left mt-8 lg:mt-12 px-2 lg:pl-24">
-              <h1 className="text-3xl md:text-4xl text-gray-900 mb-2 leading-tight" style={{ fontFamily: '"Funnel Display", sans-serif' }}>
+              <h1 className="text-3xl md:text-4xl text-gray-900 mb-2 leading-tight" style={{ fontFamily: 'var(--font-funnel), sans-serif' }}>
                  <span className="text-3xl md:text-4xl font-semibold">AI-powered Tender Intelligence that tells you what&apos;s worth bidding.</span> <span className="font-semibold"></span>{' '}
                 <span className="inline-flex items-center ml-2 text-sm text-gray-600 font-medium">
                   powered by{' '}

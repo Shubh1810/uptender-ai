@@ -87,7 +87,7 @@ export function HeroSection() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-3xl text-3xl font-bold leading-tight tracking-tight text-gray-900 sm:text-4xl md:text-5xl"
           style={{
-            fontFamily: '"Funnel Display", sans-serif',
+            fontFamily: 'var(--font-funnel), sans-serif',
             transform: 'scaleX(0.97)',
             display: 'inline-block',
           }}

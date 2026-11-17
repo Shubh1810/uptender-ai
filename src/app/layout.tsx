@@ -1,59 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Kings, Playfair_Display, Roboto, Ubuntu, Zain, Lexend } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { CookieBanner } from "@/components/layout/cookie-banner";
 import { PostHogProvider, PostHogPageView } from "@/lib/analytics/provider";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { fontVariables } from "@/lib/fonts";
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, KEYWORDS, TITLE_TEMPLATE, structuredData } from "@/features/marketing/seo";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const kings = Kings({
-  variable: "--font-kings",
-  subsets: ["latin"],
-  weight: "400",
-});
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["700"],
-  style: ["italic"],
-});
-
-const roboto = Roboto({
-  variable: "--font-roboto",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"],
-});
-
-const ubuntu = Ubuntu({
-  variable: "--font-ubuntu",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-});
-
-const zain = Zain({
-  variable: "--font-zain",
-  subsets: ["latin"],
-  weight: ["200", "300", "400", "700", "800", "900"],
-});
-
-const lexend = Lexend({
-  variable: "--font-lexend",
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
 
 /**
  * Site-wide defaults. Pages override `title`, `description` and
@@ -134,25 +87,9 @@ export default function RootLayout({
   return (
     <html lang="en-IN">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-
-        {/* Google Fonts. App Router root layout applies to every page, so the
-            pages/_document-era no-page-custom-font rule doesn't apply here. */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@200..900&display=swap" rel="stylesheet" />
-
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet" />
-
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${kings.variable} ${playfairDisplay.variable} ${roboto.variable} ${ubuntu.variable} ${zain.variable} ${lexend.variable} antialiased overflow-x-hidden`}
-      >
+      <body className={`${fontVariables} antialiased overflow-x-hidden`}>
         <PostHogProvider>
           <Suspense fallback={null}>
             <PostHogPageView />
